@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<!--Select a theme by uncommenting the line below:-->
+
+	<!-- UI Lightness Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css"/>-->
+
+	<!-- UI Darkness Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-darkness/jquery-ui.css"/>-->
+
+	<!-- Smoothness Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css"/>-->
+
+	<!-- Start Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css"/>-->
+
+	<!-- Redmond Theme -->
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/redmond/jquery-ui.css"/>
+
+	<!-- Sunny Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/sunny/jquery-ui.css"/>-->
+
+	<!-- Overcast Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/overcast/jquery-ui.css"/>-->
+
+	<!-- Le Frog Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/le-frog/jquery-ui.css"/>-->
+
+	<!-- Flick Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/flick/jquery-ui.css"/>-->
+
+	<!-- Pepper Grinder Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/pepper-grinder/jquery-ui.css"/>-->
+
+	<!-- Eggplant Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/eggplant/jquery-ui.css"/>-->
+
+	<!-- Dark Hive Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/dark-hive/jquery-ui.css"/>-->
+
+	<!-- Cupertino Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/cupertino/jquery-ui.css"/>-->
+
+	<!-- South Street Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/south-street/jquery-ui.css"/>-->
+
+	<!-- Blitzer Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/blitzer/jquery-ui.css"/>-->
+
+	<!-- Humanity Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/humanity/jquery-ui.css"/>-->
+
+	<!-- Hot Sneaks Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/hot-sneaks/jquery-ui.css"/>-->
+
+	<!-- Excite Bike Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/excite-bike/jquery-ui.css"/>-->
+
+	<!-- Vader Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/vader/jquery-ui.css"/>-->
+
+	<!-- Dot Luv Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/dot-luv-grinder/jquery-ui.css"/>-->
+
+	<!-- Mint Choc Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/mint-choc/jquery-ui.css"/>-->
+
+	<!-- Black Tie Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/black-tie/jquery-ui.css"/>-->
+
+	<!-- Trontastic Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/trontastic/jquery-ui.css"/>-->
+
+	<!-- Swanky Purse Theme -->
+<!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/swanky-purse/jquery-ui.css"/>-->
+
+	<!-- Include jQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> 
+
+	<!-- Include jQuery UI -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+	<script src='../EntityContext.js'></script>
+	<script src='../writer.js'></script>
+	<script src="../../js/jquery/jquery.svg.js"></script>
+
+	<script src="modeler.js"></script>
+	<link rel="stylesheet" href="modeler.css" />
+</head>
+<body>
+	<div id='relationships'></div>
+	<div id='entities'></div>
+	<div id="controls">
+		<button id="new_entity" value="New Entity">New Entity</button>
+		<br />
+		<button id="new_relationship">+</button>
+		<select id="new_relationship_type">
+			<option>Is_a</option>
+			<option>Has_a -&gt; Has_a</option>
+			<option>Has_a -&gt; Has_many</option>
+			<option>Has_many -&gt; Has_a</option>
+		</select>
+		<br />
+		<hr />
+		<button id="load_context">Load Context</button>
+		<button id="save_context">Save Context</button>
+		<br />
+	</div>
+
+	<div id="templates" />
+		<!-- Temlpate for a new entity field. -->
+		<div class="entity ui-widget ui-corner-all">
+			<h3 class="ui-widget-header ui-corner-top">
+				<span>Name</span>
+			</h3>
+			<ul class="ui-widget-content">
+				<li class="ui-widget-content"><a href='#'>+ Field</a></li>
+			</ul>
+		</div>
+
+		<!-- Template for editing an entity field. -->
+		<div class="edit_field ui-widget-content">
+			<input class="name" /><br />
+			<select class="type">
+				<option value="key">Key</option>
+				<option value="string">String</option>
+				<option value="int">Integer</option>
+				<option value="float">Float</option>
+				<option>&nbsp;</option>
+				<option>Real</option>
+				<option>Complex</option>
+				<option>Ordinal</option>
+				<option>Cardinal</option>
+				<option>Prime</option>
+				<option>Singular</option>
+				<option>Blob</option>
+			</select>
+			<textarea class="attributes" rows="3" cols="10"></textarea>
+			<button class="done">Done</button>
+			<br style="clear:both;" />
+		</div>
+
+		<ul><li class="new_field">
+			<a href='#'>Field</a>: <span class="type">New</span>
+		</li></ul>
+	</div>
+
+	<div id="dialogs">
+		<div id="loadSave">
+			<textarea rows="25" cols="80"></textarea>
+		</div>
+	</div>
+</body>
+</html>
