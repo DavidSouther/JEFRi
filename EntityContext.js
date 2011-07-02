@@ -260,7 +260,7 @@ JEFRi.EntityComparator = function(a, b){
 						var self = this;
 						this[field] = [];
 						$.each(ec._instances[relationship.to.type], function(){
-							if(this.id() === self[relationship.from.property]())
+							if(this[relationship.to.property]() === self[relationship.from.property]())
 							{	//Add it
 								self[field].push(this);
 							}
