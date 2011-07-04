@@ -301,7 +301,7 @@ JEFRi.EntityComparator = function(a, b){
 			{	//Need a setter
 				var callback = function(){};
 				definition.Constructor.prototype['set' + field] = function(entity) {
-					var id = entity.id();
+					var id = entity[relationship.to.property]();
 					if( !(id === this[relationship.from.property]()))
 					{	//Changing
 						this[field] = entity;
