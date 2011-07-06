@@ -58,7 +58,15 @@ JEFRi.EntityComparator = function(a, b){
 		};
 		this._instances = {};
 		this._new = [];
-		this._modified = [];
+		this._modified = {};
+
+		this._modified.set = function(entity) {
+			if(!self._modified[entity._type()])
+			{	//Add the type...
+				self._modified[entity._type()] = {};
+			}
+			self._modified[entity._type()][entity._id()] = entity;
+		}
 
 		/**
 		 * Takes a "raw" context object and orders it into the internal _context
@@ -222,8 +230,21 @@ JEFRi.EntityComparator = function(a, b){
 			definition.Constructor.prototype[property.name] = function(value) {
 				if(!(undefined === value))
 				{	//Value is defined, so this is a setter
+					if(!this.__modified[field])
+					{	//Update it if not set...
+						this.__modified[field] = this[field];
+						ec._modified.set(this);
+					}
+					else
+					{
+						if(this.__modified[field] === value)
+						{	//Setting it back to the old value...
+							delete this.__modified[field];
+						}
+						//TODO check if that was the last property...
+					}
+
 					this[field] = value;
-					//TODO Add accounting details.
 					return this;
 				}
 				else
