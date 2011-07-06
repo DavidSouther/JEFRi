@@ -338,9 +338,9 @@ JEFRi.EntityComparator = function(a, b){
 		$.ajax({
 			type    : "GET",
 			url     : this.settings.contextUri,
+			dataType: "json",
 			async   : false,
 			success : function(data) {
-				data = $.parseJSON(data);
 				_set_context(data, protos);
 			}
 		});
