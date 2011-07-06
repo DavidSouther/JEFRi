@@ -621,8 +621,10 @@ JEFRi.EntityComparator = function(a, b){
 		$(this).trigger('saving');
 
 		//Add all new entities to the transaction
-		$.each(this._modified, function(){
-			this.persist(transaction);
+		$.each(this._modified, function(){	//The _type {}s
+			$.each(this, function() {	//the entity {}s
+				this.persist(transaction);
+			}
 		});
 
 		transaction.persist(callback);
