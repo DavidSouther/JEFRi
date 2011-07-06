@@ -65,14 +65,18 @@ JEFRi.EntityComparator = function(a, b){
 			{	//Add the type...
 				self._modified[entity._type()] = {};
 			}
-			self._modified[entity._type()][entity._id()] = entity;
+			delete self._modified[entity._type()][entity._id()];
 		}
+
+		this._modified.remove = function(entity) {
+			self._modified[entity._type()][entity._id()]
+		};
 
 		/**
 		 * Takes a "raw" context object and orders it into the internal _context
 		 * storage.  Also builds new prototypes for the context.
 		 *
-		 * Params:
+		 * Params:0
 		 * Context  Javascript object with the context
 		 */
 		var _set_context = function(context, protos) {
