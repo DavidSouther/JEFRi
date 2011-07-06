@@ -624,7 +624,7 @@ JEFRi.EntityComparator = function(a, b){
 		$.each(this._modified, function(){	//The _type {}s
 			$.each(this, function() {	//the entity {}s
 				this.persist(transaction);
-			}
+			});
 		});
 
 		transaction.persist(callback);
