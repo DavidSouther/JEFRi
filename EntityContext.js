@@ -604,6 +604,10 @@ JEFRi.EntityComparator = function(a, b){
 			this.persist(transaction);
 		});
 
+		$.each(this._new, function(){
+			this.persist(transaction);
+		});
+
 		transaction.persist(callback);
 	}
 
