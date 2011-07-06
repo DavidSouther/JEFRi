@@ -631,6 +631,10 @@ JEFRi.EntityComparator = function(a, b){
 			});
 		});
 
+		$.each(this._new, function(){
+			this.persist(transaction);
+		});
+
 		transaction.persist(callback);
 	}
 
