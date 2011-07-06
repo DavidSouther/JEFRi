@@ -65,7 +65,7 @@ JEFRi.EntityComparator = function(a, b){
 			{	//Add the type...
 				self._modified[entity._type()] = {};
 			}
-			self._modified[entity._type()][entity._id()] = entity;
+			self._modified[entity._type()][entity.id()] = entity;
 		}
 
 		/**
