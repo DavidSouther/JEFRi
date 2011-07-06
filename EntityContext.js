@@ -595,8 +595,16 @@ JEFRi.EntityComparator = function(a, b){
 	/**
 	 * Save all entities with changes, including new entities.
 	 */
-	JEFRi.EntityContext.prototype.save_all = function() {
-	
+	JEFRi.EntityContext.prototype.save_all = function(callback) {
+		var transaction = this.transaction();
+		$(this).trigger('saving');
+
+		//Add all new entities to the transaction
+		$.each(this._modified, function(){
+			this.persist(transaction);
+		});
+
+		transaction.persist(callback);
 	}
 
 	/**
