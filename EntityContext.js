@@ -1,4 +1,4 @@
-//TODO move this to a separate file, and make it a class that can handle itself
+;//TODO move this to a separate file, and make it a class that can handle itself
 //as either strings or (preferably) ints.
 document.UUID = function() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -735,8 +735,8 @@ JEFRi.EntityComparator = function(a, b){
 				type    : "POST",
 				url     : url,
 				data    : transaction.toString(),
+				dataType: "json",
 				success : function(data) {
-					data = $.parseJSON(data)
 					ec.expand(data, true);//Always updateOnIntern
 					$(this).trigger('sent', data);
 					$(this).trigger(post, data);
