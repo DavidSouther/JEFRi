@@ -261,8 +261,8 @@ JEFRi.EntityComparator = function(a, b){
 		/**
 		 * Attach the mutators and accessors (mutaccs) to the prototype.
 		 */
+		 //TODO Thuroughly debug these functions...
 		var _build_relationship = function(definition, relationship) {
-//TODO Thuroughly debug these functions...
 			var ec = self;
 			var field = '_' + relationship.name;
 
@@ -473,7 +473,10 @@ JEFRi.EntityComparator = function(a, b){
 		var ret = [];
 		$(entities).each(function() {
 			var e = self.build(this._type, this);
-			ret[ret.length] = self.intern(e, true);
+			e = self.intern(e, true);
+			//Make the entity not new...
+			$(e).trigger('persisted');
+			ret.push(e);
 		});
 
 		return ret;
