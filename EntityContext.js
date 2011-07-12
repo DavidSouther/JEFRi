@@ -54,6 +54,7 @@ JEFRi.EntityComparator = function(a, b){
 
 		this._context = {
 			meta: {},
+			contexts: {},
 			entities: {}
 		};
 		this._instances = {};
@@ -119,8 +120,9 @@ JEFRi.EntityComparator = function(a, b){
 					$.each(props, function(key){
 						var field = '_' + key;
 //TODO investigate why this causes mobile browsers to die.
-//This statement causes an error in Android browers...  Specifially, this.attributes.default seems to be the cause.
-//						var def = proto[key] || this.attributes.default || _default(this._type);
+// This statement causes an error in Android browers...
+// Specifially, this.attributes.default seems to be the cause.
+// var def = proto[key] || this.attributes.default || _default(this._type);
 						var def = proto[key] || _default(this._type);
 						self[key](def);
 					})
@@ -134,12 +136,12 @@ JEFRi.EntityComparator = function(a, b){
 					$.extend(this.prototype, proto.prototype);
 
 					//Set a few event handlers
-					$(this).bind('persisted', function(){
-						self.__new = false;
-						self.__modified = {};
-						ec._new.remove(self, JEFRi.EntityComparator);
-						ec._modified.remove(self, JEFRi.EntityComparator);
-					});
+					$(this).bind('persisted', $.proxy(function(){
+						this.__new = false;
+						this.__modified = {};
+						ec._new.remove(this, JEFRi.EntityComparator);
+						ec._modified.remove(this, JEFRi.EntityComparator);
+					},this));
 				};
 
 				_build_prototype(this, (protos && protos[this.name]));
@@ -151,19 +153,21 @@ JEFRi.EntityComparator = function(a, b){
 		 */
 		var _build_prototype = function(definition, proto) {
 			var ec = self;
-			definition.Constructor.prototype._type = function() {return definition.name;}
-			definition.Constructor.prototype.id = function() {return this[definition.key]();}
+			definition.Constructor.prototype._type = function() {
+				return definition.name;
+			}
+			definition.Constructor.prototype.id = function() {
+				return this[definition.key]();
+			}
 
-			definition.Constructor.prototype.persist = function(transaction, callback) {
+			definition.Constructor.prototype.persist = function(transaction,
+			                                                         callback) {
 				var self = this;
 				var top = !transaction;
 				transaction = top ? new JEFRi.Transaction() : transaction;
 				transaction.add(this);
 
 				this.on_persist && this.on_persist(transaction);
-
-				//Have the hevents fire when the transaction actually runs
-				$(transaction).bind('persisting persisted', function(e){$(self).trigger(e);});
 
 				//If we're on top, run the transaction...
 				top && transaction.persist(callback);
@@ -226,7 +230,7 @@ JEFRi.EntityComparator = function(a, b){
 				});
 			};
 
-			proto && $.extend(definition.Constructor.prototype, proto.prototype);
+			proto && $.extend(definition.Constructor.prototype,proto.prototype);
 		};
 
 		var _build_mutacc = function(definition, property) {
@@ -268,8 +272,10 @@ JEFRi.EntityComparator = function(a, b){
 
 
 			//Build the getter
-			var get = ("has_many" === relationship.type) ? 'get_empty' : 'get_first';
-			definition.Constructor.prototype['get' + field] = function(longGet) {
+			var get = ("has_many" === relationship.type)
+				? 'get_empty'
+				: 'get_first';
+			definition.Constructor.prototype['get' + field] = function(longGet){
 				if(longGet)
 				{	//Lazy load
 //					var spec = {
@@ -285,7 +291,8 @@ JEFRi.EntityComparator = function(a, b){
 						var self = this;
 						this[field] = [];
 						$.each(ec._instances[relationship.to.type], function(){
-							if(this[relationship.to.property]() === self[relationship.from.property]())
+							if(this[relationship.to.property]() === 
+							                 self[relationship.from.property]())
 							{	//Add it
 								self[field].push(this);
 							}
@@ -293,7 +300,8 @@ JEFRi.EntityComparator = function(a, b){
 					}
 					else
 					{	//Just need the one...
-						this[field] = ec._instances[relationship.to.type][this[relationship.from.property]()];
+						this[field] = ec._instances[relationship.to.type]
+						                   [this[relationship.from.property]()];
 					}
 				}
 				return this[field];
@@ -301,7 +309,8 @@ JEFRi.EntityComparator = function(a, b){
 
 			if("has_many" === relationship.type)
 			{	//Need an adder
-				definition.Constructor.prototype['add' + field] = function(entity) {
+				definition.Constructor.prototype['add' + field] =
+				function(entity) {
 					if(undefined == this[field])
 					{	//Lazy load
 						var load = "get" + field;
@@ -325,7 +334,8 @@ JEFRi.EntityComparator = function(a, b){
 			else
 			{	//Need a setter
 				var callback = function(){};
-				definition.Constructor.prototype['set' + field] = function(entity) {
+				definition.Constructor.prototype['set' + field] =
+				function(entity) {
 					var id = entity[relationship.to.property]();
 					if( !(id === this[relationship.from.property]()))
 					{	//Changing
@@ -334,8 +344,11 @@ JEFRi.EntityComparator = function(a, b){
 						if( !("is_a" === relationship.type))
 						{	//Add or set this to the remote entity
 							//Need to find the back relationship...
-							var back_rel = ec.back_rel(this._type(), relationship);
-							var back = ("has_many" === back_rel.type) ? 'add_' : 'set_';
+							var back_rel = ec.back_rel(this._type(),
+							                                      relationship);
+							var back = ("has_many" === back_rel.type)
+								? 'add_'
+								: 'set_';
 							back += back_rel.name;
 							entity[back](this);
 						}
@@ -445,15 +458,16 @@ JEFRi.EntityComparator = function(a, b){
 	JEFRi.EntityContext.prototype.build = function(type, obj) {
 		var def = this.definition(type);
 		obj = obj || {};
-		//We are going to build the new entity first, then, if there is a local instance, we will extend the local instance with the new instance.
+		// We are going to build the new entity first, then, if there is a local
+		// instance, we will extend the local instance with the new instance.
 		var r = new this._context.entities[type].Constructor(obj);
 		if(undefined !== obj[def.key])
-		{	//if the key of entity type is specified in obj, we check the local storage first.
+		{	// If the entity key is specified in obj, check the local storage.
 			var demi = {_type : type};
 			demi[def.key] = obj[def.key];
 			var instance = this.find(demi);
 			if(false !== instance)
-			{	//We have an instance, extend it with the new obj and return that instead of a new one.
+			{	// Local instance, extend it with the new obj and return local.
 				$.extend(instance, r);
 				return instance;
 			}
@@ -479,7 +493,8 @@ JEFRi.EntityComparator = function(a, b){
 			ret.push(e);
 		});
 
-		return ret;
+		transaction.entities = ret;
+//		return ret;
 	};
 
 	JEFRi.EntityContext.prototype.transaction = function(spec) {
@@ -547,7 +562,9 @@ JEFRi.EntityComparator = function(a, b){
 	JEFRi.EntityContext.prototype.get_first = function(spec, callback) {
 		spec = (spec instanceof Array) ? spec : [spec];
 		var result = this.get(spec, function(data, meta){
-			var _type = spec._type instanceof Function ? spec._type() : spec._type;
+			var _type = spec._type instanceof Function
+				? spec._type()
+				: spec._type;
 			callback(data[_type].pop(), meta);
 		});
 	};
@@ -569,7 +586,9 @@ JEFRi.EntityComparator = function(a, b){
 		};
 
 		$.each(spec, function(){
-			var _type = this._type instanceof Function ? this._type() : this._type;
+			var _type = this._type instanceof Function
+				? this._type()
+				: this._type;
 			var def = self.definition(_type);
 			var id = this[def.key];
 			//Check if the ID is set
@@ -591,9 +610,8 @@ JEFRi.EntityComparator = function(a, b){
 		{	//Run the transaction
 			var results = results;
 			transaction.get(function(transaction){
-				data = self.expand(transaction);
-				//Merge the result sets.
-				$.each(data, function(){
+				//Merge the result sets, adding `gotten` things to `had` things.
+				$.each(transaction.entities, function(){
 					results.push(this);
 				});
 				callback(results, transaction.meta);
@@ -657,8 +675,13 @@ JEFRi.EntityComparator = function(a, b){
 			$.each(this.entities, function() {
 				var self = this;
 				var ent = {};
-				ent._type = this._type instanceof Function ? this._type() : this._type;
-				if(this.__new){ent.__new = this.__new;}//Only set if actually new.
+				ent._type = this._type instanceof Function
+					? this._type()
+					: this._type;
+				if(this.__new)
+				{ //Only set if actually new.
+					ent.__new = this.__new;
+				}
 				var def = store.ec.definition(ent._type);
 //TODO make this smarter
 				$.each(def.properties, function(){
@@ -729,11 +752,12 @@ JEFRi.EntityComparator = function(a, b){
 	JEFRi.PostStore = function(ec, options) {
 		this.ec = ec;
 		this.target = options && options.target;
+		var self = this;
 
 		var _send = function(url, transaction, pre, post) {
 			$(transaction).trigger(pre);
-			$(this).trigger(pre);
-			$(this).trigger('sending');
+			$(self).trigger(pre);
+			$(self).trigger('sending');
 			$.ajax({
 				type    : "POST",
 				url     : url,
@@ -741,8 +765,8 @@ JEFRi.EntityComparator = function(a, b){
 				dataType: "json",
 				success : function(data) {
 					ec.expand(data, true);//Always updateOnIntern
-					$(this).trigger('sent', data);
-					$(this).trigger(post, data);
+					$(self).trigger('sent', data);
+					$(self).trigger(post, data);
 					$(transaction).trigger(post, data);
 				}
 			});
