@@ -764,11 +764,15 @@ JEFRi.EntityComparator = function(a, b){
 				data    : transaction.toString(),
 				dataType: "json",
 				success : function(data) {
+					console.log("Logging success", data);
 					ec.expand(data, true);//Always updateOnIntern
 					$(self).trigger('sent', data);
 					$(self).trigger(post, data);
 					$(transaction).trigger(post, data);
-				}
+				},
+				error : function(data){
+					console.log("Logging error", data);
+				},
 			});
 		};
 
