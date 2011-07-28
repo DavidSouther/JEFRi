@@ -772,7 +772,7 @@ JEFRi.EntityComparator = function(a, b){
 				},
 				error : function(data){
 					console.log("Logging error", data);
-				},
+				}
 			});
 		};
 
