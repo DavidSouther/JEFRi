@@ -383,6 +383,13 @@ JEFRi.EntityComparator = function(a, b){
 		});
 	};
 
+	JEFRi.EntityContext.prototype.clear = function(){
+		this._modified = {};
+		this._new = [];
+		this._instances = {};
+		return this;
+	}
+
 	/**
 	 * Get the definition of an entity.
 	 *
