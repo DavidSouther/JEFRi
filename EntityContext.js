@@ -434,8 +434,7 @@ JEFRi.EntityComparator = function(a, b)
 						if( !("is_a" === relationship.type))
 						{	//Add or set this to the remote entity
 							//Need to find the back relationship...
-							var back_rel = ec.back_rel(this._type(),
-							                                      relationship);
+							var back_rel = ec.back_rel(this._type(), relationship);
 							var back = ("has_many" === back_rel.type)
 								? 'add_'
 								: 'set_';
@@ -499,7 +498,7 @@ JEFRi.EntityComparator = function(a, b)
 		var back = undefined;
 		//TODO must this be O(N)? It's easy, and we don't have many rels.
 		$.each(def.relationships, function(){
-			if(this.to.type === type)
+			if(this.to.type === type && this.name !== relationship.name)
 			{	//Found it
 				back = this;
 			}
