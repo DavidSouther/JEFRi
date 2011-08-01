@@ -178,7 +178,7 @@ JEFRi.EntityComparator = function(a, b){
 				{
 					return "NEW";
 				}
-				else if($.isEmptyObject(this.__modified))
+				else if(!($.isEmptyObject(this.__modified)))
 				{
 					return "MODIFIED";
 				}
