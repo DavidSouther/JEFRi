@@ -1,12 +1,4 @@
-;//TODO move this to a separate file, and make it a class that can handle itself
-//as either strings or (preferably) ints.
-document.UUID = function() {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-		return v.toString(16);
-	});
-};
-
+;
 Array.prototype.contains = function(value, comparator) {
 	var index = -1;
 	if(!comparator){return index;}
@@ -130,7 +122,7 @@ JEFRi.EntityComparator = function(a, b){
 					/**
 					 * Set the key, if it wasn't set by the proto.
 					 */
-					proto[key] || this[key](document.UUID());
+					proto[key] || this[key](UUID.v4());
 
 					//Add/extend our methods
 					$.extend(this.prototype, proto.prototype);
