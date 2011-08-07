@@ -9,6 +9,10 @@ var UUID = {};
 var Sha1 = {};
 var Utf8 = {};
 
+(function(){	//Closure for privates.
+
+UUID.rvalid = /^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i;
+
 UUID.v4 = function() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -16,15 +20,45 @@ UUID.v4 = function() {
 	});
 };
 
-UUID.v5 = function(msg) {
-	var hash = Sha1.hash(msg, true);
+UUID.v5 = function(msg, namespace) {
+	nst = bin(namespace || '00000000-0000-0000-0000-000000000000');
+
+	var hash = Sha1.hash(nst + msg, true);
 	var uuid =  hash.substring(0, 8)	//8 digits
 		+ '-' + hash.substring(8, 12)	//4 digits
-		+ '-' + hash.substring(12, 16)	//4 digits
-		+ '-' + hash.substring(16, 20)	//4 digits
+//			// four most significant bits holds version number 5
+		+ '-' + ((parseInt(hash.substring(12, 16), 16) & 0x0fff) | 0x5000).toString(16)
+//			// two most significant bits holds zero and one for variant DCE1.1
+		+ '-' + ((parseInt(hash.substring(16, 20), 16) & 0x3fff) | 0x8000).toString(16)
 		+ '-' + hash.substring(20, 32)	//12 digits
 	return uuid;
 };
+
+/**
+ * Convert a string UUID to binary format.
+ *
+ * @param   string  uuid
+ * @return  string
+ */
+var bin = function(uuid) {
+	if ( ! uuid.match(UUID.rvalid))
+	{	//Need a real UUID for this...
+		return FALSE;
+	}
+
+	// Get hexadecimal components of uuid
+	var hex = uuid.replace(/[-{}]/g, '');
+
+	// Binary Value
+	var bin = '';
+
+	for (var i = 0; i < hex.length; i += 2)
+	{	// Convert each character to a bit
+		bin += String.fromCharCode(parseInt(hex.charAt(i) + hex.charAt(i + 1), 16));
+	}
+
+	return bin;
+}
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 /*  SHA-1 implementation in JavaScript | (c) Chris Veness 2002-2010 | www.movable-type.co.uk      */
@@ -201,3 +235,5 @@ Utf8.decode = function(strUtf) {
 		);
 	return strUni;
 }
+
+})();
