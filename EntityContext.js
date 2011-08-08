@@ -28,9 +28,9 @@ JEFRi.EntityComparator = function(a, b){
 	return cmp;
 };
 
-(function($){
-	var noop = function(){};
+var noop = function(){};
 
+(function($){
 	/*
 	 * EntityContext Constructor. 
 	 */
@@ -495,16 +495,17 @@ JEFRi.EntityComparator = function(a, b){
 //		return ret;
 	};
 
+	var _store = undefined;
+
 	JEFRi.EntityContext.prototype.transaction = function(spec) {
 		spec = spec || [];
 
-		var store;
 		//Choose a data store
 		//TODO OMGOMGOMG need to fix this to not be application dependent.
 		//Jonathan's answer, 2011 06 13: "Look in the Yellow Pages"
-		store = new JEFRi.PostStore(this, {target: ROOT + 'jefri/'});
+		_store = _store || new JEFRi.PostStore(this, {target: ROOT + 'jefri/'});
 
-		return new JEFRi.Transaction(spec, store);
+		return new JEFRi.Transaction(spec, _store);
 	};
 
 	/**
@@ -730,7 +731,8 @@ JEFRi.EntityComparator = function(a, b){
 		return this;
 	};
 
-	JEFRi.Transaction.prototype.meta = function(attributes) {
+	JEFRi.Transaction.prototype.addmeta = function(attributes) {
+		//$.extend?
 		for(attr in attributes)
 		{
 			this.meta[attr] = attributes[attr];
@@ -754,15 +756,15 @@ JEFRi.EntityComparator = function(a, b){
 
 		var _send = function(url, transaction, pre, post) {
 			$(transaction).trigger(pre);
-			$(self).trigger(pre);
-			$(self).trigger('sending');
+			$(self).trigger(pre, transaction);
+			$(self).trigger('sending', transaction);
 			$.ajax({
 				type    : "POST",
 				url     : url,
 				data    : transaction.toString(),
 				dataType: "json",
 				success : function(data) {
-					console.log("Logging success", data);
+//					console.log("Logging success", data);
 					ec.expand(data, true);//Always updateOnIntern
 					$(self).trigger('sent', data);
 					$(self).trigger(post, data);
