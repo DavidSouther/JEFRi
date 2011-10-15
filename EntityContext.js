@@ -684,10 +684,23 @@ var noop = function(){};
 				var def = store.ec.definition(ent._type);
 //TODO make this smarter
 				$.each(def.properties, function(){
-					ent[this.name] =
+					var value =
 						self[this.name] instanceof Function
 							? self[this.name]()
 							: self[this.name];
+					if(value instanceof String)
+					{
+						value = value
+							.replace(/\\n/g, "\\n")
+							.replace(/\\'/g, "\\'")
+							.replace(/\\"/g, '\"')
+							.replace(/\\&/g, "\\&")
+							.replace(/\\r/g, "\\r")
+							.replace(/\\t/g, "\\t")
+							.replace(/\\b/g, "\\b")
+							.replace(/\\f/g, "\\f");
+					}
+					ent[this.name] = value;
 				});
 				$.each(def.relationships, function(){
 					if(self[this.name])
