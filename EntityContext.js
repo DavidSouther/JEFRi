@@ -128,12 +128,16 @@ var noop = function(){};
 					$.extend(this.prototype, proto.prototype);
 
 					//Set a few event handlers
-					$(this).bind('persisted', $.proxy(function(){
+					$(this).bind('persisted', function(e){
+console.log("event:", e);
+console.log("persisted happened!", this);
+console.log("type", this._type());
+console.log("__new", this.__new);
 						this.__new = false;
 						this.__modified = {};
 						ec._new.remove(this, JEFRi.EntityComparator);
 						ec._modified.remove(this, JEFRi.EntityComparator);
-					},this));
+					});
 				};
 
 				_build_prototype(this, (protos && protos[this.name]));
@@ -487,12 +491,18 @@ var noop = function(){};
 			var e = self.build(this._type, this);
 			e = self.intern(e, true);
 			//Make the entity not new...
-			$(e).trigger('persisted');
+//			$(e).trigger('persisted');
+//TODO:  Fix this!
+e.__new = false;
+e.__modified = {};
+BIG.ec._new.remove(e, JEFRi.EntityComparator);
+BIG.ec._modified.remove(e, JEFRi.EntityComparator);
+
 			ret.push(e);
 		});
 
 		transaction.entities = ret;
-//		return ret;
+		return ret;
 	};
 
 	var _store = undefined;
