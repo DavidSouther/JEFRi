@@ -129,10 +129,6 @@ var noop = function(){};
 
 					//Set a few event handlers
 					$(this).bind('persisted', function(e){
-console.log("event:", e);
-console.log("persisted happened!", this);
-console.log("type", this._type());
-console.log("__new", this.__new);
 						this.__new = false;
 						this.__modified = {};
 						ec._new.remove(this, JEFRi.EntityComparator);
