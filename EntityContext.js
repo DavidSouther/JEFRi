@@ -34,12 +34,13 @@ var noop = function(){};
 	/*
 	 * EntityContext Constructor. 
 	 */
-	JEFRi.EntityContext = function(contextUri, options, protos) {
+	JEFRi.EntityContext = function(contextUri, options, protos) { 
 		var self = this;
 		var ec = this;
 		this.settings = {
-			contextUri: contextUri,
-			updateOnIntern : true
+			contextUri     : contextUri,
+			updateOnIntern : true, 
+			store          : JEFRi.PostStore
 		};
 
 		$.extend(this.settings, options);
@@ -52,6 +53,7 @@ var noop = function(){};
 		this._instances = {};
 		this._new = [];
 		this._modified = {};
+		this._store = new this.settings.store(ec, {target: ROOT + 'jefri/'});
 
 		this._modified.set = function(entity) {
 			if(!self._modified[entity._type()])
@@ -501,17 +503,15 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 		return ret;
 	};
 
-	var _store = undefined;
-
 	JEFRi.EntityContext.prototype.transaction = function(spec) {
 		spec = spec || [];
 
 		//Choose a data store
 		//TODO OMGOMGOMG need to fix this to not be application dependent.
 		//Jonathan's answer, 2011 06 13: "Look in the Yellow Pages"
-		_store = _store || new JEFRi.PostStore(this, {target: ROOT + 'jefri/'});
+//		_store = _store || new JEFRi.PostStore(this, );
 
-		return new JEFRi.Transaction(spec, _store);
+		return new JEFRi.Transaction(spec, this._store);
 	};
 
 	/**
@@ -813,4 +813,48 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 		}
 	}
 
+
+	/**
+	 * AndroidLocalStore
+	 *
+	 * Handles sending/receiving a transaction to a local Android JEFRi instance.
+	 */
+	JEFRi.AndroidLocalStore = function(ec, options) {
+		this.ec = ec;
+		var self = this;
+
+		var _send = function(action, transaction, pre, post) {
+			$(transaction).trigger(pre);
+			$(self).trigger(pre, transaction);
+			$(self).trigger('sending', transaction);
+alert("Sending a " + action + " transaction to local Android.");
+			var raw_transaction = transaction.toString();
+alert("Raw Transaction: " + raw_transaction);
+			var raw_response = Android[action](raw_transaction, false);
+alert("Raw Response: " + raw_response);
+			var data = JSON.parse();
+
+			ec.expand(data, true);//Always updateOnIntern
+			$(self).trigger('sent', data);
+			$(self).trigger(post, data);
+			$(transaction).trigger(post, data);
+		};
+
+		this.get = function(transaction) {
+			var action = "get";
+			_send(action, transaction, 'getting', 'gotten');
+		}
+
+		this.persist = function(transaction) {
+			var action = "persist";
+			_send(action, transaction, 'persisting', 'persisted');
+		}
+
+		/**
+		 * Always synchronous.
+		 */
+		this.is_async = function(){
+			return false;
+		}
+	}
 })(jQuery);
