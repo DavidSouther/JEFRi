@@ -757,7 +757,7 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 			this.meta[attr] = attributes[attr];
 		}
 		return this;
-	}
+	};
 
 	/**
 	 * Persistance Stores
@@ -798,63 +798,18 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 		this.get = function(transaction) {
 			var url = (this.target + "get");
 			_send(url, transaction, 'getting', 'gotten');
-		}
+		};
 
 		this.persist = function(transaction) {
 			var url = (this.target + "persist");
 			_send(url, transaction, 'persisting', 'persisted');
-		}
+		};
 
 		/**
 		 * Always asynchronous.
 		 */
 		this.is_async = function(){
 			return true;
-		}
-	}
-
-
-	/**
-	 * AndroidLocalStore
-	 *
-	 * Handles sending/receiving a transaction to a local Android JEFRi instance.
-	 */
-	JEFRi.AndroidLocalStore = function(ec, options) {
-		this.ec = ec;
-		var self = this;
-
-		var _send = function(action, transaction, pre, post) {
-			$(transaction).trigger(pre);
-			$(self).trigger(pre, transaction);
-			$(self).trigger('sending', transaction);
-alert("Sending a " + action + " transaction to local Android.");
-			var raw_transaction = transaction.toString();
-alert("Raw Transaction: " + raw_transaction);
-			var raw_response = Android[action](raw_transaction, false);
-alert("Raw Response: " + raw_response);
-			var data = JSON.parse();
-
-			ec.expand(data, true);//Always updateOnIntern
-			$(self).trigger('sent', data);
-			$(self).trigger(post, data);
-			$(transaction).trigger(post, data);
 		};
-
-		this.get = function(transaction) {
-			var action = "get";
-			_send(action, transaction, 'getting', 'gotten');
-		}
-
-		this.persist = function(transaction) {
-			var action = "persist";
-			_send(action, transaction, 'persisting', 'persisted');
-		}
-
-		/**
-		 * Always synchronous.
-		 */
-		this.is_async = function(){
-			return false;
-		}
-	}
+	};
 })(jQuery);
