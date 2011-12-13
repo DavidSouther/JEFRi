@@ -534,7 +534,7 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 		}
 		else if(spec.hasOwnProperty("UUID"))
 		{	//If UUID is set, return only that result
-			return results[spec[r.key]] || false;
+			return results[spec["UUID"]] || false;
 		}
 		//add results to an array to clean up the return for the user.
 		$.each(results, function(){
