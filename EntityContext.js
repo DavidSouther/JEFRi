@@ -517,7 +517,7 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 	/**
 	 * Return an interned entity from the local instance matching spec.
 	 *
-	 * Spec requires an _type property and the entity key.
+	 * Spec requires an _type property and the entity key, or specify the property UUID.
 	 */
 	JEFRi.EntityContext.prototype.find = function(spec) {
 		if(typeof spec == "string")
@@ -528,8 +528,12 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 		var r = this.definition(spec._type);
 		var results = this._instances[spec._type];
 		
-		if(undefined !== spec[r.key])
+		if(spec.hasOwnProperty(r.key))
 		{	//if a key is set, return only that result.
+			return results[spec[r.key]] || false;
+		}
+		else if(spec.hasOwnProperty("UUID"))
+		{	//If UUID is set, return only that result
 			return results[spec[r.key]] || false;
 		}
 		//add results to an array to clean up the return for the user.
