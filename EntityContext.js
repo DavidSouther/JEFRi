@@ -607,6 +607,14 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 				//Otherwise, add to transaction
 				//If the ID is not set, add the spec to the transaction
 				transaction.add(spec);
+				if(this.hasOwnProperty("_page"))
+				{	//Add the page to the meta
+				//TODO: If there are multiple specs, this will not work!
+				//TODO: Need to figure out what a page means for multiple specs.
+				//Page format: {on : 1, lines : 10, sort:[{field:order},{field:order}]}
+					transaction.addmeta({page : this._page});
+					delete this._page;
+				}
 			}
 		});
 
