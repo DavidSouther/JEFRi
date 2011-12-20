@@ -278,7 +278,8 @@ var noop = function(){};
 //					spec[relationship.to.property] = this[relationship.from.property]();
 //					this[field] = ec[get](spec);
 				}
-				if(undefined === this[field])
+//				if(undefined === this[field])
+//Always get from memory.
 				{	//Need to go ahead and get it from memory
 					if ("has_many" === relationship.type)
 					{	//We'll need to grab everything who points to us...
@@ -330,15 +331,19 @@ var noop = function(){};
 				var callback = function(){};
 				definition.Constructor.prototype['set' + field] =
 				function(entity) {
+					var back_rel = ec.back_rel(this._type(), relationship);
 					var id = entity[relationship.to.property]();
-					if( !(id === this[relationship.from.property]()))
+					if(relationship.type == "has_a" && back_rel.type == "has_a")
+					{	//Corner case for has_a has_a relationships
+						var id = entity[relationship.from.property]();
+					}
+					if( !(id === this[relationship.from.property]()) )
 					{	//Changing
 						this[field] = entity;
 						this[relationship.from.property](id);
 						if( !("is_a" === relationship.type))
 						{	//Add or set this to the remote entity
 							//Need to find the back relationship...
-							var back_rel = ec.back_rel(this._type(), relationship);
 							var back = ("has_many" === back_rel.type)
 								? 'add_'
 								: 'set_';
