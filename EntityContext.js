@@ -333,10 +333,10 @@ var noop = function(){};
 				function(entity) {
 					var back_rel = ec.back_rel(this._type(), relationship);
 					var id = entity[relationship.to.property]();
-					if(relationship.type == "has_a" && back_rel.type == "has_a")
-					{	//Corner case for has_a has_a relationships
-						var id = entity[relationship.from.property]();
-					}
+//					if(relationship.type == "has_a" && back_rel.type == "has_a")
+//					{	//Corner case for has_a has_a relationships
+//						var id = entity[relationship.from.property]();
+//					}
 					if( !(id === this[relationship.from.property]()) )
 					{	//Changing
 						this[field] = entity;
