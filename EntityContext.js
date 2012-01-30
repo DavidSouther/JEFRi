@@ -682,6 +682,22 @@ BIG.ec._modified.remove(e, JEFRi.EntityComparator);
 	}
 
 	/**
+	 * Returns transaction of all entities in local cache.
+	 */
+	JEFRi.EntityContext.prototype.get_transaction_dump = function() {
+		var transaction = this.transaction();
+
+		//Add all entities to the transaction
+		$.each(this._instances, function(){	//The _type {}s
+			$.each(this, function() {	//the entity {}s
+				transaction.add(this);
+			});
+		});
+
+		return transaction;
+	}
+
+	/**
 	 * Object to handle transactions.
 	 */
 	JEFRi.Transaction = function(spec, store) {
