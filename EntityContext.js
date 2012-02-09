@@ -154,8 +154,7 @@ var noop = function(){};
 				return this[definition.key]();
 			}
 
-			definition.Constructor.prototype.persist = function(transaction,
-			                                                         callback) {
+			definition.Constructor.prototype.persist = function(transaction, callback) {
 				var self = this;
 				var top = !transaction;
 				transaction = top ? new JEFRi.Transaction() : transaction;
@@ -165,6 +164,28 @@ var noop = function(){};
 
 				//If we're on top, run the transaction...
 				top && transaction.persist(callback);
+			};
+
+			definition.Constructor.prototype.bind = function(event, callback) {
+				var self = this;
+				self.__event_handlers = self.__event_handlers || {};
+				if(!self.__event_handlers.hasOwnProperty(event))
+				{
+					self.__event_handlers[event] = [];
+				}
+				self.__event_handlers[event].push(callback);
+			};
+
+			definition.Constructor.prototype.trigger = function(event, args) {
+				var self = this;
+				var args = args || [];
+				self.__event_handlers = self.__event_handlers || {};
+				if(self.__event_handlers.hasOwnProperty(event))
+				{
+					$.each(self.__event_handlers[event], function(){
+						this.apply({}, args)
+					});
+				}
 			};
 
 			definition.Constructor.prototype._status = function() {
@@ -232,21 +253,26 @@ var noop = function(){};
 			definition.Constructor.prototype[property.name] = function(value) {
 				if(!(undefined === value))
 				{	//Value is defined, so this is a setter
-					if(!this.__modified[field])
-					{	//Update it if not set...
-						this.__modified[field] = this[field];
-						ec._modified.set(this);
-					}
-					else
-					{
-						if(this.__modified[field] === value)
-						{	//Setting it back to the old value...
-							delete this.__modified[field];
+					var is_update = false;
+					if(value != this[field])
+					{	//Only actually update it if it is a new value.
+						is_update = true;
+						if(!this.__modified[field])
+						{	//Update it if not set...
+							this.__modified[field] = this[field];
+							ec._modified.set(this);
 						}
-						//TODO check if that was the last property...
+						else
+						{
+							if(this.__modified[field] === value)
+							{	//Setting it back to the old value...
+								delete this.__modified[field];
+							}
+							//TODO check if that was the last property...
+						}
+						this[field] = value;
+						this.trigger("modify", [property.name, value]);
 					}
-
-					this[field] = value;
 					return this;
 				}
 				else
@@ -435,7 +461,7 @@ var noop = function(){};
 		if(updateOnIntern)
 		{	//Merge the given entity into the stored entity.
 			ret = this._instances[entity._type()][entity.id()] || {};
-			$.extend(ret, entity);
+			$.extend(true, ret, entity);
 		}
 		else
 		{	//Take the one if it's stored, otherwise use the given entity.
@@ -473,7 +499,7 @@ var noop = function(){};
 			var instance = this.find(demi);
 			if(false !== instance)
 			{	// Local instance, extend it with the new obj and return local.
-				$.extend(instance, r);
+				$.extend(true, instance, r);
 				return instance;
 			}
 		}
@@ -500,6 +526,7 @@ e.__new = false;
 e.__modified = {};
 BIG.ec._new.remove(e, JEFRi.EntityComparator);
 BIG.ec._modified.remove(e, JEFRi.EntityComparator);
+e.trigger("expand");
 
 			ret.push(e);
 		});
