@@ -94,7 +94,7 @@ var noop = function(){};
 					//`this` is the relationship
 					rels[this.name] = this;
 				});
-				//Overwrite the JSON index with the named indecies
+				//Overwrite the JSON index with the named indicies
 				this.relationships = rels;
 
 				/**
@@ -117,7 +117,7 @@ var noop = function(){};
 // var def = proto[key] || this.attributes.default || _default(this._type);
 						var def = proto[key] || _default(this._type);
 						self[key](def);
-					})
+					});
 
 					/**
 					 * Set the key, if it wasn't set by the proto.
@@ -130,10 +130,12 @@ var noop = function(){};
 					//Set a few event handlers
 					$(this).bind('persisted', $.proxy(function(){
 						this.__new = false;
-						this.__modified = {};
+						this.__modified = {
+							_count = 0
+						};
 						ec._new.remove(this, JEFRi.EntityComparator);
 						ec._modified.remove(this, JEFRi.EntityComparator);
-					},this));
+					}, this));
 				};
 
 				_build_prototype(this, (protos && protos[this.name]));
@@ -202,10 +204,12 @@ var noop = function(){};
 			 */
 			definition.Constructor.prototype.encode = function(writer) {
 				var self = this;
+
 				$.each(definition.properties, function(){
 					//Add all the properties to the writer.
 					writer.add_property(self, this.name, self[this.name]);
 				});
+
 				$.each(definition.relationships, function(rel){
 					//Add navigated entities to the writer.
 					var others = self['get_' + rel]();
@@ -233,6 +237,7 @@ var noop = function(){};
 					if(!this.__modified[field])
 					{	//Update it if not set...
 						this.__modified[field] = this[field];
+						this.__modified._count += 1;
 						ec._modified.set(this);
 					}
 					else
@@ -240,8 +245,13 @@ var noop = function(){};
 						if(this.__modified[field] === value)
 						{	//Setting it back to the old value...
 							delete this.__modified[field];
+							this.__modified._count -= 1;
 						}
-						//TODO check if that was the last property...
+						if(this.__modified._count === 0)
+						{	//If it was the last property, remove from
+							//the context's modified list.
+							ec._modified.remove(this);
+						}
 					}
 
 					this[field] = value;
@@ -262,12 +272,11 @@ var noop = function(){};
 			var ec = self;
 			var field = '_' + relationship.name;
 
-
 			//Build the getter
 			var get = ("has_many" === relationship.type)
 				? 'get_empty'
 				: 'get_first';
-			definition.Constructor.prototype['get' + field] = function(longGet){
+			definition.Constructor.prototype['get' + field] = function(longGet) {
 				if(longGet)
 				{	//Lazy load
 //					var spec = {
@@ -276,6 +285,7 @@ var noop = function(){};
 //					spec[relationship.to.property] = this[relationship.from.property]();
 //					this[field] = ec[get](spec);
 				}
+
 				if(undefined === this[field])
 				{	//Need to go ahead and get it from memory
 					if ("has_many" === relationship.type)
@@ -388,7 +398,7 @@ var noop = function(){};
 	 */
 	JEFRi.EntityContext.prototype.definition = function(name) {
 		name = (typeof name == "string") ? name : name.type;
-		
+
 		return this._context.entities[name];
 	};
 
@@ -407,20 +417,19 @@ var noop = function(){};
 		});
 		return back;
 	}
-	
 
 	/**
 	 * Return the canonical memory reference of the entity.
 	 */
 	JEFRi.EntityContext.prototype.intern = function(entity, updateOnIntern) {
-		var self = this;
 		updateOnIntern = !!updateOnIntern || this.settings.updateOnIntern;
 
-		if(entity instanceof Array)
-		{
-			$(entity).each(function(index, ent){
-				entity[index] = self.intern(ent, updateOnIntern);
-			})
+		if(entity.length && ! entity._type)
+		{	//Array-like
+			var q = entity.length, i=0;
+			for( ; i < q ; i++){
+				entity[i] = this.intern(entity[i], updateOnIntern);
+			}
 			return entity;
 		}
 
@@ -431,7 +440,7 @@ var noop = function(){};
 			$.extend(ret, entity);
 		}
 		else
-		{	//Take the one if it's stored, otherwise use the given entity.
+		{	//Take the stored one if possible, otherwise use the given entity.
 			ret = this._instances[entity._type()][entity.id()] || entity;
 		}
 		//Update the saved entity
@@ -521,7 +530,7 @@ var noop = function(){};
 		var to_return = [];
 		var r = this.definition(spec._type);
 		var results = this._instances[spec._type];
-		
+
 		if(undefined !== spec[r.key])
 		{	//if a key is set, return only that result.
 			return results[spec[r.key]] || false;
@@ -568,39 +577,41 @@ var noop = function(){};
 		});
 	};
 
+	var pushResult = function(entity){
+		var type = entity._type();
+		if(!this[type])
+		{
+			this[type] = [];
+		}
+		this[type].push(entity);
+	};
+
 	JEFRi.EntityContext.prototype.get_empty = function(spec, callback) {
-		//TODO make this function use a transaction
 		spec = (spec instanceof Array) ? spec : [spec];
 		var self = this;
 		var results = {};
 		var transaction = this.transaction();
+		var deferred = $.Deferred().done(callback);
 
-		results.push = function(entity) {
-			var type = entity._type();
-			if(!this[type])
-			{
-				this[type] = [];
-			}
-			this[type].push(entity);
-		};
+		results.prototype.push = pushResult;
 
-		$.each(spec, function(){
-			var _type = this._type instanceof Function
-				? this._type()
-				: this._type;
-			var def = self.definition(_type);
-			var id = this[def.key];
-			//Check if the ID is set
-			if( (undefined != id) && self._instances[_type][id])
-			{	//If it is, check in our current instances.
-				//If it is in the instances, use that one
-				results.push(self._instances[_type][id]);
+		var q = spec.length, i=0;
+		for( ; i < q ; i++)
+		{	//Add the queries
+			var _spec = spec[i], _type = _spec._type instanceof Function
+				? _spec._type()
+				: _spec._type;
+			var def = this.definition(_type);
+			var id = _spec[def.key];
+
+			//Check if the ID is set and exists locally
+			if( (undefined != id) && this._instances[_type][id])
+			{	//It is local, so use that one
+				results.push(this._instances[_type][id]);
 			}
 			else
-			{
-				//Otherwise, add to transaction
-				//If the ID is not set, add the spec to the transaction
-				transaction.add(spec);
+			{	//Otherwise, add to transaction
+				transaction.add(_spec);
 			}
 		});
 
@@ -613,13 +624,14 @@ var noop = function(){};
 				$.each(transaction.entities, function(){
 					results.push(this);
 				});
-				callback(results, transaction.meta);
+				deferred.resolve(results, transaction.meta);
 			});
 		}
 		else
-		{	//just the callback...
-			callback(results);
+		{	//just resolve...
+			deferred.resolve(results, {});
 		}
+		return deferred;
 	};
 
 	/**
@@ -634,7 +646,7 @@ var noop = function(){};
 			this.persist(transaction);
 		});
 
-		transaction.persist(callback);
+		return transaction.persist(callback);
 	}
 
 	/**
@@ -655,7 +667,7 @@ var noop = function(){};
 			this.persist(transaction);
 		});
 
-		transaction.persist(callback);
+		return transaction.persist(callback);
 	}
 
 	/**
