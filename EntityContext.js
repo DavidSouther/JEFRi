@@ -38,8 +38,9 @@ var noop = function(){};
 		var self = this;
 		var ec = this;
 		this.settings = {
-			contextUri: contextUri,
-			updateOnIntern : true
+			contextUri     : contextUri,
+			updateOnIntern : true, 
+			store          : JEFRi.PostStore
 		};
 
 		$.extend(this.settings, options);
@@ -52,6 +53,7 @@ var noop = function(){};
 		this._instances = {};
 		this._new = [];
 		this._modified = {};
+		this._store = new this.settings.store(ec, {target: ROOT + 'jefri/'});
 
 		this._modified.set = function(entity) {
 			if(!self._modified[entity._type()])
@@ -154,8 +156,7 @@ var noop = function(){};
 				return this[definition.key]();
 			}
 
-			definition.Constructor.prototype.persist = function(transaction,
-			                                                         callback) {
+			definition.Constructor.prototype.persist = function(transaction, callback) {
 				var self = this;
 				var top = !transaction;
 				transaction = top ? new JEFRi.Transaction() : transaction;
@@ -165,6 +166,28 @@ var noop = function(){};
 
 				//If we're on top, run the transaction...
 				top && transaction.persist(callback);
+			};
+
+			definition.Constructor.prototype.bind = function(event, callback) {
+				var self = this;
+				self.__event_handlers = self.__event_handlers || {};
+				if(!self.__event_handlers.hasOwnProperty(event))
+				{
+					self.__event_handlers[event] = [];
+				}
+				self.__event_handlers[event].push(callback);
+			};
+
+			definition.Constructor.prototype.trigger = function(event, args) {
+				var self = this;
+				var args = args || [];
+				self.__event_handlers = self.__event_handlers || {};
+				if(self.__event_handlers.hasOwnProperty(event))
+				{
+					$.each(self.__event_handlers[event], function(){
+						this.apply({}, args)
+					});
+				}
 			};
 
 			definition.Constructor.prototype._status = function() {
@@ -234,27 +257,30 @@ var noop = function(){};
 			definition.Constructor.prototype[property.name] = function(value) {
 				if(!(undefined === value))
 				{	//Value is defined, so this is a setter
-					if(!this.__modified[field])
-					{	//Update it if not set...
-						this.__modified[field] = this[field];
-						this.__modified._count += 1;
-						ec._modified.set(this);
-					}
-					else
-					{
-						if(this.__modified[field] === value)
-						{	//Setting it back to the old value...
-							delete this.__modified[field];
-							this.__modified._count -= 1;
+					if(value != this[field])
+					{	//Only actually update it if it is a new value.
+						if(!this.__modified[field])
+						{	//Update it if not set...
+							this.__modified[field] = this[field];
+							this.__modified._count += 1;
+							ec._modified.set(this);
 						}
-						if(this.__modified._count === 0)
-						{	//If it was the last property, remove from
-							//the context's modified list.
-							ec._modified.remove(this);
+						else
+						{
+							if(this.__modified[field] === value)
+							{	//Setting it back to the old value...
+								delete this.__modified[field];
+								this.__modified._count -= 1;
+							}
+							if(this.__modified._count === 0)
+							{	//If it was the last property, remove from
+								//the context's modified list.
+								ec._modified.remove(this);
+							}
 						}
+						this[field] = value;
+						this.trigger("modify", [property.name, value]);
 					}
-
-					this[field] = value;
 					return this;
 				}
 				else
@@ -285,8 +311,8 @@ var noop = function(){};
 //					spec[relationship.to.property] = this[relationship.from.property]();
 //					this[field] = ec[get](spec);
 				}
-
-				if(undefined === this[field])
+//				if(undefined === this[field])
+//Always get from memory.
 				{	//Need to go ahead and get it from memory
 					if ("has_many" === relationship.type)
 					{	//We'll need to grab everything who points to us...
@@ -437,7 +463,7 @@ var noop = function(){};
 		if(updateOnIntern)
 		{	//Merge the given entity into the stored entity.
 			ret = this._instances[entity._type()][entity.id()] || {};
-			$.extend(ret, entity);
+			$.extend(true, ret, entity);
 		}
 		else
 		{	//Take the stored one if possible, otherwise use the given entity.
@@ -475,7 +501,7 @@ var noop = function(){};
 			var instance = this.find(demi);
 			if(false !== instance)
 			{	// Local instance, extend it with the new obj and return local.
-				$.extend(instance, r);
+				$.extend(true, instance, r);
 				return instance;
 			}
 		}
@@ -496,12 +522,19 @@ var noop = function(){};
 			var e = self.build(this._type, this);
 			e = self.intern(e, true);
 			//Make the entity not new...
-			$(e).trigger('persisted');
+//			$(e).trigger('persisted');
+//TODO:  Fix this!
+e.__new = false;
+e.__modified = {};
+BIG.ec._new.remove(e, JEFRi.EntityComparator);
+BIG.ec._modified.remove(e, JEFRi.EntityComparator);
+e.trigger("expand");
+
 			ret.push(e);
 		});
 
 		transaction.entities = ret;
-//		return ret;
+		return ret;
 	};
 
 	var _store = undefined;
@@ -512,15 +545,15 @@ var noop = function(){};
 		//Choose a data store
 		//TODO OMGOMGOMG need to fix this to not be application dependent.
 		//Jonathan's answer, 2011 06 13: "Look in the Yellow Pages"
-		_store = _store || new JEFRi.PostStore(this, {target: ROOT + 'jefri/'});
+//		_store = _store || new JEFRi.PostStore(this, );
 
-		return new JEFRi.Transaction(spec, _store);
+		return new JEFRi.Transaction(spec, this._store);
 	};
 
 	/**
 	 * Return an interned entity from the local instance matching spec.
 	 *
-	 * Spec requires an _type property and the entity key.
+	 * Spec requires an _type property and the entity key, or specify the property UUID.
 	 */
 	JEFRi.EntityContext.prototype.find = function(spec) {
 		if(typeof spec == "string")
@@ -531,9 +564,13 @@ var noop = function(){};
 		var r = this.definition(spec._type);
 		var results = this._instances[spec._type];
 
-		if(undefined !== spec[r.key])
+		if(spec.hasOwnProperty(r.key))
 		{	//if a key is set, return only that result.
 			return results[spec[r.key]] || false;
+		}
+		else if(spec.hasOwnProperty("UUID"))
+		{	//If UUID is set, return only that result
+			return results[spec["UUID"]] || false;
 		}
 		//add results to an array to clean up the return for the user.
 		$.each(results, function(){
@@ -612,6 +649,15 @@ var noop = function(){};
 			else
 			{	//Otherwise, add to transaction
 				transaction.add(_spec);
+
+				if(this.hasOwnProperty("_page"))
+				{	//Add the page to the meta
+				//TODO: If there are multiple specs, this will not work!
+				//TODO: Need to figure out what a page means for multiple specs.
+				//Page format: {on : 1, lines : 10, sort:[{'Type.field':order},{'Type.field':order}]}
+					transaction.addmeta({page : this._page});
+					delete this._page;
+				}
 			}
 		});
 
@@ -671,6 +717,22 @@ var noop = function(){};
 	}
 
 	/**
+	 * Returns transaction of all entities in local cache.
+	 */
+	JEFRi.EntityContext.prototype.get_transaction_dump = function() {
+		var transaction = this.transaction();
+
+		//Add all entities to the transaction
+		$.each(this._instances, function(){	//The _type {}s
+			$.each(this, function() {	//the entity {}s
+				transaction.add(this);
+			});
+		});
+
+		return transaction;
+	}
+
+	/**
 	 * Object to handle transactions.
 	 */
 	JEFRi.Transaction = function(spec, store) {
@@ -696,10 +758,23 @@ var noop = function(){};
 				var def = store.ec.definition(ent._type);
 //TODO make this smarter
 				$.each(def.properties, function(){
-					ent[this.name] =
+					var value =
 						self[this.name] instanceof Function
 							? self[this.name]()
 							: self[this.name];
+					if(value instanceof String)
+					{
+						value = value
+							.replace(/\\n/g, "\\n")
+							.replace(/\\'/g, "\\'")
+							.replace(/\\"/g, '\"')
+							.replace(/\\&/g, "\\&")
+							.replace(/\\r/g, "\\r")
+							.replace(/\\t/g, "\\t")
+							.replace(/\\b/g, "\\b")
+							.replace(/\\f/g, "\\f");
+					}
+					ent[this.name] = value;
 				});
 				$.each(def.relationships, function(){
 					if(self[this.name])
@@ -750,7 +825,7 @@ var noop = function(){};
 			this.meta[attr] = attributes[attr];
 		}
 		return this;
-	}
+	};
 
 	/**
 	 * Persistance Stores
@@ -791,19 +866,18 @@ var noop = function(){};
 		this.get = function(transaction) {
 			var url = (this.target + "get");
 			_send(url, transaction, 'getting', 'gotten');
-		}
+		};
 
 		this.persist = function(transaction) {
 			var url = (this.target + "persist");
 			_send(url, transaction, 'persisting', 'persisted');
-		}
+		};
 
 		/**
 		 * Always asynchronous.
 		 */
 		this.is_async = function(){
 			return true;
-		}
-	}
-
+		};
+	};
 })(jQuery);
