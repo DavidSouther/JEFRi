@@ -30,7 +30,7 @@ ul {
 
 		.draggable li {
 			font-size: .8em;	}
-	
+
 			.draggable li a {
 				text-decoration: none;	}
 
@@ -65,6 +65,12 @@ ul {
 
 #templates, #dialogs {
 	display: none;	}
+
+#loadSave {
+	}
+
+	#loadSave textarea {
+		width: 99%; }
 
 .entity {
 	width: 225px;	}

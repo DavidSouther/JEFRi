@@ -78,7 +78,7 @@
 <!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/swanky-purse/jquery-ui.css"/>-->
 
 	<!-- Include jQuery -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script> 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 
 	<!-- Include jQuery UI -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
@@ -113,9 +113,9 @@
 		<!-- Temlpate for a new entity field. -->
 		<div class="entity ui-widget ui-corner-all">
 			<h3 class="ui-widget-header ui-corner-top">
-				<span>Name</span>
+				<span class="name">Name</span>
 			</h3>
-			<ul class="ui-widget-content">
+			<ul class="ui-widget-content field-list">
 				<li class="ui-widget-content"><a href='#'>+ Field</a></li>
 			</ul>
 		</div>
@@ -143,13 +143,14 @@
 		</div>
 
 		<ul><li class="new_field">
-			<a href='#'>Field</a>: <span class="type">New</span>
+			<a href='#' class='name'>Field</a>: <span class="type">New</span>
 		</li></ul>
 	</div>
 
 	<div id="dialogs">
 		<div id="loadSave">
-			<textarea rows="25" cols="80"></textarea>
+			<textarea id="text" rows="25"></textarea>
+			<input type="button" id="loadSave_do" value="Load" />
 		</div>
 	</div>
 </body>
