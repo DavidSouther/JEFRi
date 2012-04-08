@@ -1,0 +1,82 @@
+\documentclass{article}
+
+\usepackage{color}
+\usepackage{listings}
+\lstset{ %
+language=Java,                % the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+                                % will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,                   % adds a frame around the code
+tabsize=4,                      % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+%breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false        % sets if automatic breaks should only happen at whitespace
+}
+
+\usepackage{fullpage}
+\linespread{1.6}
+
+\begin{document}
+
+\title{JEFRi Binding}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Overview}
+JEFRi binding provides a mechanism to bring rich data visualization and editing
+to JEFRi contexts. When using JEFRi binding, developers will be able to choose
+from a rich set of UI components to display entities and gather feedback from
+users with a minimal amount of configuration. JEFRi data-bound contexts will
+(depending on the entity's attributes and available controls) have full
+round-trip data cababilities, from loading data, gathering edits, and sending
+data to the JEFRi persistence store.
+
+
+Input (get data)
+	DatePicker
+	"Combo" box
+	sliders, spinners
+	Input
+	RichText
+	Check/Radiobox groups
+
+Ouput (layout data)
+	Tables, lists, trees
+	Panels
+		Dialog
+		Tabs
+		Accordians
+
+Workflows
+	Form
+	Wizard
+	Properties Panel
+	Detail
+
+Other
+	Buttons
+----
+
+Click "View All `entity`"
+	Build table of all entities
+Click `entity`name
+	Build detail panel
+Edit Entity
+	Inline editing - Dynamic
+	Long-form editing - Static
+Change Relationships
+	Edit entity and change relationships
+		Filterable drowpdown
+	Edit entity and edit remote relationship
+
+
+\end{document}

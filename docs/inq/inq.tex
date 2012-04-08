@@ -1,0 +1,50 @@
+\documentclass{article}
+
+\usepackage{color}
+\usepackage{listings}
+\lstset{ %
+language=Java,                % the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+                                % will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,                   % adds a frame around the code
+tabsize=4,                      % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+%breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false        % sets if automatic breaks should only happen at whitespace
+}
+
+\usepackage{fullpage}
+\linespread{1.3}
+
+\begin{document}
+
+\title{JEFRi Integrated Query}
+\maketitle
+\tableofcontents
+\newpage
+\linespread{1.6}
+JEFRi Core uses a bare skeleton object to specify data to return from queries.
+While this is a concise and powerful mechanism, it does not provide the
+natural language approach to data querying that SQL and the like embrace.
+JEFRi Integrated Query aims to provide a set of natural-language calls to
+query data sources. While the underlying implementation will be against JEFRi
+contexts, the API is easily repurposed to target SQL databases, plain arrays,
+or any other data source.
+
+
+%JEFRi.inq().from("User")
+%	.surname("Franken")
+%	.
+
+
+
+
+\end{document}
