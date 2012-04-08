@@ -7,7 +7,7 @@ language=Java,                % the language of the code
 basicstyle=\footnotesize,       % the size of the fonts that are used for the code
 numbers=left,                   % where to put the line-numbers
 numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
-stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+stepnumber=1,                   % the step between two line-numbers. If it's 1, each line
                                 % will be numbered
 numbersep=5pt,                  % how far the line-numbers are from the code
 backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
@@ -84,12 +84,14 @@ logout
 \subsection{Server API}
 
 
+\linespread{1}
+\begin{lstlisting}
 {"meta":{},
 "entities":[
 	{	"name": "User",
-		"key": "user\_id",
+		"key": "user_id",
 		"properties": [
-			{	"name": "user\_id",
+			{	"name": "user_id",
 				"type": "int",
 				"attributes": {
 					"primary": "true"}},
@@ -102,23 +104,23 @@ logout
 					"unique": "true"}}],
 		"relationships": [
 			{	"name": "authinfo",
-				"type": "has\_a",
+				"type": "has_a",
 				"to": {
 					"type": "Authinfo",
-					"property": "user\_id",
+					"property": "user_id",
 					"vname": "user"},
 				"from": {
 					"type": "User",
-					"property": "user\_id",
+					"property": "user_id",
 					"vname": "user"}}],
 		"attributes": {
 			"vname": "users",
 			"svname": "user"}},
 
 	{	"name": "Session",
-		"key": "session\_id",
+		"key": "session_id",
 		"properties": [
-			{	"name": "session\_id",
+			{	"name": "session_id",
 				"type": "string",
 				"attributes": {
 					"primary": "true"}},
@@ -126,17 +128,21 @@ logout
 				"type": "string",
 				"attributes": {}},
 			{	"name": "ip",
-				"type": "
+				"type": "string",
+                                "attributes":{}},
+			{	"name": "contents",
+				"type": "string",
+                                "attributes":{}}
 		]},
 
 	{	"name": "Authinfo",
-		"key": "authinfo\_id",
+		"key": "authinfo_id",
 		"properties": [
-			{	"name": "authinfo\_id",
+			{	"name": "authinfo_id",
 				"type": "int",
 				"attributes": {
 					"primary": "true"}},
-			{	"name": "user\_id",
+			{	"name": "user_id",
 				"type": "int",
 				"attributes": {}},
 			{	"name": "username",
@@ -157,37 +163,37 @@ logout
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "ban\_reason",
+			{	"name": "ban_reason",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new\_password\_key",
+			{	"name": "new_password_key",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new\_password\_requested",
+			{	"name": "new_password_requested",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new\_email",
+			{	"name": "new_email",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new\_email\_key",
+			{	"name": "new_email_key",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "last\_ip",
+			{	"name": "last_ip",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "last\_login",
+			{	"name": "last_login",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
@@ -204,27 +210,27 @@ logout
 					"length": "45"}}],
 		"relationships": [
 			{	"name": "user",
-				"type": "has\_a",
+				"type": "has_a",
 				"to": {
 					"type": "User",
-					"property": "user\_id",
+					"property": "user_id",
 					"vname": "user"},
 				"from": {
 					"type": "Authinfo",
-					"property": "user\_id",
+					"property": "user_id",
 					"vname": "user"}}],
 		"attributes": {
 			"vname": "authinfo",
 			"svname": "authinfo"}},
 
 	{	"name": "Loginattempt",
-		"key": "login\_attempt\_id",
+		"key": "login_attempt_id",
 		"properties": [
-			{	"name": "login\_attempt\_id",
+			{	"name": "login_attempt_id",
 				"type": "int",
 				"attributes": {
 					"primary": "true"}},
-			{	"name": "ip\_address",
+			{	"name": "ip_address",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
@@ -250,20 +256,20 @@ logout
 				"type": "int",
 				"attributes": {
 					"nullable": "true"}},
-			{	"name": "user\_id",
+			{	"name": "user_id",
 				"type": "int",
 				"attributes": {}},
-			{	"name": "user\_agent",
+			{	"name": "user_agent",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "last\_ip",
+			{	"name": "last_ip",
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "last\_login",
+			{	"name": "last_login",
 				"type": "float",
 				"attributes": {
 					"nullable": "true"}}],
@@ -271,5 +277,5 @@ logout
 		"attributes": {
 			"vname": "autologin",
 			"svname": "autologin"}}]}
-
+\end{lstlisting}
 \end{document}
