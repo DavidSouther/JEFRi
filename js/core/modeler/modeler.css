@@ -51,7 +51,8 @@ ul {
 	position: absolute;
 	top: 0;
 	left: 0;
-	z-index: 100;	}
+	z-index: 100;
+	background: #DDD url(starBg.jpg) 50% 50% repeat;	}
 
 #controls {
 /*	width: 250px;*/
@@ -61,7 +62,8 @@ ul {
 	right: 1%;
 	z-index: 200;
 	overflow: auto;
-	border: thin solid black;	}
+	border: thin solid black;
+	background: white;	}
 
 #templates, #dialogs {
 	display: none;	}

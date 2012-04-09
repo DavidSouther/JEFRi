@@ -18,7 +18,7 @@
 <!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css"/>-->
 
 	<!-- Redmond Theme -->
-	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/redmond/jquery-ui.css"/>
+<!--	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/redmond/jquery-ui.css"/> -->
 
 	<!-- Sunny Theme -->
 <!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/sunny/jquery-ui.css"/>-->
@@ -77,6 +77,8 @@
 	<!-- Swanky Purse Theme -->
 <!--		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/swanky-purse/jquery-ui.css"/>-->
 
+		<link rel="stylesheet" href="http://davidsouther.com/projects/glight/css/glight/glight.css"/>
+
 	<!-- Include jQuery -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 
@@ -84,7 +86,8 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 	<script src='../EntityContext.js'></script>
 	<script src='../writer.js'></script>
-	<script src="../../js/jquery/jquery.svg.js"></script>
+
+	<script src="http://jsplumb.org/js/jquery.jsPlumb-1.3.8-all-min.js"></script>
 
 	<script src="modeler.js"></script>
 	<link rel="stylesheet" href="modeler.css" />
@@ -118,9 +121,26 @@
 			<ul class="ui-widget-content field-list">
 				<li class="ui-widget-content"><a href='#'>+ Field</a></li>
 			</ul>
+			<ul class="ui-widget-content relationship-list">
+				<li class="ui-widget-content"><a href='#'>+ Relationship</a></li>
+			</ul>
 		</div>
 
 		<!-- Template for editing an entity field. -->
+		<div class="edit_relationship ui-widget-content">
+			<input class="name" /><br />
+			<select class="type">
+				<option value="is_a">Is_a</option>
+				<option value="has_a" default>Has_a</option>
+				<option value="has_many">Has_many</option>
+			</select><br />
+			From: <select class="from"><option></option></select><br />
+			To: <select class="to_entity"><option></option></select> :
+			<select class="to_field"><option></option></select><br />
+			<button class="done">Done</button>
+			<br style="clear:both;" />
+		</div>
+
 		<div class="edit_field ui-widget-content">
 			<input class="name" /><br />
 			<select class="type">
@@ -142,14 +162,141 @@
 			<br style="clear:both;" />
 		</div>
 
-		<ul><li class="new_field">
-			<a href='#' class='name'>Field</a>: <span class="type">New</span>
-		</li></ul>
+		<ul>
+			<li class="new_field">
+				<a href='#' class='name'>Field</a>: <span class="type">New</span>
+			</li>
+			<li class="new_relationship">
+				<a href='#' class='name'>Relationship</a>:
+				<span class="type">New</span>
+				<span class="from"></span> -&gt;
+				<span class="to"><span class="entity"></span>:<span class="field"></span></span>
+			</li>
+		</ul>
 	</div>
 
 	<div id="dialogs">
 		<div id="loadSave">
-			<textarea id="text" rows="25"></textarea>
+			<textarea id="text" rows="25">
+{"meta":{},
+"entities":[
+	{	"name": "User",
+		"key": "user_id",
+		"properties": [
+			{	"name": "user_id",
+				"type": "int",
+				"attributes": {
+					"primary": "true"}},
+			{	"name": "name",
+				"type": "string",
+				"attributes": {}},
+			{	"name": "address",
+				"type": "string",
+				"attributes": {
+					"unique": "true"}}],
+		"relationships": [
+			{	"name": "authinfo",
+				"type": "has_a",
+				"to": {
+					"type": "Authinfo",
+					"property": "user_id",
+					"vname": "user"},
+				"from": {
+					"type": "User",
+					"property": "user_id",
+					"vname": "user"}}],
+		"attributes": {
+			"vname": "users",
+			"svname": "user"}},
+
+	{	"name": "Authinfo",
+		"key": "authinfo_id",
+		"properties": [
+			{	"name": "authinfo_id",
+				"type": "int",
+				"attributes": {
+					"primary": "true"}},
+			{	"name": "user_id",
+				"type": "int",
+				"attributes": {}},
+			{	"name": "username",
+				"type": "string",
+				"attributes": {
+					"length": "45"}},
+			{	"name": "password",
+				"type": "string",
+				"attributes": {
+					"length": "45"}},
+			{	"name": "activated",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "banned",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "ban_reason",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_password_key",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_password_requested",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_email",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_email_key",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "last_ip",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "last_login",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "created",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "modified",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}}],
+		"relationships": [
+			{	"name": "user",
+				"type": "has_a",
+				"to": {
+					"type": "User",
+					"property": "user_id",
+					"vname": "user"},
+				"from": {
+					"type": "Authinfo",
+					"property": "user_id",
+					"vname": "user"}}],
+		"attributes": {
+			"vname": "authinfo",
+			"svname": "authinfo"}}]}
+			</textarea>
 			<input type="button" id="loadSave_do" value="Load" />
 		</div>
 	</div>
