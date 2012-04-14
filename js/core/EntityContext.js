@@ -1,4 +1,3 @@
-;
 Array.prototype.contains = function(value, comparator) {
 	var index = -1;
 	if(!comparator){return index;}
@@ -362,9 +361,9 @@ var noop = function(){};
 			var field = '_' + relationship.name;
 
 			//Build the getter
-			var get = ("has_many" === relationship.type)
-				? 'get_empty'
-				: 'get_first';
+			var get = ("has_many" === relationship.type) ?
+				'get_empty'	:
+				'get_first';
 			definition.Constructor.prototype['get' + field] = function(longGet) {
 				if(longGet)
 				{	//Lazy load
@@ -401,7 +400,7 @@ var noop = function(){};
 			{	//Need an adder
 				definition.Constructor.prototype['add' + field] =
 				function(entity) {
-					if(undefined == this[field])
+					if(undefined === this[field])
 					{	//Lazy load
 						var load = "get" + field;
 						this[load]();
@@ -435,9 +434,9 @@ var noop = function(){};
 						{	//Add or set this to the remote entity
 							//Need to find the back relationship...
 							var back_rel = ec.back_rel(this._type(), relationship);
-							var back = ("has_many" === back_rel.type)
-								? 'add_'
-								: 'set_';
+							var back = ("has_many" === back_rel.type) ?
+								'add_' :
+								'set_';
 							back += back_rel.name;
 							entity[back](this);
 						}
@@ -658,9 +657,9 @@ e.trigger("expand");
 	JEFRi.EntityContext.prototype.get_first = function(spec, callback) {
 		spec = (spec instanceof Array) ? spec : [spec];
 		var result = this.get(spec, function(data, meta){
-			var _type = spec._type instanceof Function
-				? spec._type()
-				: spec._type;
+			var _type = spec._type instanceof Function ?
+				spec._type() :
+				spec._type;
 			callback(data[_type].pop(), meta);
 		});
 	};
@@ -686,14 +685,15 @@ e.trigger("expand");
 		var q = spec.length, i;
 		for(i=0 ; i < q ; i++)
 		{	//Add the queries
-			var _spec = spec[i], _type = _spec._type instanceof Function
-				? _spec._type()
-				: _spec._type;
+			var _spec = spec[i],
+				_type = (_spec._type instanceof Function) ?
+					_spec._type() :
+					_spec._type;
 			var def = this.definition(_type);
 			var id = _spec[def.key];
 
 			//Check if the ID is set and exists locally
-			if( (undefined != id) && this._instances[_type][id])
+			if( (undefined !== id) && this._instances[_type][id])
 			{	//It is local, so use that one
 				results.push(this._instances[_type][id]);
 			}
@@ -798,9 +798,9 @@ e.trigger("expand");
 			$.each(this.entities, function() {
 				var self = this;
 				var ent = {};
-				ent._type = this._type instanceof Function
-					? this._type()
-					: this._type;
+				ent._type = this._type instanceof Function ?
+					this._type() :
+					this._type;
 				if(this.__new)
 				{ //Only set if actually new.
 					ent.__new = this.__new;
@@ -809,9 +809,9 @@ e.trigger("expand");
 //TODO make this smarter
 				$.each(def.properties, function(){
 					var value =
-						self[this.name] instanceof Function
-							? self[this.name]()
-							: self[this.name];
+						self[this.name] instanceof Function ?
+							self[this.name]() :
+							self[this.name];
 					if(value instanceof String)
 					{
 						value = value
