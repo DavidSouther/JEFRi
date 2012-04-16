@@ -1,0 +1,118 @@
+{"meta":{},
+"entities":[
+	{	"name": "User",
+		"key": "user_id",
+		"properties": [
+			{	"name": "user_id",
+				"type": "int",
+				"attributes": {
+					"primary": "true"}},
+			{	"name": "name",
+				"type": "string",
+				"attributes": {}},
+			{	"name": "address",
+				"type": "string",
+				"attributes": {
+					"unique": "true"}}],
+		"relationships": [
+			{	"name": "authinfo",
+				"type": "has_a",
+				"to": {
+					"type": "Authinfo",
+					"property": "user_id",
+					"vname": "user"},
+				"from": {
+					"type": "User",
+					"property": "user_id",
+					"vname": "user"}}],
+		"attributes": {
+			"vname": "users",
+			"svname": "user"}},
+
+	{	"name": "Authinfo",
+		"key": "authinfo_id",
+		"properties": [
+			{	"name": "authinfo_id",
+				"type": "int",
+				"attributes": {
+					"primary": "true"}},
+			{	"name": "user_id",
+				"type": "int",
+				"attributes": {}},
+			{	"name": "username",
+				"type": "string",
+				"attributes": {
+					"length": "45"}},
+			{	"name": "password",
+				"type": "string",
+				"attributes": {
+					"length": "45"}},
+			{	"name": "activated",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "banned",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "ban_reason",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_password_key",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_password_requested",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_email",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "new_email_key",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "last_ip",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "last_login",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "created",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			{	"name": "modified",
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}}],
+		"relationships": [
+			{	"name": "user",
+				"type": "has_a",
+				"to": {
+					"type": "User",
+					"property": "user_id",
+					"vname": "user"},
+				"from": {
+					"type": "Authinfo",
+					"property": "user_id",
+					"vname": "user"}}],
+		"attributes": {
+			"vname": "authinfo",
+			"svname": "authinfo"}}]}
