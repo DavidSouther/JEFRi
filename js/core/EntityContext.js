@@ -17,9 +17,17 @@ Array.prototype.remove = function(value, comparator) {
 	this.splice(index, 1);
 };
 
+/**
+ * JEFRi Namespace.
+ */
 var JEFRi = {};
 
-JEFRi.EntityComparator = function(a, b){
+/**
+ * Compare two entities for equality. Entities are equal if they
+ * are of the same type and have equivalent IDs.
+ */
+JEFRi.EntityComparator = function(a, b)
+{
 	var cmp =
 		a && b &&
 		a._type() === b._type() &&
@@ -33,6 +41,7 @@ var noop = function(){};
 	JEFRi.EntityContext = function(contextUri, options, protos)
 	/*
 	 * EntityContext Constructor.
+	 * @Constructor
 	 */
 	{
 	/**
@@ -43,7 +52,8 @@ var noop = function(){};
 		this.settings = {
 			contextUri     : contextUri,
 			updateOnIntern : true,
-			store          : JEFRi.PostStore
+			store          : JEFRi.PostStore,
+			storeURI       : ""
 		};
 
 		$.extend(this.settings, options);
@@ -56,7 +66,7 @@ var noop = function(){};
 		this._instances = {};
 		this._new = [];
 		this._modified = {};
-		this._store = new this.settings.store(ec, {target: ROOT + 'jefri/'});
+		this._store = new this.settings.store(ec, {target: this.settings.storeURI});
 
 	/**
 	 * Some helper methods to manage modified entities.
@@ -451,11 +461,15 @@ var noop = function(){};
 			type    : "GET",
 			url     : this.settings.contextUri,
 			dataType: "json",
-			async   : false,
-			success : function(data) {
+			async   : false
+		}).done(
+			function(data) {
+				if(!data) throw {
+					message: "Context loaded, but invalid."
+				};
 				_set_context(data, protos);
 			}
-		});
+		);
 	};
 
 	JEFRi.EntityContext.prototype.clear = function(){
@@ -591,11 +605,6 @@ e.trigger("expand");
 	JEFRi.EntityContext.prototype.transaction = function(spec) {
 		spec = spec || [];
 
-		//Choose a data store
-		//TODO OMGOMGOMG need to fix this to not be application dependent.
-		//Jonathan's answer, 2011 06 13: "Look in the Yellow Pages"
-//		_store = _store || new JEFRi.PostStore(this, );
-
 		return new JEFRi.Transaction(spec, this._store);
 	};
 
@@ -633,22 +642,14 @@ e.trigger("expand");
 	/**
 	 * Return a non-array of interned entities matching spec.
 	 *
-	 * If spec is an array with multiple elments, and ANY ONE matches, the
+	 * If spec is an array with multiple elements, and ANY ONE matches, the
 	 * result array will have only the matching entities. If NONE matches, the
 	 * result array will have one entity per spec.
 	 */
 	JEFRi.EntityContext.prototype.get = function(spec, callback) {
 		var self = this;
 		spec = (spec instanceof Array) ? spec : [spec];
-		var result = this.get_empty(spec, function(result, meta){
-			if(0 === result.length)
-			{	//Add the spec as new objects.
-				$.each(spec, function() {
-					result.push(self.build(this.type, this));
-				});
-			}
-			callback(result, meta);
-		});
+		return this.get_empty(spec).then(callback);
 	};
 
 	/**
@@ -656,12 +657,16 @@ e.trigger("expand");
 	 */
 	JEFRi.EntityContext.prototype.get_first = function(spec, callback) {
 		spec = (spec instanceof Array) ? spec : [spec];
-		var result = this.get(spec, function(data, meta){
+		var d = $.Deferred().then(callback);
+
+		this.get(spec).then(function(data, meta){
 			var _type = spec._type instanceof Function ?
 				spec._type() :
 				spec._type;
-			callback(data[_type].pop(), meta);
+			d.resolve(data[_type].pop(), meta);
 		});
+
+		return d.promise();
 	};
 
 	var pushResult = function(entity){
@@ -680,7 +685,7 @@ e.trigger("expand");
 		var transaction = this.transaction();
 		var deferred = $.Deferred().done(callback);
 
-		results.prototype.push = pushResult;
+		results.push = pushResult;
 
 		var q = spec.length, i;
 		for(i=0 ; i < q ; i++)
@@ -727,7 +732,7 @@ e.trigger("expand");
 		{	//just resolve...
 			deferred.resolve(results, {});
 		}
-		return deferred;
+		return deferred.promise();
 	};
 
 	/**
@@ -839,20 +844,24 @@ e.trigger("expand");
 	};
 
 	JEFRi.Transaction.prototype.get = function(callback) {
+		var d = $.Deferred().then(callback);
 		$(this).trigger('getting');
-		$(this).one('gotten', function(e, data){callback(data);});
+		$(this).one('gotten', function(e, data){d.resolve(data);});
 		if( this.store ) { this.store.get(this); }
+		return d.promise();
 	};
 
 	JEFRi.Transaction.prototype.persist = function(callback) {
+		var d = $.Deferred().then(callback);
 		$(this).trigger('persisting');
 		$(this).one('persisted', function(e, data){
 			$.each(this.entities, function(){
 				$(this).trigger('persisted');
 			});
-			callback(data);
+			d.resolve(data);
 		});
-		this.store && this.store.persist(this);
+		if( this.store ) { this.store.persist(this); }
+		return d.promise();
 	};
 
 	JEFRi.Transaction.prototype.add = function(spec) {
@@ -895,33 +904,43 @@ e.trigger("expand");
 			$(transaction).trigger(pre);
 			$(self).trigger(pre, transaction);
 			$(self).trigger('sending', transaction);
-			$.ajax({
+			return $.ajax({
 				type    : "POST",
 				url     : url,
 				data    : transaction.toString(),
-				dataType: "json",
-				success : function(data) {
+				dataType: "json"
+			}).then(
+				function(data) { //Success
 //					console.log("Logging success", data);
 					ec.expand(data, true);//Always updateOnIntern
 					$(self).trigger('sent', data);
 					$(self).trigger(post, data);
 					$(transaction).trigger(post, data);
 				},
-				error : function(data){
+				function(data){ // error
 					console.log("Logging error", data);
 				}
-			});
+			);
 		};
 
-		this.get = function(transaction) {
-			var url = (this.target + "get");
-			_send(url, transaction, 'getting', 'gotten');
-		};
+		if(this.target)
+		{	//Configured correctly, so we can safely transact.
+			this.get = function(transaction) {
+				var url = (this.target + "get");
+				return _send(url, transaction, 'getting', 'gotten');
+			};
 
-		this.persist = function(transaction) {
-			var url = (this.target + "persist");
-			_send(url, transaction, 'persisting', 'persisted');
-		};
+			this.persist = function(transaction) {
+				var url = (this.target + "persist");
+				return _send(url, transaction, 'persisting', 'persisted');
+			};
+		}
+		else
+		{	//No backing data store, so do nothing.
+			this.get = this.persist = function(transaction) {
+				return $.Deferred().resolve().promise();
+			};
+		}
 
 		/**
 		 * Always asynchronous.
