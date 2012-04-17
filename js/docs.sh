@@ -10,4 +10,4 @@ find . -type d -not -path '*test*' -not -name . | while read d
 	mv $d/docs/* docs/$d/ 
 done
 
-mv docs ../docs/js
+mv docs ../docs/docs/js
