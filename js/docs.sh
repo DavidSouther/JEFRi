@@ -1,13 +1,13 @@
-#\!/bin/sh 
-
-find . -name docs -exec rm -rf '{}' +
+find . -name docs -type d -exec rm -rf '{}' +
 mkdir docs
-find . -type d -not -path '*test*' -not -name . | while read d 
-	do cd $d 
-	docco *js 
-	cd - 
-	mkdir docs/$d/ 
-	mv $d/docs/* docs/$d/ 
+rm -rf ../docs/docs/js
+find . -type d -not -path '*test*' -not -name . | sed 's/\.\//' | while read d 
+do cd  
+/usr/local/bin/node /usr/bin/docco *js 
+cd - 
+mkdir docs// 
+mv /docs/* docs// 
 done
 
 mv docs ../docs/docs/js
+find . -name docs -type d -exec rm -rf '{}' +
