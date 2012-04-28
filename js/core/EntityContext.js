@@ -80,12 +80,12 @@ var noop = function(){};
 	// These handle most of the heavy lifting of building Entity classes.
 		var _default = function(type)
 		// A few default types.
-		 {
+		{
 			switch(type)
 			{
 				case "int":
 				case "float": return 0;
-				case "string":
+				case "string": return "";
 				default: return "";
 			}
 		};
@@ -324,7 +324,7 @@ var noop = function(){};
 		};
 
 		// Attach the mutators and accessors (mutaccs) to the prototype.
-		 //TODO Thuroughly debug these functions...
+		//TODO Thoroughly debug these functions...
 		var _build_relationship = function(definition, relationship) {
 			var ec = self;
 			var field = '_' + relationship.name;
@@ -352,8 +352,7 @@ var noop = function(){};
 						var self = this;
 						this[field] = [];
 						$.each(ec._instances[relationship.to.type], function(){
-							if(this[relationship.to.property]() ===
-							                 self[relationship.from.property]())
+							if(this[relationship.to.property]() === self[relationship.from.property]())
 							{
 								//Add it
 								self[field].push(this);
@@ -363,8 +362,7 @@ var noop = function(){};
 					else
 					{
 						//Just need the one...
-						this[field] = ec._instances[relationship.to.type]
-						                   [this[relationship.from.property]()];
+						this[field] = ec._instances[relationship.to.type][this[relationship.from.property]()];
 					}
 				}
 				return this[field];
@@ -427,19 +425,24 @@ var noop = function(){};
 			}
 		};
 
-		$.ajax({
-			type    : "GET",
-			url     : this.settings.contextUri,
-			dataType: "json",
-			async   : false
-		}).done(
-			function(data) {
-				if(!data) throw {
-					message: "Context loaded, but invalid."
-				};
-				_set_context(data, protos);
-			}
-		);
+
+		if(options.debug) {
+			_set_context(options.debug.context, protos);
+		} else {
+			$.ajax({
+				type    : "GET",
+				url     : this.settings.contextUri,
+				dataType: "json",
+				async   : false
+			}).done(
+				function(data) {
+					if(!data) throw {
+						message: "Context loaded, but invalid."
+					};
+					_set_context(data, protos);
+				}
+			);
+		}
 	};
 
 	JEFRi.EntityContext.prototype.clear = function(){
