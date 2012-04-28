@@ -9,12 +9,12 @@ Entities.Writer = function () {
 
 	this.add_meta = function(prop, val) {
 		this.meta[prop] = val;
-	}
+	};
 
 	this.add_property = function(entity, property, value) {
 		entity = this.add_entity(entity);
 		entity.add_property(property, value);
-	}
+	};
 
 	this.add_entity = function(entity) {
 		if(undefined == entity)
@@ -30,7 +30,7 @@ Entities.Writer = function () {
 			entity.encode(this);
 		}
 		return this.entities[uid];
-	}
+	};
 
 	this.Entity = function(entity) {
 		var self = this;
@@ -40,15 +40,15 @@ Entities.Writer = function () {
 
 		this.add_property = function(property, value) {
 			properties[property] = value;
-		}
+		};
 
-		this.id = function(){return id;}
-		this.type = function(){return type;}
+		this.id = function(){return id;};
+		this.type = function(){return type;};
 		this.properties = function(){
 			return properties;
-		}
-	}
-}
+		};
+	};
+};
 
 Entities.Writer.prototype.json_clean = function(string) {
 //		$text = preg_replace("/\n/s", '', $text);
@@ -57,7 +57,7 @@ Entities.Writer.prototype.json_clean = function(string) {
 //		$text = preg_replace('/\s*([\[\{\}\]])\s*/', '\1', $text);
 //		$text = preg_replace('/([,:])\s*"/', '\1"', $text);
 		return string;
-}
+};
 
 Entities.Writer.JSON = function(){
 	var writer = new Entities.Writer();
@@ -84,7 +84,7 @@ Entities.Writer.JSON = function(){
 		s += "}\n";
 
 		return this.json_clean(s);
-	}
+	};
 
 	function entityWriter(entity) {
 		$string  = "";
@@ -101,6 +101,6 @@ Entities.Writer.JSON = function(){
 	}
 
 	return writer;
-}
+};
 
 })();
