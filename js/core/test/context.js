@@ -1,6 +1,20 @@
 $(document).ready(function(){
 
-module("Entity Context");
+var testDone = (function(){
+	var tests = 3;
+	return function(){
+		test--;
+		if(test <= 0){
+
+		}
+	};
+});
+
+module("Entity Context", {
+	teardown: function(){
+		testDone();
+	}
+});
 
 test("Unit Testing Environment", function () {
 	expect(1);
