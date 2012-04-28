@@ -3,26 +3,28 @@
 \usepackage{color}
 \usepackage{listings}
 \lstset{ %
-language=Java,                % the language of the code
-basicstyle=\footnotesize,       % the size of the fonts that are used for the code
-numbers=left,                   % where to put the line-numbers
-numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
-stepnumber=1,                   % the step between two line-numbers. If it's 1, each line
-                                % will be numbered
-numbersep=5pt,                  % how far the line-numbers are from the code
-backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
-showspaces=false,               % show spaces adding particular underscores
-showstringspaces=false,         % underline spaces within strings
-showtabs=false,                 % show tabs within strings adding particular underscores
-frame=single,                   % adds a frame around the code
-tabsize=4,                      % sets default tabsize to 2 spaces
-captionpos=b,                   % sets the caption-position to bottom
-%breaklines=true,                % sets automatic line breaking
-breakatwhitespace=false        % sets if automatic breaks should only happen at whitespace
+	language=Java,                % the language of the code
+	basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+	numbers=left,                   % where to put the line-numbers
+	numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+	stepnumber=1,                   % the step between two line-numbers. If it's 1, each line
+	                                % will be numbered
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	frame=single,                   % adds a frame around the code
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	%breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=false        % sets if automatic breaks should only happen at whitespace
 }
 
 \usepackage{fullpage}
 \linespread{1.3}
+
+\newcommand{\ilcode}{\tt}
 
 \begin{document}
 
@@ -33,40 +35,51 @@ breakatwhitespace=false        % sets if automatic breaks should only happen at 
 \linespread{1.6}
 
 \section{Overview}
-JEFRi is an entity framework. The idea of an EF is to model software as close to
-the problem domain as possible. JEFRi accomplishes this by specifying an Entity
-Context independent of the programming language. This context describes the
-entities available in the domain model, the properties of those enties, and the
-attributes of entities and properties. Further, it describes the relationships
-between entities. These navigation properties allow entities to act naturally
-and transparently as composite types. This allows intelligent loading of related
-data, without requiring an application to load an entire object graph.
 
-Entities are analogous to Objects in OOP, and Tables in databases. They are the
-building blocks of the domain, the things the domain is modeling. These could be
-receipts in a Point of Sale application, Clients in Contact Management System,
-or Planets in a physics model. Properties are the pieces of data that describe
-an entity --- the transaction date of the receipt, or the name of the client.
-Attributes provide meta-information about entities and properties. All entities
-have a key attribute, that tells which property holds the entity's keys. All
-properties have a type attribute, describing what data they hold. Beyond some
-minimal required data, attributes can contain any additional information the
-application may need. It is the responsibility of the application to use that
-data --- the context will merely hold it.
+JEFRi is an entity framework. Entity Frameworks allow developers to specify
+data descriptions and relationships a single time, then share data throughout
+the application space in a unified way. JEFRi accomplishes this by specifying
+an Entity Context independent of any programming language. This context
+describes the entities available in the domain model, the properties of those
+entities, and any additional attributes needed to make the model suitable
+robust. Further, it describes the relationships between entities. These
+navigation properties allow entities to act naturally and transparently as
+composite types. This allows intelligent loading of related data, without
+requiring an application to load an entire object graph.
 
-The word {\sl Object} occurs rather often in this documentation. In general, it
-does not mean an instance of a class. Rather, {\sl Object} follows the
-Javascript meaning of a key/value store. {\sl Entity} is used closer to the idea
-of an instance in classical inheritance.
+An Entity Framework provides a wealth of functionality over a pure
+Object-Relational Mapper. Straight ORMs simply translate between a database
+table and an instantiated object. A full EF includes tracking modifications
+of entities, descriptive methods to navigate entity relationships, intelligent
+sharing between framework instances, and more. JEFRi is a specification for how
+to provide these entities, how to share these entities, and many other features
+enabling software projects to quickly and efficiently work with their data.
 
-\section{Keys}
-Every Entity must have a key, a single unique field identifying that entity
-across all instances of the runtime. To meet this requirement in a distrubuted,
-heterogeneous environment, keys are version 4 (random) UUIDs.
-Keys are used exclusively to refer to entities of a specific type. To maintain
-unique object graphs through flattening into transactions, the key is used as an
-object identifier, saving the need to handle issues of using memory references
-or incrementing integers as keys.
+The word {\sl Object} occurs rather often in this documentation. In general,
+it does not mean an instance of a class. Rather, {\sl Object} follows the
+Javascript meaning of a key/value store. {\sl Entity} is used closer to the
+idea of an instance in classical inheritance.
+
+\section{Entities}
+
+Entities are independent, identifiable things. Entities are analogous to Objects
+in OOP, and Table Rows in databases. Entities are the building blocks of the
+domain, the things the domain is modeling. Entities could be receipts in a Point
+of Sale application, Clients in Contact Management System, or Planets in a
+physics model. Entities within an entity framework are endowed with a variety of
+backing infrastructure, including tools to share data between runtimes, tools to
+store data to various persistence layers, tools to track the history of the
+entity, and more.
+
+\subsection{Keys}
+
+Every Entity must have a key --- a single unique field identifying that entity
+across all instances of any runtimes. To meet this requirement in a distributed,
+heterogeneous environment, keys are version 4 (random) UUIDs. Keys are used
+exclusively to refer to entities of a specific type. To maintain unique object
+graphs through flattening into transactions, the key is used as an object
+identifier, saving the need to handle issues of using memory references or
+incrementing integers as keys.
 
 Entity keys are immutable.
 
@@ -89,32 +102,52 @@ Much". Then again, no one needs more than 640K. If a context expects more
 entities of some type than this, it would be simple to replace the key generator
 implementation with something more suitably robust for that application.
 
-\section{Relationships}
-Relationships have two ends, the "From" and and the "To" end. These ends change
-roles depending on which entity is accessing the relationship. The "From" end is
-always the side of the relationship doing the accessing, and the "To" end is the
-side being accessed. Ends have a "Type" and a "Property". The "Property" tells
-which property holds the key for that end, and the "Type" property describes how
-the "To" end should be accessed. Ends have two types- "has\_a" and "has\_many".
-A third type, "is\_a", is a specialized "has\_a".
+\subsection{Properties}
 
-Relationships can be navigated by calling the appropriate get\_navprop method of
-the entity. For example, if a Receipt has an associated Client, you could call
-receipt.get\_client() which would return a single Client. Conversely, from the
-client end, you could call client.get\_receipts() to return an array of Receipt
-entities. Notice how the navigation methods are properly pluralized. This is a
-result of naming the relationships "user" and "receipts" in the context- it is
-not the runtime's responsibility to handle pluralities, but the context
-generator's.
+Properties are the non-independent pieces of data that describe an entity. These
+are the columns in a table, or the fields of an object.
+
+Attributes provide meta-information about entities and
+properties. All entities have a key attribute, that tells which property holds
+the entity's keys. All properties have a type attribute, describing what data
+they hold. Beyond some minimal required data, attributes can contain any
+additional information the application may need. It is the responsibility of
+the application to use that data --- the context will merely hold it.
+
+\subsection{Relationships}
+
+Relationships describe how entities interact with and reference
+other entities. This allows developers to write very natural expressions when
+moving between data records.
+
+Relationships have two ends, the {\ilcode From} and and the {\ilcode To} end.
+These ends change roles depending on which entity is accessing the relationship.
+The {\ilcode From} end is always the side of the relationship doing the
+accessing, and the {\ilcode To} end is the side being accessed. Ends have a
+{\ilcode Type} and a {\ilcode Property}. The {\ilcode Property} tells which
+property holds the key for that end, and the {\ilcode Type} property describes
+how the {\ilcode To} end should be accessed. Ends have two types- {\ilcode
+has\_a} and {\ilcode has\_many}. A third type, {\ilcode is\_a}, is a specialized
+{\ilcode has\_a}.
+
+Relationships can be navigated by calling the appropriate {\ilcode get\_navprop}
+method of the entity. For example, if a Receipt has an associated Client, you
+could call {\ilcode receipt.get\_client()} which would return a single Client.
+Conversely, from the client end, you could call {\ilcode client.get\_receipts()}
+to return an array of Receipt entities. Notice how the navigation methods are
+properly pluralized. This is a result of naming the relationships {\ilcode user}
+and {\ilcode receipts} in the context- it is not the runtime's responsibility to
+handle pluralities, but the context generator's.
 
 \section{Contexts}
+
 JEFRi Contexts are descriptions of the entity model. Contexts are described here
 as JSON objects, though can be any persistable object serialization. Contexts
-are objects with two properties --- meta, describing the overall context options,
-and entities, an array of entity descriptions.
+are objects with two properties --- {\ilcode meta}, describing the overall
+context options, and {\tt entities}, an array of entity descriptions.
 
 A context's meta is an object containing arbitrary keyed data for the runtime's
-consumption. For example, a meta could declare "Persist On Update" to be true.
+consumption. For example, a meta could declare ``Persist On Update" to be true.
 In this case, the runtime could then automatically attempt to persist an entity
 any time its properties were updated. The list of canonical meta attributes and
 their meaning will grow organically as JEFRi is fleshed out. Otherwise, the
@@ -122,61 +155,65 @@ documentation for a particular implementation must specify the Meta attributes
 it handles, as well as their meanings.
 
 The entities array is the heart of the context. Each entry describes one entity
-available. The entry is an object with five keys. Those are `name`, the canonical
-name for the entity type; `key`, the property containing the entity's UUID;
-properties, an array containing the properties of the entity; relationships, an
-array containing descriptions of the various navigation properties; and
-attributes, an object describing various metadata about the entity itself.
+available. The entry is an object with five keys. Those are {\ilcode name}, the
+canonical name for the entity type; {\ilcode key}, the property containing the
+entity's UUID; {\ilcode properties}, an array containing the properties of the
+entity; {\ilcode relationships}, an array containing descriptions of the various
+navigation properties; and {\ilcode attributes}, an object describing various
+metadata about the entity itself.
 
 The name is the canonical type name for an entity. It is used extensively to
 look up property definitions from several points in the application, especially
 when creating new entities, persisting entities, and navigating entity
 relationships. Entity names must be unique within a context. Entity names must
-be valid Javascript object keys- aka,
-{\tt $=\sim$ /[a-zA-Z\_\$][a-zA-Z0-9\_\$]+/}
+be valid Javascript object keys ---
+{\ilcode $=\sim$ /[a-zA-Z\_\$][a-zA-Z0-9\_\$]+/}
 
 The key is the name of the property containing the entity's key. See the
 section on entity keys for more details on how keys are used in JEFRi.
 
-Properties is an array of objects similar in layout to entities, but without keys
-or relationships. Specifically, properties must define a name, a type, and an
-array of attributes. The name is the Javascript-safe property identifier, and
-must be unique among the properties of an entity. The type is the
-platform-agnostic datatype specifier. Canonically recognized types are int,
-float, and string. Attributes is an object of arbitrary key/value pairs.
-Currently recognized keys are nullable, and length for string. Again, it is the
-runtime implementor's responsibility to document recognized attributes and their
+Properties is an array of objects similar in layout to entities, but without
+keys or relationships. Specifically, properties must define a name, a type, and
+an array of attributes. The name is the Javascript-safe property identifier, and
+must be unique among the properties of an entity. The type is the platform-
+agnostic datatype specifier. Canonically recognized types are int, float, and
+string. Attributes is an object of arbitrary key/value pairs. Currently
+recognized keys are nullable, and length for string. Again, it is the runtime
+implementor's responsibility to document recognized attributes and their
 behavior.
 
 Relationships is an array describing the various navigation properties available
 to an entity. A relationship has four keys--- name, the identifier for the
-navigation; type, one of "is\_a", "has\_a", or "has\_many"; and to and from,
-describing the entities taking part in the relationship. Name must be a locally
-unique, valid Javascript identifier. Further, it defines which get\_ method must
-be called to navigate the relationship (specifically, entity.get\_`name`()).
-Type determines what will be returned when navigating the relationship. has\_a
-and is\_a will return a single entity, while has\_many will return a (possibly
-empty) array of entities. Also, there is some indication that the far side of a
-has\_a or has\_many relationship will probably have a has\_a or has\_many
-navigation that would lead back to the entity on the from side (however, this is
-not a requirement). is\_a will probably not have a reverse navigation.
+navigation; type, one of {\ilcode is\_a}, {\ilcode has\_a}, or {\ilcode
+has\_many}; and to and from, describing the entities taking part in the
+relationship. Name must be a locally unique, valid Javascript identifier.
+Further, it defines which {\ilcode get\_ method} must be called to navigate the
+relationship (specifically, {\ilcode entity.get\_`name`()}). Type determines
+what will be returned when navigating the relationship. {\ilcode has\_a} and
+{\ilcode is\_a} will return a single entity, while {\ilcode has\_many} will
+return a (possibly empty) array of entities. Also, there is some indication that
+the far side of a {\ilcode has\_a} or {\ilcode has\_many} relationship will
+probably have a {\ilcode has\_a} or {\ilcode has\_many} navigation that would
+lead back to the entity on the from side (however, this is not a requirement).
+{\ilcode is\_a} will probably not have a reverse navigation.
 
 Finally, the from and to properties describe where to look up the data needed
 for the navigation. In all relationships, both the from and to type fields {\it
 must} resolve to a valid entity name in the same context (TODO possibly change
-this so there is a posisbility for cross-context navigation?). The property
+this so there is a possibility for cross-context navigation?). The property
 fields are used slightly differently depending on what the type of the
-relationship is. In a has\_a relationship, the to.property should be the same as
-the to.type.key, and the navigation property will return the one to.type whose
-key is equal to the from.property. The opposite is similar for has\_many.
+relationship is. In a {\ilcode has\_a relationship}, the {\ilcode to.property}
+should be the same as the {\ilcode to.type.key}, and the navigation property
+will return the one to.type whose key is equal to the from.property. The
+opposite is similar for {\ilcode has\_many}.
 
 \subsection{Persistence Stores}
+
 Instances of JEFRi contexts need some mechanism for long-term persistence of
-entity data. Persistence stores provide this by providing a flexible,
-driver-based approach.
-Persistence stores must provide a persist and a get
-method, each taking a JEFRi transaction (see next section) and performing the
-appropriate actions. Stores should also provide an is\_async method, which tells
+entity data. Persistence stores provide this by providing a flexible, driver-
+based approach. Persistence stores must provide a persist and a get method, each
+taking a JEFRi transaction (see next section) and performing the appropriate
+actions. Stores should also provide an {\ilcode is\_async} method, which tells
 the user whether to expect the store to return immediately, or happen in the
 background with a callback.
 
@@ -190,9 +227,10 @@ the transaction specifications. See the section on transaction specifications
 for the exact semantics of get requests.
 
 \section{Transactions}
+
 The most important, fundamental concept in computer programing is the word-level
 atomic write. Since the first computers, it was impossible to read an
-inconsistent word of memory- if a read and a write occur ``simultaneously'',
+inconsistent word of memory- if a read and a write occur {\sl simultaneously},
 the read will either return the value in memory BEFORE the write, or the value
 in memory AFTER the write. It will NEVER return some of the before and some of
 the after bits. Of course, at a hardware level, this only works with the
@@ -217,22 +255,23 @@ the entities to deal with.
 
 In a GET transaction, the entities array is a template for which entities should
 be returned. The return transaction will contain all entities that meet the
-criteria in the transction. Specifically, the remote instance will look at the
+criteria in the transaction. Specifically, the remote instance will look at the
 first object in the transaction. It will return all entities of that type whose
 properties match the given properties. It will join specified navigation
-properties (using just `name`, not get\_name). It will do this for each entity
-in the array. In other words, the individual entities specify AND conditions,
-while the multiple entities specify OR conditions.
+properties (using just {\ilcode name}, not {\ilcode get\_name}). It will do this
+for each entity in the array. In other words, the individual entities specify
+AND conditions, while the multiple entities specify OR conditions.
 
-In a PERSIST transction, the entities array has the literal data that must be
+In a PERSIST transaction, the entities array has the literal data that must be
 persisted. The remote JEFRi runtime is responsible for making the persist atomic
-and returning a transaction filling in the additional details it has about these
-entities that was not included in the original transaction (eg, a JEFRi
-instance may persist an entity to a runtime using DB2 as a backend, and one
-property has an update trigger setting the timestamp to `now'--- the reply
+and returning a transaction filling in the additional or updated details it has
+about these entities that was not included in the original transaction (eg, a
+JEFRi instance may persist an entity to a runtime using DB2 as a backend, and
+one property has an update trigger setting the timestamp to `now'--- the reply
 transaction would include the updated value for that property).
 
 \subsection{Transaction Specifications}
+
 Data for a transaction should be described as close to the domain model as
 possible. However, requiring only full entities would result in more verbose
 transactions than necessary. To that end, the specification to a transaction
@@ -248,20 +287,21 @@ format should be similar to:
 	cards: {}
 }]
 \end{lstlisting}
-
 \linespread{1.6}
+
 If this were a GET transaction, the reply would have an array of entities of
-User and Card, with all the User entities having surname = 'Franken', prop2 =
-value2, and all the Cards correctly associated with the matched Users.
+User and Card, with all the User entities having {\ilcode surname = `Franken',
+prop2 = value2}, and all the Cards correctly associated with the matched Users.
 Navigation property objects can specify constraints on the nav properties
 returned, and can themselves declare navigation properties to return. It is not
-necessary to specity a type in a navprop --- any that are will be ignored.
+necessary to specify a type in a navigation property --- any that are will be
+ignored.
 
-If this were a PERSIST transaction, the key property {\it must } be included.
-The persistant store would update (or store) the values of the entity with the
+If this were a PERSIST transaction, the key property {\it must} be included. The
+persistent store would update (or store) the values of the entity with the
 properties passed in. Navigation properties should not be included in a
-transaction (they will be ignored). To save nav properties, each entity should
-be added individually.
+transaction (they will be ignored). To save navigation properties, each entity
+should be added individually.
 
 \subsubsection{Gory Get Details}
 To capture the full expressivity developers need in describing data, there are
@@ -273,7 +313,7 @@ converted to an appropriate format for the store, and the property must match
 exactly. While the UUID can be transmitted as a hex string, it is recommended to
 transmit it as a 16-byte integer to conserve space.
 
-If value is an interger, properties must match exactly.
+If value is an integer, properties must match exactly.
 
 If value is a float, either it should be matched at a $2^{-8}$ threshold or it
 can be the first number of an array tuple, whose second parameter specifies the
@@ -284,22 +324,22 @@ Returned entities will have properties whose values contain the string (case
 sensitive).
 
 If the value is an array, the first field in the array may specify an operation,
-or be a floating point number (see above). Valid operations are any of {\tt
-$<$}, {\tt $\le$}, {\tt $>$}, {\tt $\ge$}, {\tt $=$}, and {\tt REGEX}. {\tt
-REGEX} treats the next value as a PCRE regular expression, and any returned
-entities will have that property matching the regex. Otherwise, the operations
-are as specified by the store, but generally should be numerical ordering for
-numbers, and lexicographical ordering for strings.
+or be a floating point number (see above). Valid operations are any of {\ilcode
+$<$}, {\ilcode $<=$}, {\ilcode $>$}, {\ilcode $>=$}, {\ilcode $=$}, and {\ilcode
+REGEX}. {\ilcode REGEX} treats the next value as a PCRE regular expression, and
+any returned entities will have that property matching the regex. Otherwise, the
+operations are as specified by the store, but generally should be numerical
+ordering for numbers, and lexicographical ordering for strings.
 
-SUM? AVERAGE? COUNT? MAX? MIN?
+%SUM? AVERAGE? COUNT? MAX? MIN?
 
-GROUP BY?
+%GROUP BY?
 
 If the value is an array whose first parameter is not an operator or another
-array, the returned entity's property will match as an IN clause, with itegers
+array, the returned entity's property will match as an IN clause, with integers
 matching exactly and string matching as described above. If the first parameter
 is an array, then each element of the value's array is treated as an ANDed where
-clause, with the componentes of sub arrays following the same (value) or
+clause, with the components of sub arrays following the same (value) or
 (operator, value) rules presented here.
 
 Using a common SQL driver,
@@ -316,7 +356,9 @@ Using a common SQL driver,
 }]
 \end{lstlisting}
 \linespread{1.6}
+
 becomes
+
 \linespread{1}
 \begin{lstlisting}
 SELECT
@@ -342,8 +384,8 @@ WHERE
 	AND User.date_of_birth <= 1200000000
 	AND User.date_of_birth >= 1100000000
 \end{lstlisting}
-
 \linespread{1.6}
+
 Since this is a left join and there are no constraints on Card, this query will
 return a number of rows equal to the total number of matched cards. With more
 than one contact card per User, some of the User data will be duplicated. The
@@ -356,56 +398,57 @@ another instance. For a database-backed entity store, these transactions could
 return quickly. For a store that has to post the transaction to a remote host,
 the persist might take much longer. To unify the interface, all persists are
 asynchronous, and must be passed a callback. With this in mind, there are three
-seperate techniques or approaches to handling a persist transaction.
+separate techniques or approaches to handling a persist transaction.
 
 The first approach is managing the transaction directly. First, the application
-readies a transaction from the EntityContext by calling {\tt ec.transaction()}.
-The application can then add a number of entities to the transaction via
-{\tt transaction.add(entity)}. Finally, the application shold call
-{\tt transaction.persist(callback)} to persist and finalize the request. Persist
-can be called multiple times on a transaction; however, there is no way to
-remove an entity from a transaction. The same entity can be added multiple times
-without being duplicated in the final send.
+readies a transaction from the EntityContext by calling {\ilcode
+ec.transaction()}. The application can then add a number of entities to the
+transaction via {\ilcode transaction.add(entity)}. Finally, the application
+should call {\ilcode transaction.persist()} to persist and finalize the request.
+Persist can be called multiple times on a transaction; however, there is no way
+to remove an entity from a transaction. The same entity can be added multiple
+times without being duplicated in the final send.
 
 The second is persisting the changes to a single entity. Every entity has a
-function {\tt persist(callback)}. This function will call another function,
-{\tt entity.on\_persist(transction)}, passing in the transaction that will
+function {\ilcode persist()}. This function will call another function,
+{\ilcode entity.on\_persist(transaction)}, passing in the transaction that will
 handle the persist request. The entity should use this to add related data to
 the transaction. This technique can be combined effectively with the first
 approach.
 
 The final technique is a pair of helper methods in the EntityContext itself. The
 EC maintains an internal record of what entities have been changed, and what
-entities have been added. The two methods {\tt ec.persist\_new(callback)} and
-{\tt ec.persist\_changes(callback)} can be used to easily persist all entities
-that have been modified, but not persisted.
+entities have been added. The two methods {\ilcode ec.persist\_new(callback)}
+and {\ilcode ec.persist\_changes(callback)} can be used to easily persist all
+entities that have been modified, but not persisted.
 
-\subsection{Entity Accounting}
-To facilitate minimizing data transfer, entities and the EntityContext keep
-track of changes that occur during runtime. The EntityContext maintains an array
-of new entities and an array of modified entities. These can be used to quickly
-index what needs to be sent in {\tt persist\_changes} or {\tt persist\_new}.
+\subsection{Entity Accounting} To facilitate minimizing data transfer, entities
+and the EntityContext keep track of changes that occur during runtime. The
+EntityContext maintains an array of new entities and an array of modified
+entities. These can be used to quickly index what needs to be sent in {\ilcode
+persist\_changes} or {\ilcode persist\_new}.
 
 Entities maintain accounting information regarding their status. This is stored
 in two properties and a function.
 
-{\tt \_\_new} Boolean property, set to true if this is a new entity.
+{\ilcode \_\_new} Boolean property, set to true if this is a new entity.
 
-{\tt \_\_modified} Object whose keys are property names that have been updated,
-and those values are the value when the object was last persisted (or the
-default value, if the entity is new). When an property of an entity is set, the
-entity should check in its \_\_modified object for the property. If the property
-is not in \_\_modified, set \_\_modified[property] to the current value of
-entity[property], update entity[property], and add itself to the EntityContext's
-\_modified list. If the property {\it  is} in
-\_\_modified, and the value in \_\_modified is the same as the setter's value, then
-the entity should set its property and remove the property from \_\_modified. If
-that was the last property in \_\_modified, the entity should remove itself from
-the EntityContext's modified list.
+{\ilcode \_\_modified} Object whose keys are property names that have been
+updated, and those values are the value when the object was last persisted (or
+the default value, if the entity is new). When an property of an entity is set,
+the entity should check in its \_\_modified object for the property. If the
+property is not in \_\_modified, set \_\_modified[property] to the current value
+of entity[property], update entity[property], and add itself to the
+EntityContext's \_modified list. If the property {\it  is} in \_\_modified, and
+the value in \_\_modified is the same as the setter's value, then the entity
+should set its property and remove the property from \_\_modified. If that was
+the last property in \_\_modified, the entity should remove itself from the
+EntityContext's modified list.
 
-{\tt \_status} Is a function returning one of `NEW', `MODIFIED', or `PERSISTED'.
+{\ilcode \_status} Is a function returning one of {\ilcode NEW}, {\ilcode
+MODIFIED}, or {\ilcode PERSISTED}.
 
-Every entity has a default {\tt persisted} event handler that clears the
+Every entity has a default {\ilcode persisted} event handler that clears the
 modified object, clears the new flag, and removes the entity from the
 EntityContext's new and modified arrays.
 
@@ -419,110 +462,110 @@ are generally only called from the transaction. However, there is no formal
 `user-mode' constraints, so that is a recommendation, not a requirement.
 
 \subsection{Context Methods}
-	{\tt EntityContext(URI, protos) }\
+	{\ilcode EntityContext(URI, options, protos) }\
 		The context CTOR. Creates a new context from the json at the URI given,
 		and extends the entity classes with the protos.
 
-	{\tt definition(type) }\
+	{\ilcode definition(type) }\
 		Returns the context's definition for the specified type.
 
-	{\tt extend(type, proto) }\
+	{\ilcode extend(type, proto) }\
 		Add the methods in proto to type's prototype. Will effect {\it ALL}
 		instances, both current and future, of type.
 
-	{\tt build(type, obj) }\
+	{\ilcode build(type, obj) }\
 		Return an non-interned instance of type with properties filled in from
 		obj.
 
-	{\tt intern(entity, updateOnIntern) }\
+	{\ilcode intern(entity, updateOnIntern) }\
 		Returns a canonical instance of the entity from memory. Use this to
 		translate between UUIDs and pointers (or similar machine references). If
-		the boolean {\tt updateOnIntern} is true, and there is a previously
+		the boolean {\ilcode updateOnIntern} is true, and there is a previously
 		stored entity, the old entity will be updated with any non-default
 		properties of the new entity.
 
-	{\tt expand(transaction) }\
+	{\ilcode expand(transaction) }\
 		Take a return transaction and expand the entities in it. Intern where
-		possible, and call {\tt add\_`name`} and {\tt set\_`name` where}
+		possible, and call {\ilcode add\_`name'} and {\ilcode set\_`name' where}
 		appropriate.
 
 \subsection{Entity Methods}
-\indent {\tt id()} \
-		Return the UUID of the object, indepented of whichever property actually
-		stores it.
+\indent {\ilcode id()} \
+		Return the UUID of the object, independent of whichever property
+		actually stores it.
 
-	{\tt \_type()} \
+	{\ilcode \_type()} \
 		Returns a string of the canonical entity type.
 
-	{\tt get\_`name`() }\
+	{\ilcode get\_`name'() }\
 		Follow a navigation property. Returns either a single or (possibly
 		empty) array with the to end of the relationship.
 
-	{\tt set\_`name`(to\_entity) }\
-		Set the has\_a navigation property. Correctly updates everyone's nav
-		property ids.
+	{\ilcode set\_`name'(to\_entity) }\
+		Set the has\_a navigation property. Correctly updates everyone's
+		navigation property ids.
 
-	{\tt add\_`name`(to\_entity) }\
+	{\ilcode add\_`name'(to\_entity) }\
 		Add to the has\_many array.
 
-	{\tt encode(writer) }\
-		Pass the entity, its properties, and its nav properties to the
+	{\ilcode encode(writer) }\
+		Pass the entity, its properties, and its navigation properties to the
 		transaction writer.
 
 \subsection{Transaction Methods}
-	{\tt Transaction(entities) }
+	{\ilcode Transaction(entities) }
 		Constructor. Entities describes the data in the transaction. See the
-		secton on Transactions for details.
+		section on Transactions for details.
 
-	{\tt add(entities) }
+	{\ilcode add(entities) }
 		Add these entities to the transaction.
 
-	{\tt meta(attributes) }
+	{\ilcode meta(attributes) }
 		Specify meta attributes. Currently supported are
 
-	{\tt get() }
+	{\ilcode get() }
 		Run the transaction as a get transaction.
 
-	{\tt persist() }
+	{\ilcode persist() }
 		Run the transaction as a persist transaction.
 
 \subsection{Events}
 \subsubsection{EntityContext}
-{\tt saving/saved} Called before and after the transction is persisted inside
-{\tt persist\_new} and {\tt persist\_changes}.
+{\ilcode saving / saved} Called before and after the transaction is persisted inside
+{\ilcode persist\_new} and {\ilcode persist\_changes}.
 
 \subsubsection{Entity}
-{\tt on\_persist(transaction)} called during single entity persistence.
+{\ilcode on\_persist(transaction)} called during single entity persistence.
 
-{\tt persisting()}
+{\ilcode persisting()}
 
-{\tt persisted()}
+{\ilcode persisted()}
 
-\subsubsection{Tranasaction}
-{\tt getting()}
+\subsubsection{Transaction}
+{\ilcode getting()}
 
-{\tt gotten()}
+{\ilcode gotten()}
 
-{\tt persisting()}
+{\ilcode persisting()}
 
-{\tt persisted(data)}
+{\ilcode persisted(data)}
 
-{\tt sending()}
+{\ilcode sending()}
 
-{\tt sent()}
+{\ilcode sent()}
 
-{\tt continuation()}
+{\ilcode continuation()}
 
 \subsubsection{PersistStore}
-{\tt getting}
+{\ilcode getting}
 
-{\tt gotten}
+{\ilcode gotten}
 
-{\tt persisting}
+{\ilcode persisting}
 
-{\tt persisted()}
+{\ilcode persisted()}
 
-\subsubsection{Order}
+\subsubsection{Lifecycle}
 This is the order of events fired during a PersistStore GET request.
 \linespread{1}
 \begin{lstlisting}
@@ -589,10 +632,9 @@ store.sent();
 				"from": {
 					"type": "User",
 					"property": "user_id",
-					"vname": "user"}}],
-		 "attributes": {
-			  "vname": "users",
-			  "svname": "user"}},
+					"vname": "user"}}]
+		 "methods": [],
+		 "attributes": {}},
 
 	{	"name": "Manager",
 		 "key": "user_id",
@@ -612,9 +654,8 @@ store.sent();
 					"type": "Manager",
 					"property": "user_id",
 					"vname": "user"}}}],
-		 "attributes": {
-			  "vname": "managers",
-			  "svname": "manager"}},
+		 "methods": [],
+		 "attributes": {}},
 
 	{	"name": "Executive",
 		 "key": "user_id",
@@ -634,9 +675,8 @@ store.sent();
 					"type": "Executive",
 					"property": "user_id",
 					"vname": "user"}}],
-		 "attributes": {
-			  "vname": "executives",
-			  "svname": "executive"}},
+		 "methods": [],
+		 "attributes": {}},
 
 	{	"name": "Card",
 		 "key": "card_id",
@@ -694,9 +734,8 @@ store.sent();
 					"type": "Card",
 					"property": "user_id",
 					"vname": "user"}}],
-		 "attributes": {
-			  "vname": "cards",
-			  "svname": "card"}},
+		 "methods": [],
+		 "attributes": {}},
 
 	{	"name": "Authinfo",
 		 "key": "authinfo_id",
@@ -737,10 +776,16 @@ store.sent();
 					"type": "Authinfo",
 					"property": "user_id",
 					"vname": "user"}}],
-		 "attributes": {
-			  "vname": "authinfo",
-			  "svname": "authinfo"}}
+		 "methods": [],
+		 "attributes": {}},
 ]}
+\end{lstlisting}
+
+\subsubsection{Sample Prototypes}
+\begin{lstlisting}
+{
+
+}
 \end{lstlisting}
 
 \subsection{Sample GET}
