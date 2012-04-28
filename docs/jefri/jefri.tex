@@ -25,6 +25,20 @@
 \linespread{1.3}
 
 \newcommand{\ilcode}{\tt}
+\newcommand{\method}[4]{
+	\begin{tabular}{ | l | p{6in} | }
+	\hline
+	\multicolumn{2}{|l|}{\ilcode #1 ({\it #2})} \\
+	\hline
+	\multicolumn{2}{|p{7in}|}{#3} \\
+	\hline
+	#4
+	\end{tabular}
+}
+\newcommand{\param}[2]{
+	{\ilcode #1} & #2 \\
+	\hline
+}
 
 \begin{document}
 
@@ -462,72 +476,80 @@ are generally only called from the transaction. However, there is no formal
 `user-mode' constraints, so that is a recommendation, not a requirement.
 
 \subsection{Context Methods}
-	{\ilcode EntityContext(URI, options, protos) }\
-		The context CTOR. Creates a new context from the json at the URI given,
-		and extends the entity classes with the protos.
+	\method{EntityContext}{URI, options, protos}
+	{The context CTOR. Creates a new context from the json at the URI given,
+		and extends the entity classes with the protos.}
+	{
+		\param{URI}{The URI for the context description.}
+		\param{options}{An object containing override parameters.}
+		\param{protos}{An object whose keys are Entity types, and whose values
+			are the new prototypes for that entity.}
+	}
 
-	{\ilcode definition(type) }\
-		Returns the context's definition for the specified type.
+	\method{definition}{type}
+	{Returns the context's definition for the specified type.}
+	{}
 
-	{\ilcode extend(type, proto) }\
-		Add the methods in proto to type's prototype. Will effect {\it ALL}
-		instances, both current and future, of type.
+	\method{extend}{type, proto}
+		{Add the methods in proto to type's prototype. Will effect {\it ALL}
+				instances, both current and future, of type.}{}
 
-	{\ilcode build(type, obj) }\
-		Return an non-interned instance of type with properties filled in from
-		obj.
+	\method{build}{type, obj}
+		{Return an non-interned instance of type with properties filled in from
+				obj.}{}
 
-	{\ilcode intern(entity, updateOnIntern) }\
-		Returns a canonical instance of the entity from memory. Use this to
+	\method{intern}{entity, updateOnIntern}
+		{Returns a canonical instance of the entity from memory. Use this to
 		translate between UUIDs and pointers (or similar machine references). If
 		the boolean {\ilcode updateOnIntern} is true, and there is a previously
 		stored entity, the old entity will be updated with any non-default
-		properties of the new entity.
+		properties of the new entity.}{}
 
-	{\ilcode expand(transaction) }\
-		Take a return transaction and expand the entities in it. Intern where
+	\method{expand}{transaction}
+		{Take a return transaction and expand the entities in it. Intern where
 		possible, and call {\ilcode add\_`name'} and {\ilcode set\_`name' where}
-		appropriate.
+		appropriate.}{}
 
 \subsection{Entity Methods}
-\indent {\ilcode id()} \
-		Return the UUID of the object, independent of whichever property
-		actually stores it.
+	\method{id}{}
+		{Return the UUID of the object, independent of whichever property
+				actually stores it.}{}
 
-	{\ilcode \_type()} \
-		Returns a string of the canonical entity type.
+	\method{\_type}{}
+		{Returns a string of the canonical entity type.}{}
 
-	{\ilcode get\_`name'() }\
-		Follow a navigation property. Returns either a single or (possibly
-		empty) array with the to end of the relationship.
+	\method{get\_`name'}{}
+		{Follow a navigation property. Returns either a single or (possibly
+				empty) array with the to end of the relationship.}{}
 
-	{\ilcode set\_`name'(to\_entity) }\
-		Set the has\_a navigation property. Correctly updates everyone's
-		navigation property ids.
+	\method{set\_`name'}{to\_entity}
+		{Set the has\_a navigation property. Correctly updates everyone's
+				navigation property ids.}{}
 
-	{\ilcode add\_`name'(to\_entity) }\
-		Add to the has\_many array.
+	\method{add\_`name'}{to\_entity}
+		{Add to the has\_many array.}{}
 
-	{\ilcode encode(writer) }\
-		Pass the entity, its properties, and its navigation properties to the
+	\method{encode}{writer}
+		{Pass the entity, its properties, and its navigation properties to the
+				transaction writer.}{}
 		transaction writer.
 
 \subsection{Transaction Methods}
-	{\ilcode Transaction(entities) }
-		Constructor. Entities describes the data in the transaction. See the
-		section on Transactions for details.
+	\method{Transaction}{entities}
+		{Constructor. Entities describes the data in the transaction. See the
+				section on Transactions for details.}{}
 
-	{\ilcode add(entities) }
-		Add these entities to the transaction.
+	\method{add}{entities}
+		{Add these entities to the transaction.}{}
 
-	{\ilcode meta(attributes) }
-		Specify meta attributes. Currently supported are
+	\method{meta}{attributes}
+		{Specify meta attributes. Currently supported are}{}
 
-	{\ilcode get() }
-		Run the transaction as a get transaction.
+	\method{get}{}
+		{Run the transaction as a get transaction.}{}
 
-	{\ilcode persist() }
-		Run the transaction as a persist transaction.
+	\method{persist}{}
+		{Run the transaction as a persist transaction.}{}
 
 \subsection{Events}
 \subsubsection{EntityContext}
