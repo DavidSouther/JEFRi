@@ -1,6 +1,7 @@
 \documentclass{article}
 
 \usepackage{color}
+\usepackage[underline=true,rounded corners=false]{pgf-umlsd}
 \usepackage{listings}
 \lstset{ %
 	language=Java,                % the language of the code
@@ -26,11 +27,11 @@
 
 \newcommand{\ilcode}{\tt}
 \newcommand{\method}[4]{
-	\begin{tabular}{ | l | p{6in} | }
+	\begin{tabular}{ | l | p{5in} | }
 	\hline
 	\multicolumn{2}{|l|}{\ilcode #1 ({\it #2})} \\
 	\hline
-	\multicolumn{2}{|p{7in}|}{#3} \\
+	\multicolumn{2}{|p{6in}|}{#3} \\
 	\hline
 	#4
 	\end{tabular}
@@ -289,7 +290,7 @@ In a {\ilcode persist} transaction, the entities array has the literal data that
 persisted. The remote JEFRi runtime is responsible for making the persist atomic
 and returning a transaction filling in the additional or updated details it has
 about these entities that was not included in the original transaction (eg, a
-JEFRi instance may persist an entity to a runtime using DB2 as a backend, where 
+JEFRi instance may persist an entity to a runtime using DB2 as a backend, where
 one property has an update trigger setting the timestamp to `now' --- the reply
 transaction would include the updated value for that property).
 
@@ -585,9 +586,11 @@ application code to handle and modifying JEFRi actions in a variety of ways.
 \subsubsection{Entity}
 {\ilcode on\_persist(transaction)} called during single entity persistence.
 
-{\ilcode persisting()}
+{\ilcode persisting(this)}
 
-{\ilcode persisted()}
+{\ilcode persisted(this)}
+
+{\ilcode gotten(this)}
 
 \subsubsection{Transaction}
 {\ilcode getting()}
@@ -605,29 +608,54 @@ application code to handle and modifying JEFRi actions in a variety of ways.
 {\ilcode continuation()}
 
 \subsubsection{PersistStore}
-{\ilcode getting}
+{\ilcode sending(`GET', to\_url, transaction, this)}
 
-{\ilcode gotten}
-
-{\ilcode persisting}
-
-{\ilcode persisted()}
+{\ilcode sent(`GET', to\_url, transaction, this)}
 
 \subsubsection{Lifecycle}
 This is the order of events fired during a PersistStore {\ilcode get} request.
-\linespread{1}
-\begin{lstlisting}
-transaction.getting()
-store.getting()
-store.sending()
-$.ajax(fn(){
-	ec.expand(data)
-	store.gotten();
-	transaction.gotten()
-	callback();
-});
-store.sent();
-\end{lstlisting}
+
+\begin{sequencediagram}
+\newthread{user}{User}
+\newinst{transaction}{Transaction}
+\newinst{store}{Store}
+\newinst{remote}{Remote Runtime}
+\newinst{events}{Event Handler}
+
+\begin{call}{user}{get()}{transaction}{Promise}
+	\mess{transaction}{getting}{events}
+	\begin{call}{transaction}{`do'()}{store}{Promise}
+		\mess{store}{sending}{events}
+		\begin{call}{store}{$<<$ajax$>>$}{remote}{Promise}
+		\end{call}
+		\mess{store}{sent}{events}
+	\end{call}
+\end{call}
+
+\end{sequencediagram}
+
+\begin{sequencediagram}
+
+\newthread{remote}{Remote Runtime}
+\newinst{store}{Store}
+\newinst{local}{Local Runtime}
+\newinst{entity}{[Entity]}
+\newinst{transaction}{Transaction}
+\newinst{events}{Event Handler}
+
+\begin{call}{remote}{resolve(data)}{store}{}
+	\begin{call}{store}{expand(data)}{local}{entities}
+		\begin{call}{local}{build()}{entity}{Entity}
+			\mess{entity}{gotten}{events}
+		\end{call}
+	\end{call}
+	\begin{call}{store}{Resolve(entities)}{transaction}{}
+		\mess{transaction}{gotten}{events}
+	\end{call}
+\end{call}
+
+\end{sequencediagram}
+
 
 \section{Reference}
 
