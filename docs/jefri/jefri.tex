@@ -27,9 +27,10 @@
 
 \newcommand{\ilcode}{\tt}
 \newcommand{\method}[4]{
+	\noindent
 	\begin{tabular}{ | l | p{5in} | }
 	\hline
-	\multicolumn{2}{|l|}{\ilcode #1 ({\it #2})} \\
+	\multicolumn{2}{|l|}{\large \ilcode #1 ({\it #2})} \\
 	\hline
 	\multicolumn{2}{|p{6in}|}{#3} \\
 	\hline
@@ -40,6 +41,7 @@
 	{\ilcode #1} & #2 \\
 	\hline
 }
+\newcommand{\event}[4]{\method{#1}{#2}{#3}{#4}}
 
 \begin{document}
 
@@ -494,20 +496,21 @@ are generally only called from the transaction. However, there is no formal
 
 \subsection{Context Methods}
 These are methods available for an active JEFRi Runtime.
-
+\\
+\\
 \method{EntityContext}{URI, options, protos}
 {The context CTOR. Creates a new context from the json at the URI given,
 	and extends the entity classes with the protos.}
-{
-	\param{URI}{The URI for the context description.}
-	\param{options}{An object containing override parameters.}
-	\param{protos}{An object whose keys are Entity types, and whose values
-		are the new prototypes for that entity.}
-}
+	{
+		\param{URI}{The URI for the context description.}
+		\param{options}{An object containing override parameters.}
+		\param{protos}{An object whose keys are Entity types, and whose values
+			are the new prototypes for that entity.}
+	}
 
 \method{definition}{type}
-{Returns the context's definition for the specified type.}
-{}
+	{Returns the context's definition for the specified type.}
+	{}
 
 \method{extend}{type, proto}
 	{Add the methods in proto to type's prototype. Will effect {\it ALL}
@@ -531,7 +534,8 @@ These are methods available for an active JEFRi Runtime.
 
 \subsection{Entity Methods}
 These are the defined JEFRi methods on an instantiated entity.
-
+\\
+\\
 \method{id}{}
 	{Return the UUID of the object, independent of whichever property
 			actually stores it.}{}
@@ -551,13 +555,15 @@ These are the defined JEFRi methods on an instantiated entity.
 	{Add to the {\ilcode has\_many} array.}{}
 
 \method{encode}{writer}
-	{Pass the {\ilcode entity}, its properties, and its navigation properties to the
-			transaction writer.}{}
+	{Pass the {\ilcode entity}, its properties, and its navigation properties to
+		the	transaction writer.}
+	{}
 
 \subsection{Transaction Methods}
-Transactions allow for communication between JEFRi runtimes. These are the methods
-available to create and manipulate transactions.
-
+Transactions allow for communication between JEFRi runtimes. These are the
+methods available to create and manipulate transactions.
+\\
+\\
 \method{Transaction}{entities}
 	{Constructor. Entities describes the data in the transaction. See the
 			section on Transactions for details.}{}
@@ -566,8 +572,8 @@ available to create and manipulate transactions.
 	{Add these entities to the transaction.}{}
 
 \method{meta}{attributes}
-	{Specify {\ilcode meta} attributes. Any attribute can be added. The remote runtime is
-	responsible for specifying how it handles these attributes.}{}
+	{Specify {\ilcode meta} attributes. Any attribute can be added. The remote
+	runtime is responsible for specifying how it handles these attributes.}{}
 
 \method{get}{}
 	{Run the transaction as a get transaction.}{}
@@ -576,45 +582,91 @@ available to create and manipulate transactions.
 	{Run the transaction as a persist transaction.}{}
 
 \subsection{Events}
-Throughout the lifetime of a JEFRi runtime, a variety of events are triggered allowing
-application code to handle and modifying JEFRi actions in a variety of ways.
+Throughout the lifetime of a JEFRi runtime, a variety of events are triggered
+allowing application code to handle and modifying JEFRi actions in a variety of
+ways.
 
 \subsubsection{EntityContext}
-{\ilcode saving / saved} Called before and after the transaction is persisted inside
-{\ilcode persist\_new} and {\ilcode persist\_changes}.
+\event{saving}{}
+	{Triggered when an EntityContext begins to save data.}
+	{}
+
+\event{saved}{}
+	{Triggered when an EntityContext has finished persisting data to a remote
+	runtime.}
+	{}
 
 \subsubsection{Entity}
-{\ilcode on\_persist(transaction)} called during single entity persistence.
+\event{persisting}{this}
+	{Triggered during the transaction lifecycle when a transaction begins to
+	persist to a remote runtime, but before the data has been sent.}
+	{\param{this}{A reference to the entity itself.}}
 
-{\ilcode persisting(this)}
+\event{persisted}{this}
+	{Triggered during the transaction lifecycle, after it has been confirmed
+	that the entity was persisted in the remote runtime.}
+	{\param{this}{A reference to the entity itself, with updated field values
+	from the persist transaction.}}
 
-{\ilcode persisted(this)}
-
-{\ilcode gotten(this)}
+\event{gotten}{this}
+	{Triggered after an entity has been returned and interned from a {\ilcode
+	get} transaction}
+	{\param{this}{A reference to the entity, with properties updated from the
+	values returned in the transaction.}}
 
 \subsubsection{Transaction}
-{\ilcode getting()}
+\event{getting}{this}
+	{Triggered when a {\ilcode get} transaction is ready to be sent to a remote
+	runtime, but before it has been passed to the store.}
+	{\param{this}{A reference to the transaction.}}
 
-{\ilcode gotten()}
+\event{gotten}{this}
+	{Triggered when a {\ilcode get} transaction has been completely expanded.}
+	{\param{this}{A reference to the transaction.}}
 
-{\ilcode persisting()}
+\event{persisting}{this}
+	{Triggered when a {\ilcode persist} transaction is ready to be sent to a
+	remote runtime, but before it has been passed to the store.}
+	{\param{this}{A reference to the transaction.}}
 
-{\ilcode persisted(data)}
-
-{\ilcode sending()}
-
-{\ilcode sent()}
-
-{\ilcode continuation()}
+\event{persisted}{this}
+	{Triggered when a {\ilcode persist} transaction has been completely
+	expanded.}
+	{\param{this}{A reference to the transaction.}}
 
 \subsubsection{PersistStore}
-{\ilcode sending(`GET', to\_url, transaction, this)}
+\event{sending}{type, to\_url, transaction, this}
+	{Triggered when a store is about to send a transaction to a remote runtime.}
+	{
+		\param{type}{Either `{\ilcode get}' or `{\ilcode persist}', depending on
+			the type of the transaction.}
+		\param{to\_url}{URL of the remote runtime the transaction is destined
+			for.}
+		\param{transaction}{A reference to the actual transaction.}
+		\param{this}{A reference to the store sending the transaction.}
+	}
 
-{\ilcode sent(`GET', to\_url, transaction, this)}
+\event{sent}{type, to\_url, transaction, promise, this}
+	{Triggered after the request has been sent, but before it has returned with
+		any data.}
+	{
+		\param{type}{Either `{\ilcode get}' or `{\ilcode persist}', depending on
+			the type of the transaction.}
+		\param{to\_url}{URL of the remote runtime the transaction is destined
+			for.}
+		\param{transaction}{A reference to the actual transaction.}
+		\param{promise}{A reference to the promise that will resolve when the
+			transaction completes.}
+		\param{this}{A reference to the store sending the transaction.}
+	}
 
 \subsubsection{Lifecycle}
 This is the order of events fired during a PersistStore {\ilcode get} request.
-
+There are two phases to the request, and are split between preparing the request
+and getting a deferred promise for when the request returns, and when the
+asynchronous request has actually completed.
+\\
+\\
 \begin{sequencediagram}
 \newthread{user}{User}
 \newinst{transaction}{Transaction}
@@ -634,6 +686,12 @@ This is the order of events fired during a PersistStore {\ilcode get} request.
 
 \end{sequencediagram}
 
+The {\ilcode transaction} has been prepared before hand, and the user's code
+calls {\ilcode transaction.get()} to begin the request. {\ilcode get()} will
+return a deferred, which will resolve after the request has completed and been
+completely expanded in the local runtime.
+\\
+\\
 \begin{sequencediagram}
 
 \newthread{remote}{Remote Runtime}
@@ -642,6 +700,7 @@ This is the order of events fired during a PersistStore {\ilcode get} request.
 \newinst{entity}{[Entity]}
 \newinst{transaction}{Transaction}
 \newinst{events}{Event Handler}
+\newinst{user}{User}
 
 \begin{call}{remote}{resolve(data)}{store}{}
 	\begin{call}{store}{expand(data)}{local}{entities}
@@ -651,12 +710,20 @@ This is the order of events fired during a PersistStore {\ilcode get} request.
 	\end{call}
 	\begin{call}{store}{Resolve(entities)}{transaction}{}
 		\mess{transaction}{gotten}{events}
+		\mess{transaction}{resolve}{user}
 	\end{call}
 \end{call}
 
 \end{sequencediagram}
 
+When the remote transaction returns data, the store's underlying deferred will
+resolve with the data. The local runtime will expand the data, before telling
+the transaction the {\ilcode get} is complete. The userspace promise is then
+resolved. \footnote{The RemoteRuntime isn't actually a thread- the first
+{\ilcode resolve(data)} arrow should be a message, but the tool to generate the
+diagram doesn't support that. :(}
 
+\newpage
 \section{Reference}
 
 \subsection{Sample Context}
