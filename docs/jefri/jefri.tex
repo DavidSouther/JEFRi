@@ -446,11 +446,12 @@ Persist transactions are an application's way to send changed entities to
 another runtime. For a database-backed entity store, these transactions could
 return quickly. For a store that has to post the transaction to a remote host,
 the persist might take much longer. To unify the interface, all transactions are
-asynchronous, and return a deferred promise\footnote{For a full explanation of
-deferreds and their promises, see the \hyperref[jQuery documentation]
-{http://api.jquery.com/category/deferred-object} --- jQuery has the most
-complete and robust deferred implementations today}. With this in mind, there
-are three separate techniques or approaches to handling a persist transaction.
+asynchronous, and return a deferred promise.
+\footnote{For a full explanation of deferreds and their promises, see the
+\href{http://api.jquery.com/category/deferred-object}{jQuery documentation}
+--- jQuery has the most complete and robust deferred implementations today}
+With this in mind, there are three separate techniques or approaches to handling
+a persist transaction.
 
 The first approach is managing the transaction directly. The application readies
 a transaction by calling {\ilcode ec.transaction()}. The application can then
@@ -526,39 +527,53 @@ requirement.
 These are methods available for an active JEFRi Runtime.
 \\
 \\
-\method{EntityContext}{URI, options, protos}
-{The context CTOR. Creates a new context from the json at the URI given,
-	and extends the entity classes with the protos.}
+\method{EntityContext}{URI, options}
+{Creates a new runtime whose primary context will be loaded from the URI given}
 	{
 		\param{URI}{The URI for the context description.}
 		\param{options}{An object containing override parameters.}
-		\param{protos}{An object whose keys are Entity types, and whose values
-			are the new prototypes for that entity.}
 	}
 
 \method{definition}{type}
 	{Returns the context's definition for the specified type.}
-	{}
+	{\param{type}{String type of an object; either the short name within the
+	primary context, the medium name within an extended context, or a complete
+	name with a full context type URI.}}
 
 \method{extend}{type, proto}
 	{Add the methods in proto to type's prototype. Will effect {\it ALL}
-	instances, both current and future, of {\ilcode type}.}{}
+	instances, both current and future, of {\ilcode type}. }
+	{
+		\param{type}{String type to apply prototypes to.}
+		\param{proto}{Object of name/function pairs to extend and override the
+		prototypes of Entities in a loaded context.}
+	}
 
 \method{build}{type, obj}
 	{Return an non-interned instance of {\ilcode type} with properties
-	filled in from {\ilcode obj}.}{}
+	filled in from {\ilcode obj}.}
+	{
+		\param{type}{String type to apply prototypes to.}
+		\param{obj}{Object with default values for the entity.}
+	}
 
 \method{intern}{entity, updateOnIntern}
 	{Returns a canonical instance of the {\ilcode entity} from memory. Use this
 	to translate between UUIDs and pointers (or similar machine references). If
 	the boolean {\ilcode updateOnIntern} is true, and there is a previously
 	stored {\ilcode entity}, the old {\ilcode entity} will be updated with any
-	non-default properties of the new entity.}{}
+	non-default properties of the new entity.}
+	{
+		\param{entity}{Entity to intern.}
+		\param{updateOnIntern}{Boolean (default false) to specify default
+		behavior.}
+	}
 
 \method{expand}{transaction}
 	{Expand the results of a {\ilcode transaction} into the runtime. Intern
 	where possible, and call {\ilcode add\_`name'} and {\ilcode set\_`name'
-	where} appropriate.}{}
+	where} appropriate.}
+	{\param{tranasction}{Transaction to expand and intern each entity therein.}}
 
 \subsection{Entity Methods}
 These are the defined JEFRi methods on an instantiated entity.
@@ -566,26 +581,35 @@ These are the defined JEFRi methods on an instantiated entity.
 \\
 \method{id}{}
 	{Return the UUID of the object, independent of whichever property
-			actually stores it.}{}
+	actually stores it.}
+	{}
 
 \method{\_type}{}
-	{Returns a string of the canonical entity type.}{}
+	{Returns a string of the canonical entity type.}
+	{}
 
 \method{get\_`name'}{}
 	{Follow a navigation property. Returns either a single or (possibly
-			empty) array with the to end of the relationship.}{}
+	empty) array with the to end of the relationship.}
+	{}
 
 \method{set\_`name'}{to\_entity}
 	{Set the {\ilcode has\_a} navigation property. Correctly updates
-			each entities' navigation property values.}{}
+	each entities' navigation property values.}
+	{
+		\param{to\_entity}{New entity for a {\ilcode has\_a} relationship.}
+	}
 
 \method{add\_`name'}{to\_entity}
-	{Add to the {\ilcode has\_many} array.}{}
+	{Add to the {\ilcode has\_many} array.}
+	{
+		\param{to\_entity}{New entity to add to the {\ilcode has\_many list.}}
+	}
 
 \method{encode}{writer}
 	{Pass the {\ilcode entity}, its properties, and its navigation properties to
 		the	transaction writer.}
-	{}
+	{\param{writer}{Writer that is visiting this entity.}}
 
 \subsection{Transaction Methods}
 Transactions allow for communication between JEFRi runtimes. These are the
@@ -594,20 +618,40 @@ methods available to create and manipulate transactions.
 \\
 \method{Transaction}{entities}
 	{Constructor. Entities describes the data in the transaction. See the
-			section on Transactions for details.}{}
+	section on Transactions for details.}
+	{\param{entities}{Array of the first list of entities in the transaction.}}
 
 \method{add}{entities}
-	{Add these entities to the transaction.}{}
+	{Add these entities to the transaction.}
+	{\param{entities}{Array of entities to add to the transaction.}}
 
-\method{meta}{attributes}
-	{Specify {\ilcode meta} attributes. Any attribute can be added. The remote
-	runtime is responsible for specifying how it handles these attributes.}{}
+\method{meta}{values}
+	{Specify {\ilcode meta} values. Any attribute can be added. The remote
+	runtime is responsible for specifying how it handles these values.}
+	{\param{values}{Object of key/value meta values to set.}}
 
-\method{get}{}
-	{Run the transaction as a get transaction.}{}
+\method{get}{store}
+	{Run the transaction as a get transaction.}
+	{\param{store}{Reference to the Persistence Store to get this transaction's
+	data from.}}
 
-\method{persist}{}
-	{Run the transaction as a persist transaction.}{}
+\method{persist}{store}
+	{Run the transaction as a persist transaction.}
+	{\param{store}{Reference to the Persistence Store to send this transaction's
+	data to.}}
+
+\subsection{PersistenceStore Methods}
+Persistence Stores are proxies to a remote JEFRi runtime. These methods are
+utility methods
+\\
+\\
+\method{PersistenceStore}{URI, options}
+	{Create a new persistence store to handle JEFRi transactions.}
+	{
+		\param{URI}{Base URI of remote store.}
+		\param{options}{Options to configure the store.}
+	}
+
 
 \subsection{Events}
 Throughout the lifetime of a JEFRi runtime, a variety of events are triggered
@@ -615,14 +659,14 @@ allowing application code to handle and modifying JEFRi actions in a variety of
 ways.
 
 \subsubsection{EntityContext}
-\event{saving}{}
+\event{saving}{this}
 	{Triggered when an EntityContext begins to save data.}
-	{}
+	{\param{this}{A reference to the entity itself.}}
 
-\event{saved}{}
+\event{saved}{this}
 	{Triggered when an EntityContext has finished persisting data to a remote
 	runtime.}
-	{}
+	{\param{this}{A reference to the entity itself.}}
 
 \subsubsection{Entity}
 \event{persisting}{this}
