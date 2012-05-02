@@ -188,8 +188,14 @@ data --- the context will merely hold it.
 
 JEFRi Contexts are descriptions of the entity model. Contexts are described here
 as JSON objects, though can be any persistable object serialization. Contexts
-are objects with two properties --- {\ilcode meta}, describing the overall
-context options, and {\tt entities}, an array of entity descriptions.
+are objects with two properties --- {\ilcode meta}, describing the context
+specific options, and {\tt entities}, an array of entity descriptions. A context
+should have a globally unique URI for identification. Contexts published in this
+way can then be referenced by entity descriptions in other contexts. As an
+example, a human resources department in an organization could define a context
+describing the employees of a company. The IS team would then write a context
+defining their technology tools and include the HR context directly, creating
+a clean interface between the departments.
 
 A context's {\ilcode meta} is an object containing arbitrary keyed data for a
 runtime's consumption. For example, a {\ilcode meta} could declare {\ilcode
@@ -201,7 +207,7 @@ implementation must specify the {\ilcode meta} attributes it handles, as well as
 their meanings.
 
 The {\ilcode entities} array is the heart of the context. Each entry describes
-one entity type available. The entres are objects with five keys. Those are
+one entity type available. The entries are objects with five keys. Those are
 {\ilcode name}, the canonical name for the entity type; {\ilcode key}, the
 property containing the entity's UUID; {\ilcode properties}, an array containing
 the properties of the entity; {\ilcode relationships}, an array containing
@@ -213,7 +219,7 @@ to look up property definitions from several points in the application,
 especially when creating new entities, persisting entities, and navigating
 entity relationships. Entity names must be unique within a context. Entity names
 must be valid Javascript object keys --- {\ilcode $=\sim$
-/[a-zA-Z\_\$][a-zA-Z0-9\_\$]+/}
+/[a-zA-Z\_\$][a-zA-Z0-9\_\$]*/}
 
 {\ilcode key} is the name of the property containing the entity's key. See the
 section on entity keys for more details on how keys are used in JEFRi.
@@ -258,27 +264,42 @@ to.type.key}, and the navigation property will return the one {\ilcode to.type}
 whose key is equal to the {\ilcode from.property}. The opposite is similar for
 {\ilcode has\_many}.
 
-\subsection{Runtimes}
+\section{Runtimes}
 
-Instances of JEFRi contexts need some mechanism for long-term persistence of
-entity data. Persistence stores provide this by providing a flexible, driver-
-based approach. Persistence stores must provide a persist and a get method, each
-taking a JEFRi transaction (see next section) and performing the appropriate
-actions. Stores should also provide an {\ilcode is\_async} method, which tells
-the user whether to expect the store to return immediately, or happen in the
-background with a callback.
+A JEFRi runtime is the underlying programming component which handles all
+aspects of JEFRi for an application. Runtimes act as a data cache, managing
+references to Entities within an application. This includes responsiblities
+for interning entities, managing entity relationships, and attaching attribute
+information to Entities.
 
-The persist method must function atomically per transaction. It is the
-responsibility of the persistence store to ensure that transactions happen
-atomically. In general, it is the persistence store's responsibility to meet the
-semantics specified in the section on Transactions.
-
-The get method must handle the myriad of filter and join operations available in
-the transaction specifications. See the section on transaction specifications
-for the exact semantics of get requests.
+Public runtimes expose themselves as a REST service. These services provide
+two URIs, {\ilcode http://\-example.com/\-jefri/\-{\textbf{get}}} for handling
+{\ilcode get} transactions and 
+{\ilcode http://\-example.com/\-jefri/\-{\textbf{persist}}} for handling
+persist requests.
 
 \subsection{Persistence Stores}
-Persistence stores
+
+Applications using JEFRi are able to communicate entities who come from the
+same context. This is achieved using a persistence store. A persistence store
+is a proxy for an application to use when referring to a remote runtime. The
+persistence store is responsible for communicating tranasctions with the
+remote runtime, sending transactions as instructed and returning those results
+to the local runtime.
+
+Persistence stores must provide a single function {\ilcode execute} which
+takes a transaction and returns an object encapsulating a callback on an
+asynchronous operation. While a persistence store that operates locally could
+return immediately, to ensure consistency across runtime implementations the
+store must return a callback handler.
+ 
+Executing get transactions must handle the myriad of filter and join operations
+available in the transaction specifications. See the section on transaction
+specifications for the exact semantics of get requests.  Executing persist
+transactions must function atomically.  It is the responsibility of the remote
+runtime to ensure that transactions happen atomically. In general, it is the
+persistence store's responsibility to meet the semantics specified in the section
+on Transactions.
 
 \section{Transactions}
 
@@ -541,7 +562,7 @@ requirement.
 These are methods available for an active JEFRi Runtime.
 \\
 \\
-\method{EntityContext}{URI, options}{Runtime}
+\method{Runtime}{URI, options}{Runtime}
 {Creates a new runtime whose primary context will be loaded from the URI given}
 	{
 		\param{URI}{The URI for the context description.}
@@ -577,7 +598,7 @@ These are methods available for an active JEFRi Runtime.
 		\returns{A reference to the newly-created entity.}
 	}
 
-\method{intern}{entity, updateOnIntern}{Runtime}
+\method{intern}{Entity, updateOnIntern}{Runtime}
 	{Returns a canonical instance of the {\ilcode entity} from memory. Use this
 	to translate between UUIDs and pointers (or similar machine references). If
 	the boolean {\ilcode updateOnIntern} is true, and there is a previously
@@ -590,14 +611,30 @@ These are methods available for an active JEFRi Runtime.
 		\returns{A reference to the runtime.}
 	}
 
-\method{expand}{transaction}{Runtime}
+\method{expand}{Transaction}{Runtime}
 	{Expand the results of a {\ilcode transaction} into the runtime. Intern
 	where possible, and call {\ilcode add\_`name'} and {\ilcode set\_`name'
 	where} appropriate.}
 	{
-		\param{tranasction}{Transaction to expand and intern each entity
+		\param{Tranasaction}{Transaction to expand and intern each entity
 			therein.}
 		\returns{A reference to the runtime.}
+	}
+
+\method{save\_new}{Store}{Promise}
+	{Start a transaction to persist all new entities to the given
+		PersistenceStore.}
+	{
+		\param{Store}{Which store to save the new data to.}
+		\returns{A Promise that will resolve when the execute has completed.}
+	}
+
+\method{save\_all}{Store}{Promise}
+	{Start a transaction to persist all modified entities to the given
+		PersistenceStore}
+	{
+		\param{Store}{Which store to save the new data to.}
+		\returns{A Promise that will resolve when the execute has completed.}
 	}
 
 \subsection{Entity Methods}
@@ -641,7 +678,7 @@ These are the defined JEFRi methods on an instantiated entity.
 
 \method{encode}{writer}{Entity}
 	{Pass the {\ilcode entity}, its properties, and its navigation properties to
-		the	transaction writer.}
+		the transaction writer.}
 	{
 		\param{writer}{Writer that is visiting this entity.}
 		\returns{A reference to this entity.}
@@ -704,12 +741,21 @@ utility methods
 		\returns{The newly instantiated PersistenceStore.}
 	}
 
+\method{execute}{type, Transaction}{Promise}
+	{Begin asynchronous execution of a transaction.}
+	{
+		\param{type}{PERSIST or GET, depending on how to handle the transaction.}
+		\param{Transaction}{Transaction to execute against the remote store.}
+		\returns{Promise of a deferred that will be resolved when
+			the transcation completes.}
+	}
+
 \subsection{Events}
 Throughout the lifetime of a JEFRi runtime, a variety of events are triggered
 allowing application code to handle and modifying JEFRi actions in a variety of
 ways.
 
-\subsubsection{EntityContext}
+\subsubsection{Runtime}
 \event{saving}{this}
 	{Triggered when an EntityContext begins to save data.}
 	{\param{this}{A reference to the entity itself.}}
@@ -757,7 +803,7 @@ ways.
 	expanded.}
 	{\param{this}{A reference to the transaction.}}
 
-\subsubsection{PersistStore}
+\subsubsection{PersistenceStore}
 \event{sending}{type, to\_url, transaction, this}
 	{Triggered when a store is about to send a transaction to a remote runtime.}
 	{
