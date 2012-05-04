@@ -33,14 +33,26 @@
 \linespread{1.6}
 
 \section{Overview}
-JEFRi Divine is a suite of tools to automatically generate contexts from a wide variety of data
-sources. By analyzing a business' current datasets, JEFRi Divine can discover an appropriate
-context for the data, and prepare a solution to display and manipulate that data across the
-organization.
+
+JEFRi Divine is a suite of tools to automatically generate contexts from a
+wide variety of data sources. By analyzing a business' current datasets, JEFRi
+Divine can discover an appropriate context for the data, and prepare a
+solution to display and manipulate that data across the organization.
+
+\section{JSON}
+
+Every object will be classified according to its keys. If two objects have the
+same keys, they will be considered the same Entity type. Object keys will
+become either properties or relationships in the new entity. If the value for
+the key is a string or a number, the key will be added as a property of the
+entity, and the type specified correctly. Array and object values will become
+relationships. If the value is an array, the relationship will be a {\ilcode
+has\_many}; if it is an object, {\ilcode has\_a}. The target will have a
+{\ilcode has\_a} return reference.
 
 \section{Reference}
 
-\subsection{Network Host Configuration json}
+\subsection{Network Host Configuration JSON}
 \begin{lstlisting}
 [
 	{
@@ -56,8 +68,153 @@ organization.
 ]
 \end{lstlisting}
 
-\subsection{Divined Context}
+\subsubsection{Divined Context}
+\begin{lstlisting}
+{
+	"meta":{},
+	"entities": [
+		{
+			"name":"Field_1",
+			"key":"hostname",
+			"properties":[
+				{
+					"name":"hostname",
+					"atributes":{},
+					"type":"string"
+				},
+				{
+					"name":"ip",
+					"atributes": {},
+					"type":" string"
+				},
+				{
+					"name":"mac",
+					"atributes":{},
+					"type":"string"
+				}
+			],
+			"attributes":[],
+			"methods":[],
+			"relationships":{}
+		}
+	]
+}
+\end{lstlisting}
+
+\subsection{JEFRi Entity Context JSON}
+\begin{lstlisting}
+{
+	"meta":{},
+	"entities": [
+		{
+			"name": "User",
+			"key": "user_id",
+			"properties": [
+				{
+					"name": "user_id",
+					"type": "int",
+					"attributes": {"primary": "true"}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"attributes": {}
+				},
+				{
+					"name": "address",
+					"type": "string",
+					"attributes": {"unique": "true"}
+				}
+			],
+			"relationships": [
+				{
+					"name": "authinfo",
+					"type": "has_a",
+					"to": {
+						"type": "Authinfo",
+						"property": "user_id",
+						"vname": "user"
+					},
+					"from": {
+						"type": "User",
+						"property": "user_id",
+						"vname": "user"
+					}
+				}
+			],
+			"attributes": {"vname": "users", "svname": "user"}
+		},
+		{
+			"name": "Authinfo",
+			"key": "authinfo_id",
+			"properties": [
+				{
+					"name": "authinfo_id",
+					"type": "int",
+					"attributes": {"primary": "true"}
+				},
+				{
+					"name": "user_id",
+					"type": "int",
+					"attributes": {}
+				},
+				{
+					"name": "username",
+					"type": "string",
+					"attributes": {"length": "45"}
+				},
+				{
+					"name": "password",
+					"type":"string",
+					"attributes":
+					{"length":"45"}
+				},
+				{
+					"name":"activated",
+					"type":"string",
+					"attributes":
+					{"nullable":"true", "length":"45"}
+				},
+				{
+					"name":"banned",
+					"type":"string",
+					"attributes": {"nullable":"true", "length":"45"}
+				},
+				{
+					"name":"ban_reason",
+					"type":"string",
+					"attributes":
+					{"nullable":"true", "length":"45"}
+				}
+			],
+			"relationships": [
+				{
+					"name":"user",
+					"type":"has_a",
+					"to": {
+						"type":"User",
+						"property":"user_id",
+						"vname":"user"
+					},
+					"from": {
+						"type":"Authinfo",
+						"property":"user_id",
+						"vname":"user"
+					}
+				}
+			],
+			"attributes": {
+				"vname":"authinfo",
+				"svname":"authinfo"
+			}
+		}
+	]
+}
+\end{lstlisting}
+
+\subsubsection{Divined context}
 \begin{lstlisting}
 
 \end{lstlisting}
+
 \end{document}
