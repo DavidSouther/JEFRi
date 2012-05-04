@@ -146,24 +146,32 @@ float}, for a decimal floating-point number with at least 32 bits of machine
 precision; {\ilcode boolean}, for data that can have a value of {\ilcode true}
 or {\ilcode false}; and {\ilcode string}, a list of zero or more character
 values. Within a runtime, the types may be represented however makes most sense
-for that platform. When transfering data between runtimes, property values
+for that platform. When transferring data between runtimes, property values
 should be transmitted using JSON definitions for values.
 
 \subsection{Relationships}
 
 Relationships describe how entities interact with and reference other entities.
 This allows developers to write very natural expressions when moving between
-data records.
+data records. Data modelers are able to describe what these connections are
+called, how the relate to one-another, and all the details needed to completely
+automate loading and navigating the object graph\footnote{Here, object actually
+does mean instance of an entity.}.
+
+
+There are two basic forms of relationships --- {\ilcode has\_a} and {\ilcode
+has\_many}. A third type, {\ilcode is\_a}, is a specialized {\ilcode has\_a}
+with no return relationship. {\ilcode has\_a} states that an entity references
+one and exactly one other entity. {\ilcode has\_many} states that an entity
+references several entities of some type.
 
 Relationships have two ends, the {\ilcode from} and and the {\ilcode to} end.
 These ends change roles depending on which entity is accessing the relationship.
 The {\ilcode from} end is always the side of the relationship doing the
 accessing, and the {\ilcode to} end is the side being accessed. Ends have a
 {\ilcode type} and a {\ilcode property}. The {\ilcode property} tells which
-property holds the key for that end, and the {\ilcode type} property describes
-how the {\ilcode to} end should be accessed. Ends have two types- {\ilcode
-has\_a} and {\ilcode has\_many}. A third type, {\ilcode is\_a}, is a specialized
-{\ilcode has\_a}.
+property holds the key for that end. Entities will be included in a relationship
+when the property values are equal. In a {\ilcode has\_many} relationship,
 
 When an application has an instantiated entity, relationships can be navigated
 by calling the appropriate {\ilcode get\_`navprop'} method of the entity. For
@@ -247,34 +255,34 @@ must be called to navigate the relationship (specifically, {\ilcode
 entity.get\_`name'()}). {\ilcode type} determines what will be returned when
 navigating the relationship. {\ilcode has\_a} and {\ilcode is\_a} will return a
 single entity, while {\ilcode has\_many} will return a (possibly empty) array of
-entities. There is some indication that the far side of a {\ilcode has\_a} or
-{\ilcode has\_many} relationship will probably have a {\ilcode has\_a} or
-{\ilcode has\_many} navigation that would lead back to the entity on the from
-side (however, this is not a requirement). {\ilcode is\_a} will not have a
-reverse navigation. JEFRi does not support the concept of casting down.
+entities. The runtime is responsible for ensuring a method with the correct
+signature and appropriate semantics exists for each navigation method required.
+There is some indication that the far side of a {\ilcode has\_a} or {\ilcode
+has\_many} relationship will probably have a {\ilcode has\_a} or {\ilcode
+has\_many} navigation that would lead back to the entity on the from side
+(however, this is not a requirement). {\ilcode is\_a} will not have a reverse
+navigation. JEFRi does not support the concept of casting down.
 
 Finally, the {\ilcode from} and {\ilcode to} properties describe where to look
 up the data needed for the navigation. In all relationships, both the {\ilcode
-from} and {\ilcode to} type fields {\it must} resolve to a valid entity name in
-the same context (TODO possibly change this so there is a possibility for cross-
-context navigation?). The property fields are used slightly differently
-depending on what the type of the relationship is. In a {\ilcode has\_a
-relationship}, the {\ilcode to.property} should be the same as the {\ilcode
-to.type.key}, and the navigation property will return the one {\ilcode to.type}
-whose key is equal to the {\ilcode from.property}. The opposite is similar for
-{\ilcode has\_many}.
+from} and {\ilcode to} type fields {\it must} resolve to a valid entity name.
+The property fields are used slightly differently depending on what the type of
+the relationship is. In a {\ilcode has\_a relationship}, the {\ilcode
+to.property} should be the same as the {\ilcode to.type.key}, and the navigation
+property will return the one {\ilcode to.type} whose key is equal to the
+{\ilcode from.property}. The opposite is similar for {\ilcode has\_many}.
 
 \section{Runtimes}
 
 A JEFRi runtime is the underlying programming component which handles all
 aspects of JEFRi for an application. Runtimes act as a data cache, managing
-references to Entities within an application. This includes responsiblities
+references to Entities within an application. This includes responsibilities
 for interning entities, managing entity relationships, and attaching attribute
 information to Entities.
 
 Public runtimes expose themselves as a REST service. These services provide
 two URIs, {\ilcode http://\-example.com/\-jefri/\-{\textbf{get}}} for handling
-{\ilcode get} transactions and 
+{\ilcode get} transactions and
 {\ilcode http://\-example.com/\-jefri/\-{\textbf{persist}}} for handling
 persist requests.
 
@@ -283,7 +291,7 @@ persist requests.
 Applications using JEFRi are able to communicate entities who come from the
 same context. This is achieved using a persistence store. A persistence store
 is a proxy for an application to use when referring to a remote runtime. The
-persistence store is responsible for communicating tranasctions with the
+persistence store is responsible for communicating transactions with the
 remote runtime, sending transactions as instructed and returning those results
 to the local runtime.
 
@@ -292,7 +300,7 @@ takes a transaction and returns an object encapsulating a callback on an
 asynchronous operation. While a persistence store that operates locally could
 return immediately, to ensure consistency across runtime implementations the
 store must return a callback handler.
- 
+
 Executing get transactions must handle the myriad of filter and join operations
 available in the transaction specifications. See the section on transaction
 specifications for the exact semantics of get requests.  Executing persist
@@ -383,7 +391,7 @@ entity that is part of the navigation should be added individually.
 
 \subsubsection{Gory Get Details}
 
-To capture the full expressivity developers need in describing data, there are
+To capture the full expressiveness developers need in describing data, there are
 several rules transactions will use to determine the entities to return from a
 {\ilcode get} transaction.
 
@@ -403,7 +411,7 @@ entities will have properties whose values contain the string (case sensitive).
 
 If the value is an array, the first field in the array may specify an operation,
 may be a floating point number (see above), may be a compound filter, or may be
-an enumeration of values the filed's value must be {\ilcode in}.
+an enumeration of values the field's value must be {\ilcode in}.
 
 Valid operations are any of {\ilcode $<$}, {\ilcode $<=$}, {\ilcode $>$},
 {\ilcode $>=$}, {\ilcode $=$}, and {\ilcode REGEX}. {\ilcode REGEX} treats the
