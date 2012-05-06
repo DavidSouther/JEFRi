@@ -7,7 +7,7 @@ language=Java,                % the language of the code
 basicstyle=\footnotesize,       % the size of the fonts that are used for the code
 numbers=left,                   % where to put the line-numbers
 numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
-stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+stepnumber=1,                   % the step between two line-numbers. If it's 1, each line
                                 % will be numbered
 numbersep=5pt,                  % how far the line-numbers are from the code
 backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
@@ -44,5 +44,15 @@ specification and to the context meta specification. These are methods that a
 runtime will expose to its users, either as methods of an entity or the context.
 Methods must be specified similarly to the WSDL descriptions in SOAP, with some
 changes to recognize JEFRi entities as available types.
+
+% \method{extend}{type, proto}{Runtime}
+% 	{Add the methods in proto to type's prototype. Will effect {\it ALL}
+% 	instances, both current and future, of {\ilcode type}. }
+% 	{
+% 		\param{type}{String type to apply prototypes to.}
+% 		\param{proto}{Object of name/function pairs to extend and override the
+% 			prototypes of Entities in a loaded context.}
+% 		\returns{A reference to the runtime.}
+% 	}
 
 \end{document}
