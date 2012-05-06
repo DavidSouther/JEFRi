@@ -4,23 +4,42 @@
 \usepackage{hyperref}
 \usepackage[underline=true,rounded corners=false]{pgf-umlsd}
 \usepackage{listings}
-\lstset{ %
-	language=Java,                % the language of the code
-	basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+	language=JavaScript,            % the language of the code
+	basicstyle=\footnotesize,       % the size of the fonts that are used for
+	                                % the code
 	numbers=left,                   % where to put the line-numbers
-	numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
-	stepnumber=1,                   % the step between two line-numbers. If it's 1, each line
-	                                % will be numbered
+	numberstyle=\footnotesize,      % the size of the fonts that are used for
+	                                % the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.
 	numbersep=5pt,                  % how far the line-numbers are from the code
-	backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+	backgroundcolor=\color{white},  % choose the background color.
 	showspaces=false,               % show spaces adding particular underscores
 	showstringspaces=false,         % underline spaces within strings
-	showtabs=false,                 % show tabs within strings adding particular underscores
+	showtabs=false,                 % show tabs within strings adding particular
+	                                % underscores
 	frame=single,                   % adds a frame around the code
 	tabsize=4,                      % sets default tabsize to 2 spaces
 	captionpos=b,                   % sets the caption-position to bottom
-	%breaklines=true,                % sets automatic line breaking
-	breakatwhitespace=false        % sets if automatic breaks should only happen at whitespace
+	%breaklines=true,               % sets automatic line breaking
+	breakatwhitespace=false         % sets if automatic breaks should only
+	                                % happen at whitespace
 }
 
 \usepackage{fullpage}
@@ -58,7 +77,7 @@
 }
 \newcommand{\event}[4]{\callable{\callTitle{#1}{#2}}{#3}{#4}}
 
-\renewcommand{\glossary}[2]{{\large \textbf #1} #2 \\ }
+\renewcommand{\glossary}[2]{\noindent {\large \textbf #1} #2 \\ }
 
 \begin{document}
 
@@ -97,8 +116,8 @@ databases. Entities are the building blocks of the domain, the things the domain
 is modeling. Entities could be receipts in a Point of Sale application, Clients
 in Contact Management System, or Planets in a physics model. Entities within an
 entity framework are endowed with a variety of backing infrastructure, including
-tools to share data between runtimes, tools to store data to various persistence
-layers, and tools to track the history of the entity.
+tools for sharing data between runtimes, tools for storing data to various
+persistence layers, and tools for tracking the history of the entity.
 
 \subsection{Keys}
 
@@ -184,15 +203,19 @@ pluralities, but the context generator's.
 \section{Contexts}
 
 JEFRi Contexts are descriptions of the entity model. Contexts are described here
-as JSON objects, though can be any persistable object serialization. Contexts
-are objects with two properties --- {\ilcode attributes}, describing the context
-specific options, and {\tt entities}, an array of entity descriptions. A context
+as JSON objects, though can be any persistable object serialization.  A context
 should have a globally unique URI for identification. Contexts published in this
 way can then be referenced by entity descriptions in other contexts. As an
 example, a human resources department in an organization could define a context
 describing the employees of a company. The IS team would then write a context
 defining their technology tools and include the HR context directly, creating
 a clean interface between the departments.
+
+\subsection{Context Specification}
+
+A context specification is an object with two properties --- {\ilcode
+attributes}, describing the context specific options, and {\tt entities}, an
+array of entity descriptions.
 
 A context's {\ilcode attribute} is an object containing arbitrary keyed data for
 a runtime's consumption. For example, an {\ilcode attribute} could declare
@@ -282,14 +305,14 @@ appropriate result.
 
 \subsection{Persistence Stores}
 
-
-
-Applications using JEFRi are able to communicate entities who come from the
-same context. This is achieved using a persistence store. A persistence store
-is a proxy for an application to use when referring to a remote runtime. The
-persistence store is responsible for communicating transactions with the
-remote runtime, sending transactions as instructed and returning those results
-to the local runtime.
+Persistence Stores allow JEFRi applications to save their data in some fashion.
+Persistence Stores use transactions as a specification for data to either store
+or retrieve data. Implementations of persistence stores are flexible on how they
+handle this. Some implementations might translate transactions into SQL queries,
+using an underlying RDBMS configured with a JEFRi context. Other implementations
+can send transactions to public remote JEFRi runtimes, acting as a proxy between
+runtimes. Applications could use these stores to create a traditional client-
+server model, or build a flexible peer-to-peer model for data communication.
 
 Persistence stores must provide a single function {\ilcode execute} which
 takes a transaction and returns an object encapsulating a callback on an
@@ -362,20 +385,27 @@ will be an array of objects describing the entities in the transaction. The
 format for a transaction is an object with properties {\ilcode attributes} and
 {\ilcode entities}. {\ilcode attributes} is an object. {\ilcode entities} is an
 array of entity objects. Entity objects must specify at least one field,
-{\ilcode _type}. Additional fields are dependent on entity properties and
+{\ilcode \_type}. Additional fields are dependent on entity properties and
 relationships.
 
 The values in those additional fields are different between {\ilcode get}
 transactions and {\ilcode persist} transactions. In a {\ilcode get} transaction,
 values for property keys specify the conditions necessary for an entity to be
-included in the transaction's result. Values for
+included in the transaction's result. Values for relationship keys are objects
+that describe which of the relationship entities to return. If a {\ilcode get}
+transaction specifies criteria for a relationship entity, there must be matching
+entities in the relationship to return any entities. In a {\ilcode persist}
+transaction, values for each property specify the new value for that entity.
+Relationship keys are forbidden; to persist entities and their relationships,
+the property containing the relationship key value should be sent, along with
+the update relationship entity.
 
 \linespread{1}
 \begin{lstlisting}
-{meta:{}
+{attributes:{}
 entities: [{
-	_type: `User',
-	surname: `Franken',
+	_type: 'User',
+	surname: 'Franken',
 	prop2: value2,
 	cards: {}
 }]}
@@ -386,8 +416,8 @@ If this were a {\ilcode get} transaction, the reply would have an array of
 entities of {\ilcode User} and {\ilcode Card}, with all the {\ilcode User}
 entities having {\ilcode surname = `Franken', prop2 = value2}, and all the
 {\ilcode Card}s correctly associated with the matched Users.  Navigation
-property objects can specify constraints on the nav properties returned, and can
-themselves declare navigation properties to return. It is not necessary to
+property objects can specify constraints on the nav properties returned, and
+can themselves declare navigation properties to return. It is not necessary to
 specify a type in a navigation property --- any that are will be ignored.
 
 If this were a {\ilcode persist} transaction, the {\ilcode key} property {\it
@@ -456,6 +486,7 @@ Using a common SQL driver,
 becomes
 
 \linespread{1}
+\lstset{language=SQL}
 \begin{lstlisting}
 SELECT
 	User.user_id AS user.user_id,
@@ -480,6 +511,7 @@ WHERE
 	AND User.date_of_birth <= 1200000000
 	AND User.date_of_birth >= 1100000000
 \end{lstlisting}
+\lstset{language=JavaScript}
 \linespread{1.6}
 
 Since this is a left join and there are no constraints on {\ilcode Card}, this
@@ -573,6 +605,7 @@ no formal `user-mode' constraints, so that is a recommendation, not a
 requirement.
 
 \subsection{Runtime Methods}
+Runtime methods are provided as-is by a particular runtime implementation.
 \\
 \\
 \method{Runtime}{URI, options}{Runtime}
@@ -592,16 +625,6 @@ requirement.
 			primary context, the medium name within an extended context, or a
 			complete name with a full context type URI.}
 		\returns{An object with the entity's type definition.}
-	}
-
-\method{extend}{type, proto}{Runtime}
-	{Add the methods in proto to type's prototype. Will effect {\it ALL}
-	instances, both current and future, of {\ilcode type}. }
-	{
-		\param{type}{String type to apply prototypes to.}
-		\param{proto}{Object of name/function pairs to extend and override the
-			prototypes of Entities in a loaded context.}
-		\returns{A reference to the runtime.}
 	}
 
 \method{build}{type, obj}{Entity}
@@ -654,7 +677,8 @@ requirement.
 	}
 
 \subsection{Entity Methods}
-These are the defined JEFRi methods on an instantiated entity.
+Entity methods must be created by the runtime when an entity type is read from a
+context.
 \\
 \\
 \method{id}{}{UUID}
@@ -725,15 +749,15 @@ methods available to create and manipulate transactions.
 		\returns{The transaction.}
 	}
 
-\method{meta}{values}{Transaction}
-	{Specify {\ilcode meta} values. Any attribute can be added. The remote
+\method{attributes}{values}{Transaction}
+	{Specify {\ilcode attribute} values. Any attribute can be added. The remote
 	runtime is responsible for specifying how it handles these values.}
 	{
 		\param{values}{Object of key/value meta values to set.}
 		\returns{The transaction.}
 	}
 
-\method{get}{store}{Transaction}
+\method{get}{store}{Promise}
 	{Run the transaction as a get transaction.}
 	{
 		\param{store}{Reference to the Persistence Store to get this
@@ -741,7 +765,7 @@ methods available to create and manipulate transactions.
 		\returns{The transaction.}
 	}
 
-\method{persist}{store}{Transaction}
+\method{persist}{store}{Promise}
 	{Run the transaction as a persist transaction.}
 	{
 		\param{store}{Reference to the Persistence Store to send this
@@ -961,105 +985,42 @@ store data between a local and remote JEFRi runtime.}
 {"meta":{},
 "entities":[
 	{	"name": "User",
-		 "key": "user_id",
-		 "properties": [
+		"key": "user_id",
+		"properties": [
 			{	"name": "user_id",
-				"type": "int",
-				"attributes": {
-					"primary": "true"}},
-			{	"name": "surname",
+				"type": "uuid"},
+			{	"name": "name",
+				"type": "string"},
+			{	"name": "email",
 				"type": "string",
 				"attributes": {
-					"length": "45"}},
-			{	"name": "given_name",
-				"type": "string",
-				"attributes": {
-					"nullable": "true"}},
-			{	"name": "login",
-				"type": "string",
-				"attributes": {
-					"length": "255",
-					"unique": "true"}},
-			{	"name": "date_of_birth",
-				"type": "float",
-				"attributes": {
-					"nullable": "true"}}],
-		 "relationships": [
-			{	"name": "cards",
-				"type": "has_many",
-				"to": {
-					"type": "Card",
-					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "User",
-					"property": "user_id",
-					"vname": "user"}},
+					"unique": "true"}}
+		],
+		"relationships": [
 			{	"name": "authinfo",
 				"type": "has_a",
+				"property": "user_id",
 				"to": {
 					"type": "Authinfo",
-					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "User",
-					"property": "user_id",
-					"vname": "user"}}]
-		 "methods": [],
-		 "attributes": {}},
+					"property": "user_id"}
+			},
 
-	{	"name": "Manager",
-		 "key": "user_id",
-		 "properties": [
-			{	"name": "user_id",
-				"type": "int",
-				"attributes": {
-					"primary": "true"}}],
-		 "relationships": [
-			{	"name": "user",
-				"type": "is_a",
+			{	"name": "cards",
+				"type": "has_many",
+				"property": "user_id",
 				"to": {
-					"type": "User",
-					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "Manager",
-					"property": "user_id",
-					"vname": "user"}}}],
-		 "methods": [],
-		 "attributes": {}},
-
-	{	"name": "Executive",
-		 "key": "user_id",
-		 "properties": [
-			{	"name": "user_id",
-				"type": "int",
-				"attributes": {
-					"primary": "true"}}],
-		 "relationships": [
-			{	"name": "user",
-				"type": "is_a",
-				"to": {
-					"type": "User",
-					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "Executive",
-					"property": "user_id",
-					"vname": "user"}}],
-		 "methods": [],
-		 "attributes": {}},
+					"type": "Card",
+					"property": "user_id"}}
+			]
+	},
 
 	{	"name": "Card",
 		 "key": "card_id",
 		 "properties": [
 			{	"name": "card_id",
-				"type": "int",
-				"attributes": {
-					"primary": "true"}},
+				"type": "uuid"},
 			{	"name": "user_id",
-				"type": "int",
-				"attributes": {}},
+				"type": "int"},
 			{	"name": "name",
 				"type": "string",
 				"attributes": {
@@ -1071,6 +1032,7 @@ store data between a local and remote JEFRi runtime.}
 			{	"name": "phone",
 				"type": "string",
 				"attributes": {
+					"length": 17,
 					"nullable": "true"}},
 			{	"name": "address",
 				"type": "string",
@@ -1098,16 +1060,12 @@ store data between a local and remote JEFRi runtime.}
 		 "relationships": [
 			{	"name": "user",
 				"type": "has_a",
+				"property": "user_id",
 				"to": {
 					"type": "User",
 					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "Card",
-					"property": "user_id",
 					"vname": "user"}}],
-		 "methods": [],
-		 "attributes": {}},
+	},
 
 	{	"name": "Authinfo",
 		 "key": "authinfo_id",
@@ -1126,117 +1084,63 @@ store data between a local and remote JEFRi runtime.}
 			{	"name": "password",
 				"type": "string",
 				"attributes": {
-					"length": "45"}},
-			{	"name": "activated",
-				"type": "string",
-				"attributes": {
-					"nullable": "true",
-					"length": "45"}},
-			{	"name": "banned",
-				"type": "string",
-				"attributes": {
-					"nullable": "true",
 					"length": "45"}}],
 		 "relationships": [
 			{	"name": "user",
 				"type": "has_a",
+				"property": "user_id",
 				"to": {
 					"type": "User",
-					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "Authinfo",
-					"property": "user_id",
-					"vname": "user"}}],
-		 "methods": [],
-		 "attributes": {}},
+					"property": "user_id"}}],
+	}
 ]}
 \end{lstlisting}
 
-\subsubsection{Sample Prototypes}
-\begin{lstlisting}
-{
-
-}
-\end{lstlisting}
-
 \subsection{Sample {\ilcode get}}
+A {\ilcode get} transaction for all data for davidsouther@gmail.com in the US.
 \linespread{1}
 \begin{lstlisting}
-{
-	_type: "Datapoint",
-	datatype: {
-		campaign: {
-			campaign_id: "aac068f1-4fea-4922-8a32-7d8cf8f2923a"
-		},
-		options: "[boolean]",
-	},
-	product: {
-		brand: {}
-	},
-	task: {
-		location: {
-			country: "AU"
+{"entities": [
+	{
+		"_type": "Authinfo",
+		"username": ["=", "davidsouther@gmail.com"],
+		"user": {
+			"cards": {
+				"country": "US"
+			}
 		}
 	}
-}
+]}
 \end{lstlisting}
 \subsubsection{Translated SQL}
+
+\lstset{language=SQL}
 \begin{lstlisting}
 SELECT
-	datapoints.datapoint_id AS 'datapoints.datapoint_id',
-	datapoints.task_id AS 'datapoints.task_id',
-	datapoints.datatype_id AS 'datapoints.datatype_id',
-	datapoints.value AS 'datapoints.value',
-	datapoints.product_id AS 'datapoints.product_id',
-	tasks.task_id AS 'tasks.task_id',
-	tasks.parent_id AS 'tasks.parent_id',
-	tasks.user_id AS 'tasks.user_id',
-	tasks.campaign_id AS 'tasks.campaign_id',
-	tasks.location_id AS 'tasks.location_id',
-	tasks.title AS 'tasks.title',
-	tasks.description AS 'tasks.description',
-	tasks.earliest_start AS 'tasks.earliest_start',
-	tasks.deadline AS 'tasks.deadline',
-	tasks.estimate AS 'tasks.estimate',
-	locations.location_id AS 'locations.location_id',
-	locations.latitude AS 'locations.latitude',
-	locations.longitude AS 'locations.longitude',
-	locations.name AS 'locations.name',
-	locations.address AS 'locations.address',
-	locations.city AS 'locations.city',
-	locations.state AS 'locations.state',
-	locations.postal AS 'locations.postal',
-	locations.phone AS 'locations.phone',
-	datatypes.datatype_id AS 'datatypes.datatype_id',
-	datatypes.campaign_id AS 'datatypes.campaign_id',
-	datatypes.name AS 'datatypes.name',
-	datatypes.description AS 'datatypes.description',
-	datatypes.options AS 'datatypes.options',
-	campaigns.campaign_id AS 'campaigns.campaign_id',
-	campaigns.client_id AS 'campaigns.client_id',
-	campaigns.name AS 'campaigns.name',
-	campaigns.description AS 'campaigns.description',
-	products.product_id AS 'products.product_id',
-	products.brand_id AS 'products.brand_id',
-	products.name AS 'products.name',
-	products.description AS 'products.description',
-	products.size AS 'products.size',
-	brands.brand_id AS 'brands.brand_id',
-	brands.client_id AS 'brands.client_id',
-	brands.name AS 'brands.name',
-	brands.description AS 'brands.description'
-FROM "datapoints"
-	JOIN "tasks" ON (datapoints.task_id = tasks.task_id)
-	JOIN "locations" ON (tasks.location_id = locations.location_id)
-	JOIN "datatypes" ON (datapoints.datatype_id = datatypes.datatype_id)
-	JOIN "campaigns" ON (datatypes.campaign_id = campaigns.campaign_id)
-	JOIN "products" ON (datapoints.product_id = products.product_id)
-	JOIN "brands" ON (products.brand_id = brands.brand_id)
+	authinfo.user_id AS 'authinfo.user_id',
+	authinfo.username AS 'authinfo.username',
+	authinfo.password AS 'authinfo.password',
+	user.user_id AS 'user.user_id',
+	user.name AS 'user.name',
+	user.email AS 'user.email',
+	card.card_id AS 'card.card_id',
+	card.user_id AS 'card.user_id',
+
+	card.name AS 'card.name',
+	card.email AS 'card.email',
+	card.phone AS 'card.phone',
+	card.street AS 'card.street',
+	card.city AS 'card.city',
+	card.state AS 'card.state',
+	card.zip AS 'card.zip',
+	card.country AS 'card.country'
+FROM "authinfo"
+	JOIN "user" ON (authinfo.user_id = user.user_id)
+	JOIN "card" ON (user.user_id = card.user_id)
 WHERE
-	campaigns.campaign_id LIKE 'aac068f1-4fea-4922-8a32-7d8cf8f2923a'
+	authinfo.username = 'davidsouther@gmail.com'
 	AND
-	datatypes.options LIKE '%[boolean]%'
+	card.country LIKE '%US%'
 \end{lstlisting}
 
 \end{document}
