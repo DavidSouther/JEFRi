@@ -1,5 +1,4 @@
-# JEFRi
-## JSON Entity Framework Runtime
+![JEFRi - JSON Entity Framework Runtime](https://github.com/DavidSouther/JEFRi/raw/master/assets/jefri_logo.png)
 
 ### Overview
 
