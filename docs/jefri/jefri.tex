@@ -262,10 +262,11 @@ responsibility to document recognized attributes and their behavior.
 {\ilcode relationships} is an array describing the various navigation properties
 available to an entity. A relationship has four keys --- {\ilcode name}, the
 identifier for the navigation; {\ilcode type}, one of {\ilcode is\_a}, {\ilcode
-has\_a}, or {\ilcode has\_many}; and {\ilcode to} and {\ilcode from}, describing
-the entities taking part in the relationship. Name must be a locally unique,
-valid Javascript identifier. Further, it defines which {\ilcode get\_} method
-must be called to navigate the relationship (specifically, {\ilcode
+has\_a}, or {\ilcode has\_many}; {\ilcode property}, the entity property to
+define the relationship; and {\ilcode to}, describing the second entity taking
+part in the relationship. {\ilocode name} must be a locally unique, valid
+Javascript identifier. Further, it determines which {\ilcode get\_} method must
+be called to navigate the relationship (specifically, {\ilcode
 entity.get\_`name'()}). {\ilcode type} determines what will be returned when
 navigating the relationship. {\ilcode has\_a} and {\ilcode is\_a} will return a
 single entity, while {\ilcode has\_many} will return a (possibly empty) array of
@@ -277,16 +278,19 @@ has\_many} navigation that would lead back to the entity on the from side
 (however, this is not a requirement). {\ilcode is\_a} will not have a reverse
 navigation. JEFRi does not support the concept of casting down.
 
-Finally, the {\ilcode from} and {\ilcode to} properties describe where to look
-up the data needed for the navigation. In all relationships, both the {\ilcode
-from} and {\ilcode to} type fields {\it must} resolve to a valid entity name.
-The property fields are used slightly differently depending on what the type of
-the relationship is.
+Finally, the {\ilcode property} and {\ilcode to} properties describe where to
+look up the data needed for the navigation. In all relationships, the {\ilcode
+to} type field {\it must} resolve to a valid entity name. The property fields
+are used slightly differently depending on what the type of the relationship is.
 
 In a {\ilcode has\_a relationship}, {\ilcode
-from.property} must equal {\ilcode to.property}, and the navigation
+from.property} must equal {\ilcode property}, and the navigation
 property will return the one {\ilcode to.type} whose key is equal to the
 {\ilcode from.property}. The opposite is similar for {\ilcode has\_many}.
+
+If {\ilcode attributes} at any level is empty, it may be removed from the
+context. If an entity has no {\ilcode relationships}, it may be removed from the
+context.
 
 \section{Runtimes}
 
@@ -604,10 +608,10 @@ methods, but are generally only called from the transaction. However, there is
 no formal `user-mode' constraints, so that is a recommendation, not a
 requirement.
 
-\subsection{Runtime Methods}
+\subsection{Runtime}
 Runtime methods are provided as-is by a particular runtime implementation.
-\\
-\\
+
+\subsubsection{Constructor}
 \method{Runtime}{URI, options}{Runtime}
 {Creates a new runtime whose primary context will be loaded from the URI given}
 	{
@@ -617,7 +621,7 @@ Runtime methods are provided as-is by a particular runtime implementation.
 			implementations.}
 		\returns{A reference to the newly-instantiated runtime.}
 	}
-
+\subsubsection{Methods}
 \method{definition}{type}{entity\_definition}
 	{Returns the context's definition for the specified type.}
 	{
@@ -676,7 +680,18 @@ Runtime methods are provided as-is by a particular runtime implementation.
 		\returns{A Promise that will resolve when the execute has completed.}
 	}
 
-\subsection{Entity Methods}
+\subsubsection{Events}
+\event{saving}{this}
+	{Triggered when an EntityContext begins to save data.}
+	{\param{this}{A reference to the entity itself.}}
+
+\event{saved}{this}
+	{Triggered when an EntityContext has finished persisting data to a remote
+	runtime.}
+	{\param{this}{A reference to the entity itself.}}
+
+\subsection{Entity}
+\subsubsection{Methods}
 Entity methods must be created by the runtime when an entity type is read from a
 context.
 \\
@@ -729,11 +744,29 @@ context.
 		\returns{A reference to this entity.}
 	}
 
-\subsection{Transaction Methods}
-Transactions allow for communication between JEFRi runtimes. These are the
-methods available to create and manipulate transactions.
-\\
-\\
+\subsubsection{Events}
+\event{persisting}{this, transaction}
+	{Triggered during the transaction lifecycle when a transaction begins to
+	persist to a remote runtime, but before the data has been sent.}
+	{
+		\param{this}{A reference to the entity itself.}
+		\param{transaction}{The transaction that is persisting this entity.}
+	}
+
+\event{persisted}{this}
+	{Triggered during the transaction lifecycle, after it has been confirmed
+	that the entity was persisted in the remote runtime.}
+	{\param{this}{A reference to the entity itself, with updated field values
+	from the persist transaction.}}
+
+\event{gotten}{this}
+	{Triggered after an entity has been returned and interned from a {\ilcode
+	get} transaction}
+	{\param{this}{A reference to the entity, with properties updated from the
+	values returned in the transaction.}}
+
+\subsection{Transaction}
+\subsubsection{Methods}
 \method{Transaction}{entities}{Transaction}
 	{Constructor. Entities describes the data in the transaction. See the
 	section on Transactions for details.}
@@ -773,66 +806,7 @@ methods available to create and manipulate transactions.
 		\returns{The transaction.}
 	}
 
-\subsection{PersistenceStore Methods}
-Persistence Stores are proxies to a remote JEFRi runtime. These methods are
-utility methods
-\\
-\\
-\method{PersistenceStore}{URI, options}{PersistenceStore}
-	{Create a new persistence store to handle JEFRi transactions.}
-	{
-		\param{URI}{Base URI of remote store.}
-		\param{options}{Options to configure the store. Specific options must be
-			defined by the store implementations.}
-		\returns{The newly instantiated PersistenceStore.}
-	}
-
-\method{execute}{type, Transaction}{Promise}
-	{Begin asynchronous execution of a transaction.}
-	{
-		\param{type}{PERSIST or GET, depending on how to handle the transaction.}
-		\param{Transaction}{Transaction to execute against the remote store.}
-		\returns{Promise of a deferred that will be resolved when
-			the transcation completes.}
-	}
-
-\subsection{Events}
-Throughout the lifetime of a JEFRi runtime, a variety of events are triggered
-allowing application code to handle and modifying JEFRi actions in a variety of
-ways.
-
-\subsubsection{Runtime}
-\event{saving}{this}
-	{Triggered when an EntityContext begins to save data.}
-	{\param{this}{A reference to the entity itself.}}
-
-\event{saved}{this}
-	{Triggered when an EntityContext has finished persisting data to a remote
-	runtime.}
-	{\param{this}{A reference to the entity itself.}}
-
-\subsubsection{Entity}
-\event{persisting}{this, transaction}
-	{Triggered during the transaction lifecycle when a transaction begins to
-	persist to a remote runtime, but before the data has been sent.}
-	{
-		\param{this}{A reference to the entity itself.}
-		\param{transaction}{The transaction that is persisting this entity.}
-	}
-
-\event{persisted}{this}
-	{Triggered during the transaction lifecycle, after it has been confirmed
-	that the entity was persisted in the remote runtime.}
-	{\param{this}{A reference to the entity itself, with updated field values
-	from the persist transaction.}}
-
-\event{gotten}{this}
-	{Triggered after an entity has been returned and interned from a {\ilcode
-	get} transaction}
-	{\param{this}{A reference to the entity, with properties updated from the
-	values returned in the transaction.}}
-
-\subsubsection{Transaction}
+\subsubsection{Events}
 \event{getting}{this}
 	{Triggered when a {\ilcode get} transaction is ready to be sent to a remote
 	runtime, but before it has been passed to the store.}
@@ -852,7 +826,28 @@ ways.
 	expanded.}
 	{\param{this}{A reference to the transaction.}}
 
-\subsubsection{PersistenceStore}
+\subsection{PersistenceStore}
+\subsubsection{Constructor}
+\method{PersistenceStore}{URI, options}{PersistenceStore}
+	{Create a new persistence store to handle JEFRi transactions.}
+	{
+		\param{URI}{Base URI of remote store.}
+		\param{options}{Options to configure the store. Specific options must be
+			defined by the store implementations.}
+		\returns{The newly instantiated PersistenceStore.}
+	}
+\subsubsection{Methods}
+\method{execute}{type, Transaction}{Promise}
+	{Begin asynchronous execution of a transaction.}
+	{
+		\param{type}{PERSIST or GET, depending on how to handle the
+			transaction.}
+		\param{Transaction}{Transaction to execute against the remote store.}
+		\returns{Promise of a deferred that will be resolved when
+			the transcation completes.}
+	}
+
+\subsubsection{Events}
 \event{sending}{type, to\_url, transaction, this}
 	{Triggered when a store is about to send a transaction to a remote runtime.}
 	{
@@ -878,7 +873,12 @@ ways.
 		\param{this}{A reference to the store sending the transaction.}
 	}
 
-\subsubsection{Lifecycle}
+
+\subsection{Events Lifecycle}
+Throughout the lifetime of a JEFRi runtime, a variety of events are triggered
+allowing application code to handle and modifying JEFRi actions in a variety of
+ways.
+
 This is the order of events fired during a PersistStore {\ilcode get} request.
 There are two phases to the request, and are split between preparing the request
 and getting a deferred promise for when the request returns, and when the
