@@ -71,17 +71,17 @@
 \section{Overview}
 
 JEFRi is an entity framework. Entity Frameworks allow developers to specify data
-descriptions and relationships once for their application, then share data
-throughout the application space in a unified way. JEFRi accomplishes this by
-specifying an Entity Context independent of any programming language. This
-context describes the entities available in the domain model, the properties of
-those entities, and any additional attributes needed to make the model suitably
-robust. Further, it describes the relationships between entities. These
-navigation properties allow entities to act naturally and transparently as
-composite types. This allows intelligent loading of related data, without
-requiring an application to load an entire object graph.
+descriptions and relationships once for their domain, then share data throughout
+their application space in a unified way. JEFRi accomplishes this by specifying
+an Entity Context independent of any programming language. This context
+describes the entities available in the domain model, the properties of those
+entities, the relationships between entities, and any additional attributes
+needed to make the model suitably robust. These navigation properties allow
+entities to act naturally and transparently as composite types. This allows
+intelligent loading of related data, without requiring an application to load an
+entire object graph.
 
-An Entity Framework provides a wealth of functionality over a pure Object-
+An Entity Framework provides a wealth of functionality over a pure Object /
 Relational Mapper. Straight ORMs simply translate between a database table and
 an instantiated object. A full EF includes tracking modifications of entities,
 descriptive methods to navigate entity relationships, intelligent sharing
@@ -89,22 +89,21 @@ between framework instances, and more. JEFRi is a specification for how to
 define these entities, how to share these entities, and many other features
 enabling software projects to quickly and efficiently work with their data.
 
-
 \section{Entities}
 
 Entities are independent, identifiable components of an application's model.
-Entities are analogous to Objects in OOP, and Table Rows in databases. Entities
-are the building blocks of the domain, the things the domain is modeling.
-Entities could be receipts in a Point of Sale application, Clients in Contact
-Management System, or Planets in a physics model. Entities within an entity
-framework are endowed with a variety of backing infrastructure, including tools
-to share data between runtimes, tools to store data to various persistence
-layers, tools to track the history of the entity, and more.
+Entities are analogous to instances of objects in OOP, and table rows in
+databases. Entities are the building blocks of the domain, the things the domain
+is modeling. Entities could be receipts in a Point of Sale application, Clients
+in Contact Management System, or Planets in a physics model. Entities within an
+entity framework are endowed with a variety of backing infrastructure, including
+tools to share data between runtimes, tools to store data to various persistence
+layers, and tools to track the history of the entity.
 
 \subsection{Keys}
 
-Every Entity must have a key --- a single unique field identifying that entity
-across all instances of any runtimes. To meet this requirement in a distributed,
+Every Entity must have a key --- a single unique value identifying that entity
+across all instances of any runtime. To meet this requirement in a distributed,
 heterogeneous environment, keys are recommended to be version 4 (random) UUIDs.
 Keys are used exclusively to refer to entities of a specific type. To maintain
 unique object graphs when flattening into transactions, the key is used as an
@@ -128,7 +127,7 @@ to entity types. Thus, randomly generating Version 4 UUIDs allows 6 million
 billion keys per entity type before reaching a 50\% chance of a single collision
 amongst keys.
 
-We will see later that a type's full URN within a runtime is technically
+We will see later that an entity's full URI within a runtime is technically
 {\ilcode entity://\-application/\-context/\-type/\-uuid}, so it is arguable that
 UUIDs are ``Too Much". Then again, no one needs more than 640K. If a context
 expects more entities of some type than this, it would be simple to replace the
@@ -158,7 +157,6 @@ called, how the relate to one-another, and all the details needed to completely
 automate loading and navigating the object graph\footnote{Here, object actually
 does mean instance of an entity.}.
 
-
 There are two basic forms of relationships --- {\ilcode has\_a} and {\ilcode
 has\_many}. A third type, {\ilcode is\_a}, is a specialized {\ilcode has\_a}
 with no return relationship. {\ilcode has\_a} states that an entity references
@@ -183,20 +181,11 @@ This is a result of naming the relationships {\ilcode user} and {\ilcode
 receipts} in the context- it is not the runtime's responsibility to handle
 pluralities, but the context generator's.
 
-\subsection{Attributes}
-
-Attributes provide meta-information about entities and properties. All entities
-have a key attribute, that tells which property holds the entity's keys. All
-properties have a type attribute, describing what data they hold. Beyond some
-minimal required data, attributes can contain any additional information the
-application may need. It is the responsibility of the application to use that
-data --- the context will merely hold it.
-
 \section{Contexts}
 
 JEFRi Contexts are descriptions of the entity model. Contexts are described here
 as JSON objects, though can be any persistable object serialization. Contexts
-are objects with two properties --- {\ilcode meta}, describing the context
+are objects with two properties --- {\ilcode attributes}, describing the context
 specific options, and {\tt entities}, an array of entity descriptions. A context
 should have a globally unique URI for identification. Contexts published in this
 way can then be referenced by entity descriptions in other contexts. As an
@@ -205,14 +194,15 @@ describing the employees of a company. The IS team would then write a context
 defining their technology tools and include the HR context directly, creating
 a clean interface between the departments.
 
-A context's {\ilcode meta} is an object containing arbitrary keyed data for a
-runtime's consumption. For example, a {\ilcode meta} could declare {\ilcode
-persistOnUpdate} to be true. In this case, the runtime could then automatically
-attempt to persist an entity any time its properties were updated. The list of
-canonical {\ilcode meta} attributes and their meaning will grow organically as
-JEFRi is fleshed out. Otherwise, the documentation for a particular
-implementation must specify the {\ilcode meta} attributes it handles, as well as
-their meanings.
+A context's {\ilcode attribute} is an object containing arbitrary keyed data for
+a runtime's consumption. For example, an {\ilcode attribute} could declare
+{\ilcode persistOnUpdate} to be true. In this case, the runtime could then
+automatically attempt to persist an entity any time its properties were updated.
+The list of canonical {\ilcode attribute} keys and their meaning will grow
+organically as JEFRi is fleshed out. Otherwise, the documentation for a
+particular implementation must specify the specific attributes it handles, as
+well as their meanings. Many JEFRi extensions will define some attributes,
+allowing runtimes to choose which extensions to handle, as needed.
 
 The {\ilcode entities} array is the heart of the context. Each entry describes
 one entity type available. The entries are objects with five keys. Those are
@@ -240,9 +230,10 @@ the platform- agnostic datatype specifier. Canonically recognized types are
 {\ilcode int}, {\ilcode float}, and {\ilcode string}.
 
 {\ilcode attributes} is an object of arbitrary key/value pairs. Currently
-recognized keys are {\ilcode nullable}, allowing the field to have an
-appropriate value or {\ilcode null}; and {\ilcode length} for string, specifying
-the maximum number of characters. Again, it is the runtime implementor's
+recognized attributes are {\ilcode nullable} (for {\ilcode int}, {\ilcode
+float}, and {\ilcode string}), allowing the field to have an appropriate value
+or {\ilcode null}; and {\ilcode length} (for {\ilcode string}, specifying the
+maximum number of characters. Again, it is the runtime implementor's
 responsibility to document recognized attributes and their behavior.
 
 {\ilcode relationships} is an array describing the various navigation properties
@@ -267,8 +258,10 @@ Finally, the {\ilcode from} and {\ilcode to} properties describe where to look
 up the data needed for the navigation. In all relationships, both the {\ilcode
 from} and {\ilcode to} type fields {\it must} resolve to a valid entity name.
 The property fields are used slightly differently depending on what the type of
-the relationship is. In a {\ilcode has\_a relationship}, the {\ilcode
-to.property} should be the same as the {\ilcode to.type.key}, and the navigation
+the relationship is.
+
+In a {\ilcode has\_a relationship}, {\ilcode
+from.property} must equal {\ilcode to.property}, and the navigation
 property will return the one {\ilcode to.type} whose key is equal to the
 {\ilcode from.property}. The opposite is similar for {\ilcode has\_many}.
 
@@ -280,13 +273,16 @@ references to Entities within an application. This includes responsibilities
 for interning entities, managing entity relationships, and attaching attribute
 information to Entities.
 
-Public runtimes expose themselves as a REST service. These services provide
-two URIs, {\ilcode http://\-example.com/\-jefri/\-{\textbf{get}}} for handling
-{\ilcode get} transactions and
-{\ilcode http://\-example.com/\-jefri/\-{\textbf{persist}}} for handling
-persist requests.
+Runtimes can expose themselves publicly as a REST service. These services
+provide two URIs, {\ilcode http://\-example.com/\-jefri/\-{\textbf{get}}} for
+handling {\ilcode get} transactions and {\ilcode
+http://\-example.com/\-jefri/\-{\textbf{persist}}} for handling persist
+requests. Transactions are POSTed to these URIs, and the runtime will return the
+appropriate result.
 
 \subsection{Persistence Stores}
+
+
 
 Applications using JEFRi are able to communicate entities who come from the
 same context. This is achieved using a persistence store. A persistence store
@@ -306,8 +302,8 @@ available in the transaction specifications. See the section on transaction
 specifications for the exact semantics of get requests.  Executing persist
 transactions must function atomically.  It is the responsibility of the remote
 runtime to ensure that transactions happen atomically. In general, it is the
-persistence store's responsibility to meet the semantics specified in the section
-on Transactions.
+persistence store's responsibility to meet the semantics specified in the
+section on Transactions.
 
 \section{Transactions}
 
@@ -320,7 +316,7 @@ the after bits. At a hardware level, this only works with the smallest
 addressable batch of memory --- a word. Since entities are probably always going
 to be bigger than a single word (integer UUIDs alone are 2 full words on a
 64-bit machine), it is not possible to achieve atomic entity persistence in
-hardware alone. Still, it is necessary to have guaranteed atomic writes for
+hardware alone. It is still necessary to have guaranteed atomic writes for
 entity data.
 
 JEFRi transactions fill this gap. When a runtime is ready to persist a batch
@@ -332,19 +328,19 @@ between runtime instances, with some guarantee that that information is
 consistent (generally, that guarantee will come from TCP).
 
 JEFRi has two transaction types: {\ilcode get} and {\ilcode persist}. A {\ilcode
-get} transaction is used to request data from a remote JEFRi instance. A
-{\ilcode persist} transaction is used to update data at a remote JEFRi instance.
-Transactions are a serialized object with two properties: {\ilcode meta}
-describing the transaction, and {\ilcode entities}, describing the entities to
-deal with.
+get} transaction is used to request data from a remote, public JEFRi runtime. A
+{\ilcode persist} transaction is used to update data at a remote, public JEFRi
+runtime. Transactions are a serialized object with two properties: {\ilcode
+attributes}, describing the transaction; and {\ilcode entities}, describing the
+entities to deal with.
 
 In a {\ilcode get} transaction, the entities array is a template for which
 entities should be returned. The return transaction will contain all entities
 that meet the criteria specified in the transaction. Specifically, the remote
 instance will look at the first object in the transaction. It will return all
 entities of that type whose properties match the given properties. It will join
-specified navigation properties (using just {\ilcode name}, not {\ilcode
-get\_name}). It will do this for each entity in the array. In other words, the
+specified navigation properties (using just {\ilcode `name'}, not {\ilcode
+get\_`name'}). It will do this for each entity in the array. In other words, the
 individual entities specify AND conditions, while the multiple entities specify
 OR conditions.
 
@@ -363,16 +359,26 @@ Data for a transaction should be described as close to the domain model as
 possible. However, requiring only full entities would result in more verbose
 transactions than necessary. To that end, the specification to a transaction
 will be an array of objects describing the entities in the transaction. The
-format should be similar to:
+format for a transaction is an object with properties {\ilcode attributes} and
+{\ilcode entities}. {\ilcode attributes} is an object. {\ilcode entities} is an
+array of entity objects. Entity objects must specify at least one field,
+{\ilcode _type}. Additional fields are dependent on entity properties and
+relationships.
+
+The values in those additional fields are different between {\ilcode get}
+transactions and {\ilcode persist} transactions. In a {\ilcode get} transaction,
+values for property keys specify the conditions necessary for an entity to be
+included in the transaction's result. Values for
 
 \linespread{1}
 \begin{lstlisting}
-[{
-	type: `User',
+{meta:{}
+entities: [{
+	_type: `User',
 	surname: `Franken',
 	prop2: value2,
 	cards: {}
-}]
+}]}
 \end{lstlisting}
 \linespread{1.6}
 
@@ -398,7 +404,7 @@ several rules transactions will use to determine the entities to return from a
 If the property is the entity key, it will be converted to an appropriate format
 for the store, and the property must match exactly. While the UUID can be
 transmitted as a hex string, it is recommended to transmit it as a 16-byte
-integer to conserve space, when possible.
+integer when possible, to conserve space.
 
 If value is an integer, properties must match exactly.
 
@@ -479,7 +485,7 @@ WHERE
 Since this is a left join and there are no constraints on {\ilcode Card}, this
 query will return a number of rows equal to the total number of matched cards.
 With more than one contact card per {\ilcode User}, some of the User data will
-be duplicated. The runtime the store is running in will intern all the instances
+be duplicated. The runtime the store is running in must intern all the instances
 of the different {\ilcode Users}, so there will be no duplicated entity
 instances in memory.
 
@@ -489,12 +495,12 @@ Persist transactions are an application's way to send changed entities to
 another runtime. For a database-backed entity store, these transactions could
 return quickly. For a store that has to post the transaction to a remote host,
 the persist might take much longer. To unify the interface, all transactions are
-asynchronous, and return a deferred promise.
-\footnote{For a full explanation of deferreds and their promises, see the
+asynchronous, and return a deferred promise \footnote{For a full explanation of
+deferreds and their promises, see the
 \href{http://api.jquery.com/category/deferred-object}{jQuery documentation}
---- jQuery has the most complete and robust deferred implementations today}
-With this in mind, there are three separate techniques or approaches to handling
-a persist transaction.
+--- jQuery has the most complete and
+robust deferred implementations today.}. With this in mind, there are three
+separate techniques or approaches to handling a persist transaction.
 
 The first approach is managing the transaction directly. The application readies
 a transaction by calling {\ilcode ec.transaction()}. The application can then
@@ -505,16 +511,16 @@ be added multiple times without being duplicated in the final send.
 
 The second is persisting the changes to a single entity. Every entity has a
 function {\ilcode persist()}. This function will generate several events,
-including {\ilcode entity.on\_persist(transaction)}, passing in the transaction
-that will handle the persist request. The entity should use this to add related
-data to the transaction. This technique can be combined effectively with the
-first approach.
+including {\ilcode entity.persisting(entity, transaction)}, passing in the
+transaction that will handle the persist request. The entity should use this to
+add related data to the transaction. This technique can be combined effectively
+with the first approach.
 
 The final technique is a pair of helper methods in the EntityContext itself. The
 EC maintains an internal record of what entities have been changed, and what
-entities have been added. The two methods {\ilcode ec.persist\_new(callback)}
-and {\ilcode ec.persist\_changes(callback)} can be used to easily persist all
-entities that have been modified, but not persisted.
+entities have been added. The two methods {\ilcode ec.persist\_new()} and
+{\ilcode ec.persist\_changes()} can be used to easily persist all entities that
+have been created or modified, but not persisted, respectively.
 
 \subsection{Entity Accounting}
 
@@ -557,24 +563,25 @@ EntityContext's new and modified arrays.
 
 \section{API}
 
-Context Methods are called on an instance of a JEFRi runtime, and include many
+Runtime Methods are called on an instance of a JEFRi runtime, and include many
 data access routines. Entity methods are called on instances of entities, and
 include primarily navigation properties, as well as entity-specific persistence
-methods. Transaction methods are called on a class which manages large {\ilcode
-get} and {\ilcode persist} transactions. Data Store methods mirror Transaction
+methods. Transaction methods are called on a class which manages {\ilcode get}
+and {\ilcode persist} transactions. Data Store methods mirror Transaction
 methods, but are generally only called from the transaction. However, there is
 no formal `user-mode' constraints, so that is a recommendation, not a
 requirement.
 
 \subsection{Runtime Methods}
-These are methods available for an active JEFRi Runtime.
 \\
 \\
 \method{Runtime}{URI, options}{Runtime}
 {Creates a new runtime whose primary context will be loaded from the URI given}
 	{
 		\param{URI}{The URI for the context description.}
-		\param{options}{An object containing override parameters.}
+		\param{options}{An object containing override parameters. Specific
+			options should be detailed by the individual runtime
+			implementations.}
 		\returns{A reference to the newly-instantiated runtime.}
 	}
 
@@ -606,12 +613,13 @@ These are methods available for an active JEFRi Runtime.
 		\returns{A reference to the newly-created entity.}
 	}
 
-\method{intern}{Entity, updateOnIntern}{Runtime}
+\method{intern}{Entity, updateOnIntern=false}{Runtime}
 	{Returns a canonical instance of the {\ilcode entity} from memory. Use this
 	to translate between UUIDs and pointers (or similar machine references). If
 	the boolean {\ilcode updateOnIntern} is true, and there is a previously
 	stored {\ilcode entity}, the old {\ilcode entity} will be updated with any
-	non-default properties of the new entity.}
+	non-default properties of the new entity. Otherwise, the old entity will be
+	replaced.}
 	{
 		\param{entity}{Entity to intern.}
 		\param{updateOnIntern}{Boolean (default false) to specify default
@@ -656,17 +664,22 @@ These are the defined JEFRi methods on an instantiated entity.
 		\returns{The UUID of the entity in the runtime's native format.}
 	}
 
-\method{\_type}{}{String}
+\method{\_type}{full=false}{String}
 	{Returns a string of the canonical entity type.}
 	{
+		\param{full}{When true, return the full type including context URI
+			prefix.}
 		\returns{The entity type.}
 	}
 
 \method{get\_`name'}{}{Entity}
-	{Follow a navigation property. Returns either a single or (possibly
-	empty) array with the to end of the relationship.}
+	{Follow a navigation property. If the relationship is an {\ilcode is\_a},
+	return an instance of the {\ilcode to} type. If the relationship is a
+	{\ilcode has\_a}, return a (possibly new) instance of the {\ilcode to} type.
+	If the relationship is a {\ilcode has\_many}, return a (possibly empty)
+	array of entities of the {\ilcode to} type.}
 	{
-		\returns{A reference to the navigated entity.}
+		\returns{A the navigated entity, or an array of the navigated entity.}
 	}
 
 \method{set\_`name'}{to\_entity}{Entity}
@@ -745,7 +758,8 @@ utility methods
 	{Create a new persistence store to handle JEFRi transactions.}
 	{
 		\param{URI}{Base URI of remote store.}
-		\param{options}{Options to configure the store.}
+		\param{options}{Options to configure the store. Specific options must be
+			defined by the store implementations.}
 		\returns{The newly instantiated PersistenceStore.}
 	}
 
@@ -774,10 +788,13 @@ ways.
 	{\param{this}{A reference to the entity itself.}}
 
 \subsubsection{Entity}
-\event{persisting}{this}
+\event{persisting}{this, transaction}
 	{Triggered during the transaction lifecycle when a transaction begins to
 	persist to a remote runtime, but before the data has been sent.}
-	{\param{this}{A reference to the entity itself.}}
+	{
+		\param{this}{A reference to the entity itself.}
+		\param{transaction}{The transaction that is persisting this entity.}
+	}
 
 \event{persisted}{this}
 	{Triggered during the transaction lifecycle, after it has been confirmed
@@ -853,7 +870,7 @@ asynchronous request has actually completed.
 
 \begin{call}{user}{get()}{transaction}{Promise}
 	\mess{transaction}{getting}{events}
-	\begin{call}{transaction}{`do'()}{store}{Promise}
+	\begin{call}{transaction}{execute()}{store}{Promise}
 		\mess{store}{sending}{events}
 		\begin{call}{store}{$<<$ajax$>>$}{remote}{Promise}
 		\end{call}
@@ -905,9 +922,8 @@ diagram doesn't support that. :(}
 
 \subsection{Glossary}
 
-
-\glossary{Attribute}{An object on entities and property property definitions in
-a context, specifying optional information that a runtime can use to provide
+\indent\glossary{Attribute}{An object on contexts, entities, and property
+definitions, specifying optional information that a runtime can use to provide
 enhanced functionality in a modular fashion.}
 
 \glossary{Context}{A description of the entities in a JEFRi application.}
@@ -915,15 +931,18 @@ enhanced functionality in a modular fashion.}
 \glossary{Deferred}{An object that manages a callback chain.}
 
 \glossary{Entity}{A discreet, addressable structure of data with properties and
-well-defined relationships to to other entities.}
+well-defined relationships to other entities.}
 
 \glossary{Object}{A key/value store, closer to the JSON definition of an object.
 An entity in JEFRi is closer to the idea of an instance in classical
 inheritance.}
 
-\glossary{Persistence Store}{A persistence store is a remote JEFRi runtime used
-by an application to retrieve additional data, and to send persist transactions
-to ensure data is stored in other places.}
+\glossary{Persistence Store}{A persistence store is used by an application to
+retrieve additional data, and to send persist transactions to ensure data is
+stored outside the runtime's memory. A persistence store either can operate on
+data in some local persistence mechanism (eg. a database or filesystem), or can
+be a proxy to a remote JEFRi runtime, which itself may have a persistence store
+operating on some local data storage.}
 
 \glossary{Property}{A field of an entity that holds a piece of data.}
 
