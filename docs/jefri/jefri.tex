@@ -81,8 +81,15 @@
 
 \begin{document}
 
-\title{JEFRi - JSON Entity Framework Runtime}
-\maketitle
+\vspace{1in}
+\begin{center}
+	\includegraphics[width=275px]{../../assets/jefri_logo.png}
+\end{center}
+\vspace{1in}
+
+%\title{Core Runtime}
+%\maketitle
+
 \tableofcontents
 \newpage
 \linespread{1.6}
@@ -264,7 +271,7 @@ available to an entity. A relationship has four keys --- {\ilcode name}, the
 identifier for the navigation; {\ilcode type}, one of {\ilcode is\_a}, {\ilcode
 has\_a}, or {\ilcode has\_many}; {\ilcode property}, the entity property to
 define the relationship; and {\ilcode to}, describing the second entity taking
-part in the relationship. {\ilocode name} must be a locally unique, valid
+part in the relationship. {\ilcode name} must be a locally unique, valid
 Javascript identifier. Further, it determines which {\ilcode get\_} method must
 be called to navigate the relationship (specifically, {\ilcode
 entity.get\_`name'()}). {\ilcode type} determines what will be returned when
