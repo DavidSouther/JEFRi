@@ -9,8 +9,11 @@ do
 	mkdir _out_
 	make -f ../latex/Makefile
 	make -f ../latex/Makefile clean
-	cd - 
+	cd -
 done
 
 mkdir docs
 find . -type f -path '*/_out_/*' | xargs -I{} cp {} ./docs/
+cd docs
+ln -s ../../assets/jefri_icon_16.ico favicon.ico
+ln -s ../index.html
