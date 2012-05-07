@@ -35,9 +35,8 @@ JEFRi.EntityComparator = function(a, b)
 var noop = function(){};
 
 (function($){
-	JEFRi.EntityContext = function(contextUri, options, protos)
-	// EntityContext Constructor.
-	{
+	// Runtime Constructor.
+	JEFRi.Runtime = function(contextUri, options, protos) {
 		// Private variables we'll be using throughout the class.
 		var self = this;
 		var ec = this;
@@ -426,7 +425,7 @@ var noop = function(){};
 		};
 
 
-		if(options.debug) {
+		if(options && options.debug) {
 			_set_context(options.debug.context, protos);
 		} else {
 			$.ajax({
@@ -445,7 +444,7 @@ var noop = function(){};
 		}
 	};
 
-	JEFRi.EntityContext.prototype.clear = function(){
+	JEFRi.Runtime.prototype.clear = function(){
 		this._modified = {};
 		this._new = [];
 		this._instances = {};
@@ -454,14 +453,14 @@ var noop = function(){};
 
 	// Get the definition of an entity.
 	//
-	JEFRi.EntityContext.prototype.definition = function(name) {
+	JEFRi.Runtime.prototype.definition = function(name) {
 		name = (typeof name == "string") ? name : name.type;
 
 		return this._context.entities[name];
 	};
 
 	// Find the relationship back to this guy...
-	JEFRi.EntityContext.prototype.back_rel = function(type, relationship) {
+	JEFRi.Runtime.prototype.back_rel = function(type, relationship) {
 		var ec = this;
 		var def = ec.definition(relationship.to.type);
 		var back = null;
@@ -476,7 +475,7 @@ var noop = function(){};
 	};
 
 	// Return the canonical memory reference of the entity.
-	JEFRi.EntityContext.prototype.intern = function(entity, updateOnIntern) {
+	JEFRi.Runtime.prototype.intern = function(entity, updateOnIntern) {
 		updateOnIntern = !!updateOnIntern || this.settings.updateOnIntern;
 
 		if(entity.length && ! entity._type)
@@ -508,7 +507,7 @@ var noop = function(){};
 
 	// Add the methods in the extend prototype to the prototype of type specifed
 	// affecting _ALL_ instances, both current and future, of type.
-	JEFRi.EntityContext.prototype.extend = function(type, extend) {
+	JEFRi.Runtime.prototype.extend = function(type, extend) {
 		if(this._context.entities[type]) {
 			$.extend(
 				this._context.entities[type].Constructor.prototype,
@@ -518,7 +517,7 @@ var noop = function(){};
 	};
 
 	// Return a new instance of an object described in the context.
-	JEFRi.EntityContext.prototype.build = function(type, obj) {
+	JEFRi.Runtime.prototype.build = function(type, obj) {
 		var def = this.definition(type);
 		obj = obj || {};
 		// We are going to build the new entity first, then, if there is a local
@@ -543,7 +542,7 @@ var noop = function(){};
 	};
 
 	// Expand and intern a transaction.
-	JEFRi.EntityContext.prototype.expand = function (transaction) {
+	JEFRi.Runtime.prototype.expand = function (transaction) {
 		var self = this;
 		var entities = transaction.entities;
 
@@ -569,7 +568,7 @@ e.trigger("expand");
 
 	var _store = null;
 
-	JEFRi.EntityContext.prototype.transaction = function(spec) {
+	JEFRi.Runtime.prototype.transaction = function(spec) {
 		spec = spec || [];
 
 		return new JEFRi.Transaction(spec, this._store);
@@ -578,7 +577,7 @@ e.trigger("expand");
 	// Return an interned entity from the local instance matching spec.
 	//
 	// Spec requires an _type property and the entity key, or specify the property UUID.
-	JEFRi.EntityContext.prototype.find = function(spec) {
+	JEFRi.Runtime.prototype.find = function(spec) {
 		if(typeof spec == "string")
 		{
 			spec = {_type : spec};
@@ -611,14 +610,14 @@ e.trigger("expand");
 	// If spec is an array with multiple elements, and ANY ONE matches, the
 	// result array will have only the matching entities. If NONE matches, the
 	// result array will have one entity per spec.
-	JEFRi.EntityContext.prototype.get = function(spec, callback) {
+	JEFRi.Runtime.prototype.get = function(spec, callback) {
 		var self = this;
 		spec = (spec instanceof Array) ? spec : [spec];
 		return this.get_empty(spec).then(callback);
 	};
 
 	// Pass the spec to get, and just pop the first entity.
-	JEFRi.EntityContext.prototype.get_first = function(spec, callback) {
+	JEFRi.Runtime.prototype.get_first = function(spec, callback) {
 		spec = (spec instanceof Array) ? spec : [spec];
 		var d = $.Deferred().then(callback);
 
@@ -641,7 +640,7 @@ e.trigger("expand");
 		this[type].push(entity);
 	};
 
-	JEFRi.EntityContext.prototype.get_empty = function(spec, callback) {
+	JEFRi.Runtime.prototype.get_empty = function(spec, callback) {
 		spec = (spec instanceof Array) ? spec : [spec];
 		var self = this;
 		var results = {};
@@ -705,7 +704,7 @@ e.trigger("expand");
 	};
 
 	// Save all the new entities.
-	JEFRi.EntityContext.prototype.save_new = function(callback) {
+	JEFRi.Runtime.prototype.save_new = function(callback) {
 		var transaction = this.transaction();
 		$(this).trigger('saving');
 
@@ -718,7 +717,7 @@ e.trigger("expand");
 	};
 
 	// Save all entities with changes, including new entities.
-	JEFRi.EntityContext.prototype.save_all = function(callback) {
+	JEFRi.Runtime.prototype.save_all = function(callback) {
 		var transaction = this.transaction();
 		$(this).trigger('saving');
 
@@ -739,7 +738,7 @@ e.trigger("expand");
 	};
 
 	// Returns transaction of all entities in local cache.
-	JEFRi.EntityContext.prototype.get_transaction_dump = function() {
+	JEFRi.Runtime.prototype.get_transaction_dump = function() {
 		var transaction = this.transaction();
 
 		//Add all entities to the transaction
