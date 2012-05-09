@@ -1,0 +1,168 @@
+jsonp({	"attributes": {},
+	"entities": [
+		{	"name": "Context",
+			"key": "context_id",
+			"properties": [
+				{	"name": "context_id",
+					"type": "string"
+				}
+			],
+			"relationships": [
+				{	"name": "entities",
+					"type": "has_many",
+					"property": "context_id",
+					"to": {
+						"type": "Entity",
+						"property": "context_id"
+					}
+				}
+			]
+		},
+		{	"name": "Entity",
+			"key": "entity_id",
+			"properties": [
+				{	"name": "entity_id",
+					"type": "string"
+				},
+				{	"name": "context_id",
+					"type": "string"
+				},
+				{	"name": "name",
+					"type": "string"
+				},
+				{	"name": "key",
+					"type": "string"
+				}
+			],
+			"relationships": [
+				{	"name": "properties",
+					"type": "has_many",
+					"property": "entity_id",
+					"to": {
+						"type": "Property",
+						"property": "entity_id"
+					}
+				},
+				{	"name": "to_relationships",
+					"type": "has_many",
+					"property": "entity_id",
+					"to": {
+						"type": "Relationship",
+						"property": "to_entity_id"
+					}
+				},
+				{	"name": "from_relationships",
+					"type": "has_many",
+					"property": "entity_id",
+					"to": {
+						"type": "Relationship",
+						"property": "from_entity_id"
+					}
+				}
+			]
+		},
+		{	"name": "Property",
+			"key": "property_id",
+			"properties": [
+				{	"name": "property_id",
+					"type": "string"
+				},
+				{	"name": "entity_id",
+					"type": "string"
+				},
+				{
+					"name": "name",
+					"type": "string"
+				},
+				{
+					"name": "type",
+					"type": "string"
+				}
+			],
+			"relationships": [
+				{	"name": "entity",
+					"type": "has_a",
+					"property": "entity_id",
+					"to": {
+						"type": "Entity",
+						"property": "entity_id"
+					}
+				}
+			]
+		},
+		{	"name": "Relationship",
+			"key": "relationship_id",
+			"properties": [
+				{	"name": "relationship_id",
+					"type": "string"
+				},
+				{	"name": "to_entity_id",
+					"type": "string",
+				},
+				{	"name": "from_entity_id",
+					"type": "string",
+				},
+				{	"name": "name",
+					"type": "string"
+				},
+				{	"name": "type",
+					"type": "string"
+				},
+				{	"name": "property",
+					"type": "string"
+				}
+			],
+			"relationships": [
+				{	"name": "to_entity",
+					"type": "has_a",
+					"property": "to_entity_id",
+					"to": {
+						"type": "Entity",
+						"property": "entity_id"
+					}
+				},
+				{	"name": "from_entity",
+					"type": "has_a",
+					"property": "from_entity_id",
+					"to": {
+						"type": "Entity",
+						"property": "entity_id"
+					}
+				},
+				{	"name": "to",
+					"type": "has_a",
+					"property": "relationship_id",
+					"to": {
+						"type": "RelationshipTo",
+						"property": "relationship_id"
+					}
+				}
+			]
+		},
+		{	"name": "RelationshipTo",
+			"key": "relationship_id",
+			"propreties": [
+				{	"name": "relationship_id",
+					"type": "string"
+				},
+				{	"name": "type",
+					"type": "string"
+				},
+				{	"name": "property",
+					"type": "string"
+				}
+			],
+			"relationships": [
+				{	"name": "Relationship",
+					"type": "has_a",
+					"property": "relationship_id",
+					"to": {
+						"type": "Relationship",
+						"property": "relationship_id"
+					}
+				}
+			]
+		}
+	]
+}
+);
