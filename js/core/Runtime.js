@@ -551,14 +551,7 @@ var noop = function(){};
 			var e = self.build(this._type, this);
 			e = self.intern(e, true);
 			//Make the entity not new...
-//			$(e).trigger('persisted');
-//TODO:  Fix this!
-e.__new = false;
-e.__modified = {};
-BIG.ec._new.remove(e, JEFRi.EntityComparator);
-BIG.ec._modified.remove(e, JEFRi.EntityComparator);
-e.trigger("expand");
-
+			$(e).trigger('persisted');
 			ret.push(e);
 		});
 
@@ -725,7 +718,7 @@ e.trigger("expand");
 		$.each(this._modified, function(){
 	//The _type {}s
 			$.each(this, function() {
-	 //the entity {}s
+	//the entity {}s
 				this.persist(transaction);
 			});
 		});
@@ -745,7 +738,7 @@ e.trigger("expand");
 		$.each(this._instances, function(){
 	//The _type {}s
 			$.each(this, function() {
-	 //the entity {}s
+	//the entity {}s
 				transaction.add(this);
 			});
 		});
@@ -755,14 +748,14 @@ e.trigger("expand");
 
 	// Object to handle transactions.
 	JEFRi.Transaction = function(spec, store) {
-		this.meta = {};
+		this.attributes = {};
 		this.store = store;
 		this.entities = (spec instanceof Array)?spec:[spec];
 
 		this.toString = function() {
 			var store = this.store;
 			var transaction = {};
-			transaction.meta = this.meta;
+			transaction.attributes = this.attributes;
 			transaction.entities = [];
 			$.each(this.entities, function() {
 				var self = this;
@@ -844,11 +837,11 @@ e.trigger("expand");
 		return this;
 	};
 
-	JEFRi.Transaction.prototype.addmeta = function(attributes) {
+	JEFRi.Transaction.prototype.attributes = function(attributes) {
 		//$.extend?
 		for(var attr in attributes)
 		{
-			this.meta[attr] = attributes[attr];
+			this.attributes[attr] = attributes[attr];
 		}
 		return this;
 	};
@@ -873,16 +866,16 @@ e.trigger("expand");
 				data    : transaction.toString(),
 				dataType: "json"
 			}).then(
+				//Success
 				function(data) {
-	 //Success
 //					console.log("Logging success", data);
 					ec.expand(data, true);//Always updateOnIntern
 					$(self).trigger('sent', data);
 					$(self).trigger(post, data);
 					$(transaction).trigger(post, data);
 				},
+				// error
 				function(data){
-	// error
 					console.log("Logging error", data);
 				}
 			);
