@@ -685,6 +685,14 @@ context.
 	{\param{this}{A reference to the entity, with properties updated from the
 	values returned in the transaction.}}
 
+\event{modify}{this, property, value}
+	{Triggered when a property on this entity is updated.}
+	{
+		\param{this}{The entity the modification happened in.}
+		\param{property}{The property name that was changed.}
+		\param{value}{The new value of the property.}
+	}
+
 \subsection{Transaction}
 \subsubsection{Methods}
 \method{Transaction}{entities}{Transaction}
