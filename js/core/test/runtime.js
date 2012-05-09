@@ -47,9 +47,16 @@ test("Instantiate Runtime", function() {
 	ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
 	equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
 	runtime.save_new();
+});
 
-	var transaction = runtime.transaction([]);
-	transaction.get();
+test("Transaction Prototype", function(){
+	ok(JEFRi.Transaction, "JEFRi Transaction is available.");
+	var t = new JEFRi.Transaction();
+	ok(t, "Created Transaction");
+	ok(t.add, "JEFRi.Transaction::add");
+	ok(t.attributes, "JEFRi.Transaction::attributes");
+	ok(t.get, "JEFRi.Transaction::get");
+	ok(t.persist, "JEFRi.Transaction::persist");
 });
 
 });
