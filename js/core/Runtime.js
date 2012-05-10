@@ -95,7 +95,7 @@ var noop = function(){};
 		//
 		// Context  Javascript object with the context
 		{
-			ec._context.meta = context.meta;
+			ec._context.attributes = context.attributes;
 
 			$(context.entities).each( function()
 			{
@@ -339,7 +339,7 @@ var noop = function(){};
 //					var spec = {
 //						_type: relationship.to.type,
 //					};
-//					spec[relationship.to.property] = this[relationship.from.property]();
+//					spec[relationship.to.property] = this[relationship.property]();
 //					this[field] = ec[get](spec);
 				}
 				if(undefined === this[field])
@@ -351,7 +351,7 @@ var noop = function(){};
 						var self = this;
 						this[field] = [];
 						$.each(ec._instances[relationship.to.type], function(){
-							if(this[relationship.to.property]() === self[relationship.from.property]())
+							if(this[relationship.to.property]() === self[relationship.property]())
 							{
 								//Add it
 								self[field].push(this);
@@ -361,7 +361,7 @@ var noop = function(){};
 					else
 					{
 						//Just need the one...
-						this[field] = ec._instances[relationship.to.type][this[relationship.from.property]()];
+						this[field] = ec._instances[relationship.to.type][this[relationship.property]()];
 					}
 				}
 				return this[field];
@@ -379,16 +379,18 @@ var noop = function(){};
 						this[load]();
 					}
 
-					if(this[field].contains(entity, JEFRi.EntityComparator) < 0)
-					{
+					if(this[field].contains(entity, JEFRi.EntityComparator) < 0) {
 						//The entity is _NOT_ in this' array.
 						this[field].push(entity);
-						//Call the reverse setter
 
+						//Call the reverse setter
 						//Need to find the back relationship...
 						var back_rel = ec.back_rel(this._type(), relationship);
-						var back = "set_" + back_rel.name;
-						entity[back](this);
+						//Make sure it exists
+						if(back_rel) {
+							var back = "set_" + back_rel.name;
+							entity[back](this);
+						}
 					}
 
 					return this;
@@ -401,11 +403,11 @@ var noop = function(){};
 				definition.Constructor.prototype['set' + field] =
 				function(entity) {
 					var id = entity[relationship.to.property]();
-					if( id !== this[relationship.from.property]())
+					if( id !== this[relationship.property]())
 					{
 						//Changing
 						this[field] = entity;
-						this[relationship.from.property](id);
+						this[relationship.property](id);
 						if( "is_a" !== relationship.type )
 						{
 							//Add or set this to the remote entity
