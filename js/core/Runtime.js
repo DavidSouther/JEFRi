@@ -424,24 +424,29 @@ var noop = function(){};
 			}
 		};
 
-
 		if(options && options.debug) {
 			_set_context(options.debug.context, protos);
+		} else if(!this.settings.contextUri) {
+
 		} else {
 			$.ajax({
 				type    : "GET",
 				url     : this.settings.contextUri,
-				dataType: "json",
-				async   : false
+				dataType: "text"
 			}).done(
 				function(data) {
 					if(!data) throw {
 						message: "Context loaded, but invalid."
 					};
+					data = JSON.parse(data);
 					_set_context(data, protos);
+					ready.resolve();
 				}
 			);
 		}
+
+		var ready = $.Deferred();
+		this.ready = ready.promise();
 	};
 
 	JEFRi.Runtime.prototype.clear = function(){
