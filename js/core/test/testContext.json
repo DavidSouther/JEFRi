@@ -1,4 +1,4 @@
-{"meta":{},
+{"attributes":{},
 "entities":[
 	{	"name": "User",
 		"key": "user_id",
@@ -17,17 +17,12 @@
 		"relationships": [
 			{	"name": "authinfo",
 				"type": "has_a",
+				"property": "user_id",
 				"to": {
 					"type": "Authinfo",
-					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "User",
-					"property": "user_id",
-					"vname": "user"}}],
+					"property": "user_id"}}],
 		"attributes": {
-			"vname": "users",
-			"svname": "user"}},
+			"vname": "users"}},
 
 	{	"name": "Authinfo",
 		"key": "authinfo_id",
@@ -105,14 +100,7 @@
 		"relationships": [
 			{	"name": "user",
 				"type": "has_a",
+				"property": "user_id",
 				"to": {
 					"type": "User",
-					"property": "user_id",
-					"vname": "user"},
-				"from": {
-					"type": "Authinfo",
-					"property": "user_id",
-					"vname": "user"}}],
-		"attributes": {
-			"vname": "authinfo",
-			"svname": "authinfo"}}]}
+					"property": "user_id"}}]}]}
