@@ -97,10 +97,10 @@
 					"type": "string"
 				},
 				{	"name": "to_entity_id",
-					"type": "string",
+					"type": "string"
 				},
 				{	"name": "from_entity_id",
-					"type": "string",
+					"type": "string"
 				},
 				{	"name": "name",
 					"type": "string"
@@ -141,7 +141,7 @@
 		},
 		{	"name": "RelationshipTo",
 			"key": "relationship_id",
-			"propreties": [
+			"properties": [
 				{	"name": "relationship_id",
 					"type": "string"
 				},
