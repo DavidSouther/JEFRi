@@ -35,6 +35,14 @@
 				}
 			],
 			"relationships": [
+				{	"name": "context",
+					"type": "has_a",
+					"property": "context_id",
+					"to": {
+						"type": "Context",
+						"property": "context_id"
+					}
+				},
 				{	"name": "properties",
 					"type": "has_many",
 					"property": "entity_id",
