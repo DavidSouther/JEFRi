@@ -32,21 +32,24 @@ test("Runtime Prototype", function() {
 	ok(runtime.save_all, "JEFRi.Runtime::save_all");
 });
 
-test("Instantiate Runtime", function() {
+asyncTest("Instantiate Runtime", function() {
 	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
-	ok(runtime, "Could not load runtime.");
-	ok(!!runtime.definition('Authinfo') && !!runtime.definition('User'), "Runtime has the correct entities.");
+	runtime.ready.done(function(){
+		ok(runtime, "Could not load runtime.");
+		ok(!!runtime.definition('Authinfo') && !!runtime.definition('User'), "Runtime has the correct entities.");
 
-	var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
-	equal(user._status(), "NEW", "Built user should be New");
-	ok(user.id().match(/[a-f0-9\-]{36}/i), "User should have a valid id.");
-	equal(user.id(), user.user_id(), "User id() and user_id properties must match.");
+		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
+		equal(user._status(), "NEW", "Built user should be New");
+		ok(user.id().match(/[a-f0-9\-]{36}/i), "User should have a valid id.");
+		equal(user.id(), user.user_id(), "User id() and user_id properties must match.");
 
-	var authinfo = user.set_authinfo(runtime.build('Authinfo', {})).get_authinfo();
-	equal(authinfo._status(), "NEW", "Built authinfo should be New");
-	ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
-	equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
-	runtime.save_new();
+		var authinfo = user.set_authinfo(runtime.build('Authinfo', {})).get_authinfo();
+		equal(authinfo._status(), "NEW", "Built authinfo should be New");
+		ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
+		equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
+		runtime.save_new();
+		start();
+	});
 });
 
 test("Transaction Prototype", function(){
