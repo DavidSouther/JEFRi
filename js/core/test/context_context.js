@@ -6,18 +6,18 @@ test("Unit Testing Environment", function () {
 });
 
 asyncTest("Context", function() {
-	runtime = new JEFRi.Runtime("/context.json");
+	var runtime = new JEFRi.Runtime("/context.json");
 	runtime.ready.done(function(){
 		ok(runtime._context.entities, "Has entities.");
 
-		context = runtime.build("Context", {});
-		hostsEntity = runtime.build("Entity", {"name": "Host", "key": "host_id"});
+		var context = runtime.build("Context", {});
+		var hostsEntity = runtime.build("Entity", {"name": "Host", "key": "host_id"});
 		context.add_entities(hostsEntity);
 
-		ct = runtime.find("Context")[0];
+		var ct = runtime.find("Context")[0];
 		ok(ct.get_entities()[0].get_context().id() === ct.id(), "Navigating relationships succeeded.");
 
-		properties = [];
+		var properties = [];
 		properties.push(runtime.build("Property", {"name": "host_id", "type": "string"}));
 		properties.push(runtime.build("Property", {"name": "hostname", "type": "string"}));
 		properties.push(runtime.build("Property", {"name": "ip", "type": "string"}));
