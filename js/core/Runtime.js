@@ -32,7 +32,7 @@ JEFRi.EntityComparator = function(a, b)
 
 var noop = function(){};
 
-(function($){
+(function(){
 	// ## Runtime Constructor
 
 	JEFRi.Runtime = function(contextUri, options, protos) {
@@ -46,7 +46,7 @@ var noop = function(){};
 			storeURI       : ""
 		};
 
-		$.extend(this.settings, options);
+		_.extend(this.settings, options);
 
 		this._context = {
 			meta: {},
@@ -124,9 +124,9 @@ var noop = function(){};
 					proto = proto || {};
 
 					// Set a bunch of default values, so they're all available.
-					$.each(props, function(key){
+					_.each(props, function(property, key){
 						var field = '_' + key;
-						var def = proto[key] || _default(this._type);
+						var def = proto[key] || _default(property.type);
 						self[key](def);
 					});
 
@@ -134,7 +134,7 @@ var noop = function(){};
 					if ( ! proto[key] ) { this[key](UUID.v4()); }
 
 					//Add/extend our methods
-					$.extend(this.prototype, proto.prototype);
+					_.extend(this.prototype, proto.prototype);
 
 					//Set a few event handlers
 					$(this).bind('persisted', $.proxy(function(){
@@ -201,8 +201,8 @@ var noop = function(){};
 				args = args || [];
 				self.__event_handlers = self.__event_handlers || {};
 				if(self.__event_handlers.hasOwnProperty(event)) {
-					$.each(self.__event_handlers[event], function(){
-						this.apply(self, args);
+					_.each(self.__event_handlers[event], function(handler){
+						handler.apply(self, args);
 					});
 				}
 			};
@@ -293,23 +293,22 @@ var noop = function(){};
 		};
 
 		// Attach the mutators and accessors (mutaccs) to the prototype.
-		//TODO Thoroughly debug these functions...
+		/* TODO Thoroughly debug these functions... */
 		var _build_relationship = function(definition, relationship) {
 			var ec = self;
 			var field = '_' + relationship.name;
 
 			//Build the getter
 			var get = ("has_many" === relationship.type) ?
-				'get_empty'	:
-				'get_first';
+				'get_empty'	: 'get_first';
 			definition.Constructor.prototype['get' + field] = function(longGet) {
 				if(longGet) {
 					// Lazy load
-//					var spec = {
-//						_type: relationship.to.type,
-//					};
-//					spec[relationship.to.property] = this[relationship.property]();
-//					this[field] = ec[get](spec);
+/*					var spec = {
+						_type: relationship.to.type,
+					};
+					spec[relationship.to.property] = this[relationship.property]();
+					this[field] = ec[get](spec);*/
 				}
 				if(undefined === this[field]) {
 					// The field hasn't been set, so we haven't ever gotten this relationship before.
