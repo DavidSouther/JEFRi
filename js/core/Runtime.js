@@ -1,11 +1,9 @@
 Array.prototype.contains = function(value, comparator) {
 	var index = -1;
 	if(!comparator){return index;}
-	$.each(this, function(i) {
-		var cmp = comparator(this, value);
-		if(cmp)
-		{
-			//Found, yay!
+	_.each(this, function(e, i) {
+		var cmp = comparator(e, value);
+		if(cmp) {
 			index = i;
 		}
 	});
@@ -18,7 +16,7 @@ Array.prototype.remove = function(value, comparator) {
 	this.splice(index, 1);
 };
 
-// JEFRi Namespace.
+// # JEFRi Namespace
 var JEFRi = {};
 
 // Compare two entities for equality. Entities are equal if they
@@ -35,7 +33,8 @@ JEFRi.EntityComparator = function(a, b)
 var noop = function(){};
 
 (function($){
-	// Runtime Constructor.
+	// ## Runtime Constructor
+
 	JEFRi.Runtime = function(contextUri, options, protos) {
 		// Private variables we'll be using throughout the class.
 		var self = this;
@@ -60,28 +59,26 @@ var noop = function(){};
 		this._store = new this.settings.store(ec, {target: this.settings.storeURI});
 
 		// Some helper methods to manage modified entities.
-		this._modified.set = function(entity)
-		{
-			if(!self._modified[entity._type()])
-			{
-				//Add the type...
+		this._modified.set = function(entity){
+			if(!self._modified[entity._type()]) {
+				// Add the type, since we didn't have it before.
 				self._modified[entity._type()] = {};
 			}
 			self._modified[entity._type()][entity.id()] = entity;
 		};
 
-		this._modified.remove = function(entity)
-		{
+		this._modified.remove = function(entity) {
 			delete self._modified[entity._type()][entity.id()];
 		};
 
-	// Private helper functions.
-	// These handle most of the heavy lifting of building Entity classes.
-		var _default = function(type)
+		// ### Private helper functions
+		// These handle most of the heavy lifting of building Entity classes.
+
 		// A few default types.
-		{
+		var _default = function(type){
 			switch(type)
 			{
+				case "boolean": return false;
 				case "int":
 				case "float": return 0;
 				case "string": return "";
@@ -89,52 +86,46 @@ var noop = function(){};
 			}
 		};
 
-		var _set_context = function(context, protos)
 		// Takes a "raw" context object and orders it into the internal _context
 		// storage.  Also builds new prototypes for the context.
 		//
 		// Context  Javascript object with the context
-		{
+		var _set_context = function(context, protos) {
+			// Save the attributes
 			ec._context.attributes = context.attributes;
 
-			$(context.entities).each( function()
-			{
-				// `this` is the entity definition
-				ec._context.entities[this.name] = this;
-				ec._instances[this.name] = {};
-				var key = this.key;
+			// Prepare each entity
+			_.each(context.entities, function(definition) {
+				ec._context.entities[definition.name] = definition;
+				ec._instances[definition.name] = {};
+				var key = definition.key;
 
+				//Store the properties
 				var props = {};
-				$(this.properties).each(function() {
-					// `this` is the property
-					props[this.name] = this;
+				_.each(definition.properties, function(property) {
+					props[property.name] = property;
 				});
-				//Overwrite the JSON index with the named indices
-				this.properties = props;
+				definition.properties = props;
 
+				// Store the relationships
 				var rels = {};
-				$(this.relationships).each(function(){
+				_.each(definition.relationships, function(relationship){
 					//`this` is the relationship
-					rels[this.name] = this;
+					rels[relationship.name] = relationship;
 				});
-				//Overwrite the JSON index with the named indicies
-				this.relationships = rels;
+				definition.relationships = rels;
 
-				this.Constructor = function(proto)
 				// Build an entity's constructor.
-				{
+				definition.Constructor = function(proto) {
 					var self = this;
 					this.__new = true;
 					this.__modified = {};
+					this.__fields = {};
 					proto = proto || {};
 
 					// Set a bunch of default values, so they're all available.
 					$.each(props, function(key){
 						var field = '_' + key;
-//TODO investigate why this causes mobile browsers to die.
-// This statement causes an error in Android browers...
-// Specifially, this.attributes.default seems to be the cause.
-// var def = proto[key] || this.attributes.default || _default(this._type);
 						var def = proto[key] || _default(this._type);
 						self[key](def);
 					});
@@ -156,29 +147,27 @@ var noop = function(){};
 					}, this));
 				};
 
-				_build_prototype(this, (protos && protos[this.name]));
+				//Set up the prototype for any of this entity.
+				_build_prototype(definition, (protos && protos[definition.name]));
 			});
 		};
 
-		var _build_prototype = function(definition, proto)
 		// Set up all the required methods - id(), _type(), and the mutaccs.
-		{
+		var _build_prototype = function(definition, proto) {
 			var ec = self;
-			definition.Constructor.prototype._type = function()
+
 			// Get this entity's type.
-			{
+			definition.Constructor.prototype._type = function() {
 				return definition.name;
 			};
 
-			definition.Constructor.prototype.id = function()
 			// Get this entity's ID.
-			{
+			definition.Constructor.prototype.id = function() {
 				return this[definition.key]();
 			};
 
-			definition.Constructor.prototype.persist = function(transaction, callback)
-			// Persist this transaction to the upstream data store.
-			{
+			// Add this entity to the persist transaction
+			definition.Constructor.prototype.persist = function(transaction, callback) {
 				var deferred = $.Deferred().then(callback);
 
 				var self = this;
@@ -196,56 +185,47 @@ var noop = function(){};
 				return deferred.promise();
 			};
 
-			definition.Constructor.prototype.bind = function(event, callback)
 			// Bind a callback to happen on some event this entity generates.
-			{
+			definition.Constructor.prototype.bind = function(event, callback) {
 				var self = this;
 				self.__event_handlers = self.__event_handlers || {};
-				if(!self.__event_handlers.hasOwnProperty(event))
-				{
+				if(!self.__event_handlers.hasOwnProperty(event)) {
 					self.__event_handlers[event] = [];
 				}
 				self.__event_handlers[event].push(callback);
 			};
 
-			definition.Constructor.prototype.trigger = function(event, args)
 			// Trigger a named event on this entity.
-			{
+			definition.Constructor.prototype.trigger = function(event, args) {
 				var self = this;
 				args = args || [];
 				self.__event_handlers = self.__event_handlers || {};
-				if(self.__event_handlers.hasOwnProperty(event))
-				{
+				if(self.__event_handlers.hasOwnProperty(event)) {
 					$.each(self.__event_handlers[event], function(){
 						this.apply(self, args);
 					});
 				}
 			};
 
-			definition.Constructor.prototype._status = function()
 			// Find the status of an entity.
-			{
-				var state = "PERSISTED";
-				if(this.__new)
-				{
+			definition.Constructor.prototype._status = function() {
+				var state = "MODIFIED";
+				if(this.__new) {
 					state = "NEW";
-				}
-				else if(!($.isEmptyObject(this.__modified)))
-				{
-					state = "MODIFIED";
+				} else if(_.isEmpty(this.__modified)) {
+					state = "PERSISTED";
 				}
 				return state;
 			};
 
 			// Prep the property mutaccs
-			$.each(definition.properties, function() {
-				_build_mutacc(definition, this);
+			_.each(definition.properties, function(property) {
+				_build_mutacc(definition, property);
 			});
 
 			// Prep all the navigation mutaccs.
-			$.each(definition.relationships, function(){
-				// `this` is the relationship
-				_build_relationship(definition, this);
+			_.each(definition.relationships, function(relationship){
+				_build_relationship(definition, relationship);
 			});
 
 			// encode passes this entity to the writer.
@@ -254,69 +234,59 @@ var noop = function(){};
 			definition.Constructor.prototype.encode = function(writer) {
 				var self = this;
 
-				$.each(definition.properties, function(){
-					//Add all the properties to the writer.
-					writer.add_property(self, this.name, self[this.name]);
+				//Add all the properties to the writer.
+				_.each(definition.properties, function(property){
+					writer.add_property(self, property.name, self[property.name]);
 				});
 
-				$.each(definition.relationships, function(rel){
+				_.each(definition.relationships, function(rel){
 					//Add navigated entities to the writer.
 					var others = self['get_' + rel]();
-					if("has_many" == this.type)
-					{
+					if("has_many" == this.type) {
 						$.each(others, function(){
 							writer.add_entity(this);
 						});
-					}
-					else
-					{
+					} else {
 						writer.add_entity(others);
 					}
 				});
 			};
 
-			if(proto) {$.extend(definition.Constructor.prototype,proto.prototype);}
+			if(proto) {_.extend(definition.Constructor.prototype, proto.prototype);}
 		};
 
+		// Prepare a mutacc for a specific property.
+		// The property mutacc must handle entity accounting details.
 		var _build_mutacc = function(definition, property) {
 			var field = '_' + property.name;
 			definition.Constructor.prototype[property.name] = function(value) {
 				var ret = this;
-				if(undefined !== value)
-				{
-					//Value is defined, so this is a setter
-					if(value !== this[field])
-					{
-						//Only actually update it if it is a new value.
-						if(!this.__modified[field])
-						{
-							//Update it if not set...
-							this.__modified[field] = this[field];
+				if(undefined !== value) {
+				// Value is defined, so this is a setter
+					if(value !== this.__fields[field]) {
+					// Only actually update it if it is a new value.
+						if(!this.__modified[field]) {
+						// Update it if not set...
+							this.__modified[field] = this.__fields[field];
 							this.__modified._count += 1;
 							ec._modified.set(this);
-						}
-						else
-						{
-							if(this.__modified[field] === value)
-							{
-								//Setting it back to the old value...
+						} else {
+							if(this.__modified[field] === value) {
+								// Setting it back to the old value...
 								delete this.__modified[field];
 								this.__modified._count -= 1;
 							}
-							if(this.__modified._count === 0)
-							{
-								//If it was the last property, remove from
-								//the context's modified list.
+							if(this.__modified._count === 0) {
+								// If it was the last property, remove from the context's modified list.
 								ec._modified.remove(this);
 							}
 						}
-						this[field] = value;
+						this.__fields[field] = value;
 						this.trigger("modify", [property.name, value]);
 					}
-				}
-				else
-				{
-					ret = this[field];
+				} else {
+					// Just a getter.
+					ret = this.__fields[field];
 				}
 				return ret;
 			};
@@ -333,47 +303,47 @@ var noop = function(){};
 				'get_empty'	:
 				'get_first';
 			definition.Constructor.prototype['get' + field] = function(longGet) {
-				if(longGet)
-				{
-					//Lazy load
+				if(longGet) {
+					// Lazy load
 //					var spec = {
 //						_type: relationship.to.type,
 //					};
 //					spec[relationship.to.property] = this[relationship.property]();
 //					this[field] = ec[get](spec);
 				}
-				if(undefined === this[field])
-				{
-					//Need to go ahead and get it from memory, since if the key changes it will be updated elsewhere. ??
-					if ("has_many" === relationship.type)
-					{
-						//We'll need to grab everything who points to us...
+				if(undefined === this[field]) {
+					// The field hasn't been set, so we haven't ever gotten this relationship before.
+					// We'll need to go through and fix that.
+					if ("has_many" === relationship.type) {
+						// We'll need to grab everything who points to us...
 						var self = this;
 						this[field] = [];
-						$.each(ec._instances[relationship.to.type], function(){
-							if(this[relationship.to.property]() === self[relationship.property]())
-							{
-								//Add it
+						_.each(ec._instances[relationship.to.type], function(type){
+							if(type[relationship.to.property]() === self[relationship.property]()) {
+								// Add it
 								self[field].push(this);
 							}
 						});
-					}
-					else
-					{
-						//Just need the one...
+					} else {
+						// Just need the one...
 						this[field] = ec._instances[relationship.to.type][this[relationship.property]()];
 					}
 				}
 				return this[field];
 			};
 
-			if("has_many" === relationship.type)
-			{
+			if("has_many" === relationship.type) {
 				//Need an adder
 				definition.Constructor.prototype['add' + field] =
 				function(entity) {
-					if(undefined === this[field])
-					{
+					if(_.isArray(entity)){
+						_.each(entity, _.bind(function(entity){
+							this['add' + field](entity);
+						}, this));
+						return this;
+					}
+
+					if(undefined === this[field]) {
 						//Lazy load
 						var load = "get" + field;
 						this[load]();
@@ -395,21 +365,16 @@ var noop = function(){};
 
 					return this;
 				};
-			}
-			else
-			{
+			} else {
 				//Need a setter
-				var callback = function(){};
 				definition.Constructor.prototype['set' + field] =
 				function(entity) {
 					var id = entity[relationship.to.property]();
-					if( id !== this[relationship.property]())
-					{
+					if( id !== this[relationship.property]()) {
 						//Changing
 						this[field] = entity;
 						this[relationship.property](id);
-						if( "is_a" !== relationship.type )
-						{
+						if( "is_a" !== relationship.type ) {
 							//Add or set this to the remote entity
 							//Need to find the back relationship...
 							var back_rel = ec.back_rel(this._type(), relationship);
@@ -425,6 +390,10 @@ var noop = function(){};
 				};
 			}
 		};
+
+		// Prepare a promise for completing context loading.
+		var ready = $.Deferred();
+		this.ready = ready.promise();
 
 		if(options && options.debug) {
 			_set_context(options.debug.context, protos);
@@ -446,9 +415,6 @@ var noop = function(){};
 				}
 			);
 		}
-
-		var ready = $.Deferred();
-		this.ready = ready.promise();
 	};
 
 	JEFRi.Runtime.prototype.clear = function(){
@@ -459,23 +425,21 @@ var noop = function(){};
 	};
 
 	// Get the definition of an entity.
-	//
 	JEFRi.Runtime.prototype.definition = function(name) {
 		name = (typeof name == "string") ? name : name.type;
 
 		return this._context.entities[name];
 	};
 
-	// Find the relationship back to this guy...
+	// Find the relationship back to this entity, if it exists
 	JEFRi.Runtime.prototype.back_rel = function(type, relationship) {
 		var ec = this;
 		var def = ec.definition(relationship.to.type);
 		var back = null;
-		$.each(def.relationships, function(){
-			if(this.to.type === type && this.name !== relationship.name)
-			{
+		_.each(def.relationships, function(rel){
+			if(rel.to.type === type && rel.name !== relationship.name) {
 				//Found it
-				back = this;
+				back = rel;
 			}
 		});
 		return back;
@@ -485,8 +449,7 @@ var noop = function(){};
 	JEFRi.Runtime.prototype.intern = function(entity, updateOnIntern) {
 		updateOnIntern = !!updateOnIntern || this.settings.updateOnIntern;
 
-		if(entity.length && ! entity._type)
-		{
+		if(entity.length && ! entity._type) {
 			//Array-like
 			var q = entity.length, i;
 			for(i = 0 ; i < q ; i++){
@@ -496,14 +459,11 @@ var noop = function(){};
 		}
 
 		var ret;
-		if(updateOnIntern)
-		{
+		if(updateOnIntern) {
 			//Merge the given entity into the stored entity.
 			ret = this._instances[entity._type()][entity.id()] || {};
 			$.extend(true, ret, entity);
-		}
-		else
-		{
+		} else {
 			//Take the stored one if possible, otherwise use the given entity.
 			ret = this._instances[entity._type()][entity.id()] || entity;
 		}
@@ -512,7 +472,7 @@ var noop = function(){};
 		return ret;
 	};
 
-	// Add the methods in the extend prototype to the prototype of type specifed
+	// Add the methods in the extend prototype to the prototype of type specified
 	// affecting _ALL_ instances, both current and future, of type.
 	JEFRi.Runtime.prototype.extend = function(type, extend) {
 		if(this._context.entities[type]) {
@@ -530,14 +490,12 @@ var noop = function(){};
 		// We are going to build the new entity first, then, if there is a local
 		// instance, we will extend the local instance with the new instance.
 		var r = new this._context.entities[type].Constructor(obj);
-		if(undefined !== obj[def.key])
-		{
+		if(undefined !== obj[def.key]) {
 			// If the entity key is specified in obj, check the local storage.
 			var demi = {_type : type};
 			demi[def.key] = obj[def.key];
 			var instance = this.find(demi);
-			if(false !== instance)
-			{
+			if(false !== instance) {
 				// Local instance, extend it with the new obj and return local.
 				$.extend(true, instance, r);
 				return instance;
@@ -578,8 +536,7 @@ var noop = function(){};
 	//
 	// Spec requires an _type property and the entity key, or specify the property UUID.
 	JEFRi.Runtime.prototype.find = function(spec) {
-		if(typeof spec == "string")
-		{
+		if(typeof spec == "string") {
 			spec = {_type : spec};
 		}
 		var to_return = [];
@@ -587,17 +544,15 @@ var noop = function(){};
 		var results = this._instances[spec._type];
 		var ret = false;
 
-		if(spec.hasOwnProperty(r.key))
-		{
-			//if a key is set, return only that result.
+		if(spec.hasOwnProperty(r.key)) {
+			// If a key is set, return only that result.
 			ret = results[spec[r.key]] || false;
-		}
-		else if(spec.hasOwnProperty("UUID"))
-		{
-			//If UUID is set, return only that result
+		} else if(spec.hasOwnProperty("UUID")) {
+			// If UUID is set, return only that result
 			ret = results[spec.UUID] || false;
 		}
-		//add results to an array to clean up the return for the user.
+
+		// Add results to an array to clean up the return for the user.
 		$.each(results, function(){
 			to_return.push(this);
 		});
@@ -611,7 +566,6 @@ var noop = function(){};
 	// result array will have only the matching entities. If NONE matches, the
 	// result array will have one entity per spec.
 	JEFRi.Runtime.prototype.get = function(spec, callback) {
-		var self = this;
 		spec = (spec instanceof Array) ? spec : [spec];
 		return this.get_empty(spec).then(callback);
 	};
@@ -633,8 +587,7 @@ var noop = function(){};
 
 	var pushResult = function(entity){
 		var type = entity._type();
-		if(!this[type])
-		{
+		if(!this[type]) {
 			this[type] = [];
 		}
 		this[type].push(entity);
