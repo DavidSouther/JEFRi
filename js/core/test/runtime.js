@@ -47,7 +47,7 @@ asyncTest("Instantiate Runtime", function() {
 		equal(authinfo._status(), "NEW", "Built authinfo should be New");
 		ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
 		equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
-		runtime.save_new();
+
 		start();
 	});
 });
