@@ -58,6 +58,8 @@ _.mixin({
 		}
 		return this;
 	}
+	/*
+	This needs to remove a specific function from the chain, not the entire chain
 	// ,
 	// // Remove
 	// off: function(obj, event) {
@@ -70,6 +72,7 @@ _.mixin({
 	// 	if(this.isUndefined(obj.__event_handlers)) return;
 	// 	delete obj._events[event];
 	// }
+	*/
 });
 
 // # JEFRi Namespace
@@ -452,6 +455,10 @@ var JEFRi = {
 		}
 	};
 
+
+	// ### Runtime Prototype
+
+	// Reset the runtime's data, maintains context definitions.
 	JEFRi.Runtime.prototype.clear = function(){
 		this._modified = {};
 		this._new = [];
@@ -459,9 +466,9 @@ var JEFRi = {
 		return this;
 	};
 
-	// Get the definition of an entity.
+	// Get the definition of an entity type.
 	JEFRi.Runtime.prototype.definition = function(name) {
-		name = (typeof name == "string") ? name : name.type;
+		name = (typeof name == "string") ? name : name._type();
 
 		return this._context.entities[name];
 	};
@@ -558,8 +565,7 @@ var JEFRi = {
 		return ret;
 	};
 
-	var _store = null;
-
+	// Prepare a new transaction
 	JEFRi.Runtime.prototype.transaction = function(spec) {
 		spec = spec || [];
 
@@ -627,6 +633,7 @@ var JEFRi = {
 		this[type].push(entity);
 	};
 
+	// Return a possibly empty array of entities matching the spec.
 	JEFRi.Runtime.prototype.get_empty = function(spec, callback) {
 		spec = (spec instanceof Array) ? spec : [spec];
 		var self = this;
@@ -707,11 +714,11 @@ var JEFRi = {
 		_.trigger(this, 'saving');
 
 		//Add all new entities to the transaction
+		// Modified is keyed by type...
 		_.each(this._modified, function(modified){
-	//The _type {}s
-			_.each(modified, function(moded) {
-	//the entity {}s
-				moded.persist(transaction);
+			// ...and each key contains an object of entity instances
+			_.each(modified, function(entity) {
+				entity.persist(transaction);
 			});
 		});
 
@@ -733,16 +740,19 @@ var JEFRi = {
 		var transaction = this.transaction();
 
 		//Add all entities to the transaction
+		// _instances is keyed by type...
 		_.each(this._instances, function(instance){
-	//The _type {}s
+			// ...and each key contains an object of entity instances
 			_.each(instance, function(entity) {
-	//the entity {}s
 				transaction.add(entity);
 			});
 		});
 
 		return transaction;
 	};
+
+
+	// ## Transactions
 
 	// Object to handle transactions.
 	JEFRi.Transaction = function(spec, store) {
@@ -800,6 +810,7 @@ var JEFRi = {
 		};
 	};
 
+	// Execute the transaction as a GET request
 	JEFRi.Transaction.prototype.get = function(store) {
 		_.trigger(this, 'getting');
 		_.one(this, 'gotten', function(e, data){d.resolve(data);});
@@ -808,6 +819,7 @@ var JEFRi = {
 
 	};
 
+	// Execute the transaction as a POST request
 	JEFRi.Transaction.prototype.persist = function(callback) {
 		var d = _.Deferred().then(callback);
 		_.trigger(this, 'persisting');
@@ -821,11 +833,12 @@ var JEFRi = {
 		return d.promise();
 	};
 
+	// Ass several entities to the transaction
 	JEFRi.Transaction.prototype.add = function(spec) {
 		//Force spec to be an array
 		spec = (spec instanceof Array)?spec:[spec];
 		var ents = this.entities;
-		_.each(spec, function(s){
+		_.each(spec, function(s) {
 			if(_.indexBy(ents, _.bind(JEFRi.EntityComparator, s)) < 0) {
 				//Hasn't been added yet...
 				ents.push(s);
@@ -834,12 +847,14 @@ var JEFRi = {
 		return this;
 	};
 
+	// Set several attributes on the transaction
 	JEFRi.Transaction.prototype.attributes = function(attributes) {
 		_.extend(this.attributes, attributes);
 		return this;
 	};
 
-	// Persistance Stores
+	// ## Persistence Stores
+	// TODO move this out
 
 	// PostStore
 	//
