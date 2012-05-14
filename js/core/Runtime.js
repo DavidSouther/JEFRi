@@ -1,28 +1,19 @@
-Array.prototype.contains = function(value, comparator) {
-	var index = -1;
-	if(!comparator){return index;}
-	_.each(this, function(e, i) {
-		var cmp = comparator(e, value);
-		if(cmp) {
-			index = i;
+// The default underscore indexOf uses a literal value; we often want to use an comparator.
+_.mixin({
+	indexBy: function(list, func) {
+		for (var i = 0, l = list.length; i < l; i++) {
+			if (func(list[i])) return i;
 		}
-	});
-	return index;
-};
-
-Array.prototype.remove = function(value, comparator) {
-	var index = this.contains(value, comparator);
-	if(index < 0) {return;} //Don't accidentally remove from the end.
-	this.splice(index, 1);
-};
+		return -1;
+	}
+});
 
 // # JEFRi Namespace
 var JEFRi = {};
 
 // Compare two entities for equality. Entities are equal if they
 // are of the same type and have equivalent IDs.
-JEFRi.EntityComparator = function(a, b)
-{
+JEFRi.EntityComparator = function(a, b) {
 	var cmp =
 		a && b &&
 		a._type() === b._type() &&
@@ -137,12 +128,12 @@ var noop = function(){};
 					_.extend(this.prototype, proto.prototype);
 
 					//Set a few event handlers
-					$(this).bind('persisted', $.proxy(function(){
+					$(this).on('persisted', $.proxy(function(){
 						this.__new = false;
 						this.__modified = {
 							_count: 0
 						};
-						ec._new.remove(this, JEFRi.EntityComparator);
+						ec._new = _.remove(ec._new, _.bind(JEFRi.EntityComparator, null, a));
 						ec._modified.remove(this, JEFRi.EntityComparator);
 					}, this));
 				};
@@ -168,7 +159,7 @@ var noop = function(){};
 
 			// Add this entity to the persist transaction
 			definition.Constructor.prototype.persist = function(transaction, callback) {
-				var deferred = $.Deferred().then(callback);
+				var deferred = _.Deferred().then(callback);
 
 				var self = this;
 				var top = !transaction;
@@ -243,7 +234,7 @@ var noop = function(){};
 					//Add navigated entities to the writer.
 					var others = self['get_' + rel]();
 					if("has_many" == this.type) {
-						$.each(others, function(){
+						_.each(others, function(){
 							writer.add_entity(this);
 						});
 					} else {
@@ -300,11 +291,11 @@ var noop = function(){};
 
 			//Build the getter
 			var get = ("has_many" === relationship.type) ?
-				'get_empty'	: 'get_first';
+				'get_empty' : 'get_first';
 			definition.Constructor.prototype['get' + field] = function(longGet) {
 				if(longGet) {
 					// Lazy load
-/*					var spec = {
+/*                  var spec = {
 						_type: relationship.to.type,
 					};
 					spec[relationship.to.property] = this[relationship.property]();
@@ -348,7 +339,7 @@ var noop = function(){};
 						this[load]();
 					}
 
-					if(this[field].contains(entity, JEFRi.EntityComparator) < 0) {
+					if(_.indexBy(this[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
 						//The entity is _NOT_ in this' array.
 						this[field].push(entity);
 
@@ -460,8 +451,7 @@ var noop = function(){};
 		var ret;
 		if(updateOnIntern) {
 			//Merge the given entity into the stored entity.
-			ret = this._instances[entity._type()][entity.id()] || {};
-			$.extend(true, ret, entity);
+			ret = _.extend(this._instances[entity._type()][entity.id()] || {}, entity);
 		} else {
 			//Take the stored one if possible, otherwise use the given entity.
 			ret = this._instances[entity._type()][entity.id()] || entity;
@@ -475,7 +465,7 @@ var noop = function(){};
 	// affecting _ALL_ instances, both current and future, of type.
 	JEFRi.Runtime.prototype.extend = function(type, extend) {
 		if(this._context.entities[type]) {
-			$.extend(
+			_.extend(
 				this._context.entities[type].Constructor.prototype,
 				extend.prototype
 			);
@@ -496,7 +486,7 @@ var noop = function(){};
 			var instance = this.find(demi);
 			if(false !== instance) {
 				// Local instance, extend it with the new obj and return local.
-				$.extend(true, instance, r);
+				_.extend(instance, r);
 				return instance;
 			}
 		}
@@ -511,8 +501,8 @@ var noop = function(){};
 		var entities = transaction.entities;
 
 		var ret = [];
-		$(entities).each(function() {
-			var e = self.build(this._type, this);
+		_.each(entities, function(entity) {
+			var e = self.build(entity._type, entity);
 			e = self.intern(e, true);
 			//Make the entity not new...
 			$(e).trigger('persisted');
@@ -552,8 +542,8 @@ var noop = function(){};
 		}
 
 		// Add results to an array to clean up the return for the user.
-		$.each(results, function(){
-			to_return.push(this);
+		_.each(results, function(result){
+			to_return.push(result);
 		});
 
 		return to_return || ret || false;
@@ -572,7 +562,7 @@ var noop = function(){};
 	// Pass the spec to get, and just pop the first entity.
 	JEFRi.Runtime.prototype.get_first = function(spec, callback) {
 		spec = (spec instanceof Array) ? spec : [spec];
-		var d = $.Deferred().then(callback);
+		var d = _.Deferred().then(callback);
 
 		this.get(spec).then(function(data, meta){
 			var _type = spec._type instanceof Function ?
@@ -597,7 +587,7 @@ var noop = function(){};
 		var self = this;
 		var results = {};
 		var transaction = this.transaction();
-		var deferred = $.Deferred().done(callback);
+		var deferred = _.Deferred().done(callback);
 
 		results.push = pushResult;
 
@@ -641,8 +631,8 @@ var noop = function(){};
 			//Run the transaction
 			transaction.get(function(transaction){
 				//Merge the result sets, adding `gotten` things to `had` things.
-				$.each(transaction.entities, function(){
-					results.push(this);
+				_.each(transaction.entities, function(entity){
+					results.push(entity);
 				});
 				deferred.resolve(results, transaction.meta);
 			});
@@ -656,16 +646,14 @@ var noop = function(){};
 	};
 
 	// Save all the new entities.
-	JEFRi.Runtime.prototype.save_new = function(callback) {
+	JEFRi.Runtime.prototype.save_new = function(store) {
 		var transaction = this.transaction();
 		$(this).trigger('saving');
 
 		//Add all new entities to the transaction
-		$.each(this._new, function(){
-			this.persist(transaction);
-		});
+		transaction.add(this._new);
 
-		return transaction.persist(callback);
+		return this._save(store, transaction);
 	};
 
 	// Save all entities with changes, including new entities.
@@ -674,19 +662,25 @@ var noop = function(){};
 		$(this).trigger('saving');
 
 		//Add all new entities to the transaction
-		$.each(this._modified, function(){
+		_.each(this._modified, function(modified){
 	//The _type {}s
-			$.each(this, function() {
+			_.each(modified, function(moded) {
 	//the entity {}s
-				this.persist(transaction);
+				moded.persist(transaction);
 			});
 		});
 
-		$.each(this._new, function(){
-			this.persist(transaction);
+		_.each(this._new, function(neu){
+			this.persist(neu);
 		});
 
 		return transaction.persist(callback);
+	};
+
+	JEFRi.Runtime.prototype._save = function(store, transaction){
+		return store.execute('persist', transaction).then(
+			_.bind(this.expand, this)
+		);
 	};
 
 	// Returns transaction of all entities in local cache.
@@ -694,11 +688,11 @@ var noop = function(){};
 		var transaction = this.transaction();
 
 		//Add all entities to the transaction
-		$.each(this._instances, function(){
+		_.each(this._instances, function(instance){
 	//The _type {}s
-			$.each(this, function() {
+			_.each(instance, function(entity) {
 	//the entity {}s
-				transaction.add(this);
+				transaction.add(entity);
 			});
 		});
 
@@ -716,24 +710,24 @@ var noop = function(){};
 			var transaction = {};
 			transaction.attributes = this.attributes;
 			transaction.entities = [];
-			$.each(this.entities, function() {
-				var self = this;
+			_.each(this.entities, function(entity) {
+				var self = entity;
 				var ent = {};
 				ent._type = this._type instanceof Function ?
-					this._type() :
-					this._type;
-				if(this.__new)
+					entity._type() :
+					entity._type;
+				if(entity.__new)
 				{
 					//Only set if actually new.
-					ent.__new = this.__new;
+					ent.__new = entity.__new;
 				}
 				var def = store.ec.definition(ent._type);
 //TODO make this smarter
-				$.each(def.properties, function(){
+				_.each(def.properties, function(property){
 					var value =
-						self[this.name] instanceof Function ?
-							self[this.name]() :
-							self[this.name];
+						self[property.name] instanceof Function ?
+							self[property.name]() :
+							self[property.name];
 					if(value instanceof String)
 					{
 						value = value
@@ -746,13 +740,13 @@ var noop = function(){};
 							.replace(/\\b/g, "\\b")
 							.replace(/\\f/g, "\\f");
 					}
-					ent[this.name] = value;
+					ent[property.name] = value;
 				});
-				$.each(def.relationships, function(){
-					if(self[this.name])
+				_.each(def.relationships, function(relationship){
+					if(self[relationship.name])
 					{
 						//Add the relationships to the get
-						ent[this.name] = self[this.name];
+						ent[relationship.name] = self[relationship.name];
 					}
 				});
 				transaction.entities.push(ent);
@@ -761,20 +755,20 @@ var noop = function(){};
 		};
 	};
 
-	JEFRi.Transaction.prototype.get = function(callback) {
-		var d = $.Deferred().then(callback);
+	JEFRi.Transaction.prototype.get = function(store) {
 		$(this).trigger('getting');
 		$(this).one('gotten', function(e, data){d.resolve(data);});
+		// return
 		if( this.store ) { this.store.get(this); }
-		return d.promise();
+
 	};
 
 	JEFRi.Transaction.prototype.persist = function(callback) {
-		var d = $.Deferred().then(callback);
+		var d = _.Deferred().then(callback);
 		$(this).trigger('persisting');
 		$(this).one('persisted', function(e, data){
-			$.each(this.entities, function(){
-				$(this).trigger('persisted');
+			_.each(e.entities, function(ent){
+				$(ent).trigger('persisted');
 			});
 			d.resolve(data);
 		});
@@ -786,22 +780,17 @@ var noop = function(){};
 		//Force spec to be an array
 		spec = (spec instanceof Array)?spec:[spec];
 		var ents = this.entities;
-		$(spec).each(function(){
-			if(ents.contains(this, JEFRi.EntityComparator) < 0)
-			{
+		_.each(spec, function(s){
+			if(_.indexBy(ents, _.bind(JEFRi.EntityComparator, s)) < 0) {
 				//Hasn't been added yet...
-				ents.push(this);
+				ents.push(s);
 			}
 		});
 		return this;
 	};
 
 	JEFRi.Transaction.prototype.attributes = function(attributes) {
-		//$.extend?
-		for(var attr in attributes)
-		{
-			this.attributes[attr] = attributes[attr];
-		}
+		_.extend(this.attributes, attributes);
 		return this;
 	};
 
@@ -827,7 +816,7 @@ var noop = function(){};
 			}).then(
 				//Success
 				function(data) {
-//					console.log("Logging success", data);
+//                  console.log("Logging success", data);
 					ec.expand(data, true);//Always updateOnIntern
 					$(self).trigger('sent', data);
 					$(self).trigger(post, data);
@@ -857,7 +846,7 @@ var noop = function(){};
 		{
 			//No backing data store, so do nothing.
 			this.get = this.persist = function(transaction) {
-				return $.Deferred().resolve().promise();
+				return _.Deferred().resolve().promise();
 			};
 		}
 
