@@ -137,8 +137,7 @@ var JEFRi = {
 
 		// A few default types.
 		var _default = function(type){
-			switch(type)
-			{
+			switch(type) {
 				case "boolean": return false;
 				case "int":
 				case "float": return 0;
@@ -644,8 +643,7 @@ var JEFRi = {
 		results.push = pushResult;
 
 		var q = spec.length, i;
-		for(i=0 ; i < q ; i++)
-		{
+		for(i=0 ; i < q ; i++) {
 			//Add the queries
 			var _spec = spec[i],
 				_type = (_spec._type instanceof Function) ?
@@ -655,18 +653,15 @@ var JEFRi = {
 			var id = _spec[def.key];
 
 			//Check if the ID is set and exists locally
-			if( (undefined !== id) && this._instances[_type][id])
-			{
+			if( (undefined !== id) && this._instances[_type][id]) {
 				//It is local, so use that one
 				results.push(this._instances[_type][id]);
 			}
-			else
-			{
+			else {
 				//Otherwise, add to transaction
 				transaction.add(_spec);
 
-				if(this.hasOwnProperty("_page"))
-				{
+				if(this.hasOwnProperty("_page")) {
 					//Add the page to the meta
 				//TODO: If there are multiple specs, this will not work!
 				//TODO: Need to figure out what a page means for multiple specs.
@@ -678,8 +673,7 @@ var JEFRi = {
 		}
 
 		//If transaction is not empty
-		if(transaction.entities.length > 0)
-		{
+		if(transaction.entities.length > 0) {
 			//Run the transaction
 			transaction.get(function(transaction){
 				//Merge the result sets, adding `gotten` things to `had` things.
@@ -688,9 +682,7 @@ var JEFRi = {
 				});
 				deferred.resolve(results, transaction.meta);
 			});
-		}
-		else
-		{
+		} else {
 			//just resolve...
 			deferred.resolve(results, {});
 		}
@@ -771,8 +763,7 @@ var JEFRi = {
 				ent._type = this._type instanceof Function ?
 					entity._type() :
 					entity._type;
-				if(entity.__new)
-				{
+				if(entity.__new) {
 					//Only set if actually new.
 					ent.__new = entity.__new;
 				}
@@ -783,8 +774,7 @@ var JEFRi = {
 						self[property.name] instanceof Function ?
 							self[property.name]() :
 							self[property.name];
-					if(value instanceof String)
-					{
+					if(value instanceof String) {
 						value = value
 							.replace(/\\n/g, "\\n")
 							.replace(/\\'/g, "\\'")
@@ -798,8 +788,7 @@ var JEFRi = {
 					ent[property.name] = value;
 				});
 				_.each(def.relationships, function(relationship){
-					if(self[relationship.name])
-					{
+					if(self[relationship.name]) {
 						//Add the relationships to the get
 						ent[relationship.name] = self[relationship.name];
 					}
@@ -889,8 +878,7 @@ var JEFRi = {
 			);
 		};
 
-		if(this.target)
-		{
+		if(this.target) {
 			//Configured correctly, so we can safely transact.
 			this.get = function(transaction) {
 				var url = (this.target + "get");
@@ -901,9 +889,7 @@ var JEFRi = {
 				var url = (this.target + "persist");
 				return _send(url, transaction, 'persisting', 'persisted');
 			};
-		}
-		else
-		{
+		} else {
 			//No backing data store, so do nothing.
 			this.get = this.persist = function(transaction) {
 				return _.Deferred().resolve().promise();
