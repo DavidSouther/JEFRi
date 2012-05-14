@@ -4,7 +4,7 @@
 //     For all details and documentation:
 //     http://jefri.org
 
-// ## Underscore Utilities
+// ### Underscore Utilities
 _.mixin({
 	// The default underscore indexOf uses a literal value; we often want to use an comparator.
 	indexBy: function(list, func) {
@@ -16,7 +16,7 @@ _.mixin({
 	// noop
 	noop: function(){},
 
-	// ### PubSub
+	// #### PubSub
 	// Register a function to get called when a certain event is published.
 	on: function(obj, event, callback) {
 		// Use jQuery to handle DOM events.
@@ -75,7 +75,7 @@ _.mixin({
 
 });
 
-// # JEFRi Namespace
+// ## JEFRi Namespace
 var JEFRi = {
 	// Compare two entities for equality. Entities are equal if they
 	// are of the same type and have equivalent IDs.
@@ -94,7 +94,7 @@ var JEFRi = {
 };
 
 (function(){
-	// ## Runtime Constructor
+	// ### Runtime Constructor
 
 	JEFRi.Runtime = function(contextUri, options, protos) {
 		// Private variables we'll be using throughout the class.
@@ -132,7 +132,7 @@ var JEFRi = {
 			delete self._modified[entity._type()][entity.id()];
 		};
 
-		// ### Private helper functions
+		// #### Private helper functions
 		// These handle most of the heavy lifting of building Entity classes.
 
 		// A few default types.
@@ -456,7 +456,7 @@ var JEFRi = {
 	};
 
 
-	// ### Runtime Prototype
+	// #### Runtime Prototype
 
 	// Reset the runtime's data, maintains context definitions.
 	JEFRi.Runtime.prototype.clear = function(){
@@ -752,7 +752,7 @@ var JEFRi = {
 	};
 
 
-	// ## Transactions
+	// ### Transactions
 
 	// Object to handle transactions.
 	JEFRi.Transaction = function(spec, store) {
@@ -853,7 +853,7 @@ var JEFRi = {
 		return this;
 	};
 
-	// ## Persistence Stores
+	// ### Persistence Stores
 	// TODO move this out
 
 	// PostStore
