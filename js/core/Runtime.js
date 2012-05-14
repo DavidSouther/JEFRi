@@ -663,11 +663,13 @@ var JEFRi = {
 
 				if(this.hasOwnProperty("_page")) {
 					//Add the page to the meta
-				//TODO: If there are multiple specs, this will not work!
-				//TODO: Need to figure out what a page means for multiple specs.
-				//Page format: {on : 1, lines : 10, sort:[{'Type.field':order},{'Type.field':order}]}
-					transaction.addmeta({page : this._page});
+					transaction.attributes({page : this._page});
 					delete this._page;
+/*
+				TODO: If there are multiple specs, this will not work!
+				TODO: Need to figure out what a page means for multiple specs.
+				Page format: {on : 1, lines : 10, sort:[{'Type.field':order},{'Type.field':order}]}
+*/
 				}
 			}
 		}
