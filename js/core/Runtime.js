@@ -1,27 +1,94 @@
-// The default underscore indexOf uses a literal value; we often want to use an comparator.
+//     JEFRi Runtime.js 1.0.1
+//     (c) 2011-2012 David Souther
+//     JEFRi is freely distributable under the MIT license.
+//     For all details and documentation:
+//     http://jefri.org
+
+// ## Underscore Utilities
 _.mixin({
+	// The default underscore indexOf uses a literal value; we often want to use an comparator.
 	indexBy: function(list, func) {
 		for (var i = 0, l = list.length; i < l; i++) {
 			if (func(list[i])) return i;
 		}
 		return -1;
+	},
+	// noop
+	noop: function(){},
+
+	// ### PubSub
+	// Register a function to get called when a certain event is published.
+	on: function(obj, event, callback) {
+		// Use jQuery to handle DOM events.
+		if(_.isElement(obj) && jQuery){return jQuery(obj).on(event, callback); }
+
+		// Use internal handler for pubsub
+		if(this.isString(obj)) {callback = event; event = obj; obj = this; }
+
+		if(this.isUndefined(obj.__event_handlers)) obj.__event_handlers = {};
+		if (!(event in obj.__event_handlers)) obj.__event_handlers[event] = [];
+		obj.__event_handlers[event].push(callback);
+		return this;
+	},
+	// Register a function that will be called a single time when the event is published.
+	once: function(obj, event, callback) {
+		// Use jQuery to handle DOM events.
+		if(_.isElement(obj) && jQuery){return jQuery(obj).one(event, callback); }
+
+		var removeEvent = function() { _.removeEvent(obj, event); };
+		callback = _.compose(removeEvent, callback);
+
+		// Register normally
+		this.on(obj, event, callback);
+	},
+	// Publish an event, passing args to each function registered.
+	trigger: function(obj, event, args) {
+		// Use jQuery to handle DOM events.
+		if(_.isElement(obj) && jQuery){return jQuery(obj).trigger(event, callback); }
+
+		// Use internal handler for pubsub
+		if(this.isString(obj)) {callback = event; event = obj; obj = this; }
+
+		if(this.isUndefined(obj._events)) return;
+		if (event in obj.__event_handlers) {
+			var events = obj.__event_handlers[event].concat();
+			for (var i = 0, ii = events.length; i < ii; i++) {
+				events[i].apply(obj, args === undefined ? [] : args);
+			}
+		}
+		return this;
 	}
+	// ,
+	// // Remove
+	// off: function(obj, event) {
+	// 	// Use jQuery to handle DOM events.
+	// 	if(_.isElement(obj) && jQuery){ return jQuery(obj).off(event, callback); }
+
+	// 	// Use internal handler for pubsub
+	// 	if(this.isString(obj)) { event = obj; obj = this; }
+
+	// 	if(this.isUndefined(obj.__event_handlers)) return;
+	// 	delete obj._events[event];
+	// }
 });
 
 // # JEFRi Namespace
-var JEFRi = {};
-
-// Compare two entities for equality. Entities are equal if they
-// are of the same type and have equivalent IDs.
-JEFRi.EntityComparator = function(a, b) {
-	var cmp =
-		a && b &&
-		a._type() === b._type() &&
-		a.id() === b.id();
-	return cmp;
+var JEFRi = {
+	// Compare two entities for equality. Entities are equal if they
+	// are of the same type and have equivalent IDs.
+	EntityComparator: function(a, b) {
+		var cmp =
+			a && b &&
+			a._type() === b._type() &&
+			a.id() === b.id();
+		return cmp;
+	},
+	//Duck type check if an object is an entity.
+	isEntity: function(obj){
+		return obj._type && obj.id &&
+			_.isFunction(obj._type) && _.isFunction(obj.id);
+	}
 };
-
-var noop = function(){};
 
 (function(){
 	// ## Runtime Constructor
@@ -128,7 +195,7 @@ var noop = function(){};
 					_.extend(this.prototype, proto.prototype);
 
 					//Set a few event handlers
-					$(this).on('persisted', $.proxy(function(){
+					_.on(this, 'persisted', _.bind(function(){
 						this.__new = false;
 						this.__modified = {
 							_count: 0
@@ -174,28 +241,6 @@ var noop = function(){};
 				if( top ) { transaction.persist(callback); }
 
 				return deferred.promise();
-			};
-
-			// Bind a callback to happen on some event this entity generates.
-			definition.Constructor.prototype.bind = function(event, callback) {
-				var self = this;
-				self.__event_handlers = self.__event_handlers || {};
-				if(!self.__event_handlers.hasOwnProperty(event)) {
-					self.__event_handlers[event] = [];
-				}
-				self.__event_handlers[event].push(callback);
-			};
-
-			// Trigger a named event on this entity.
-			definition.Constructor.prototype.trigger = function(event, args) {
-				var self = this;
-				args = args || [];
-				self.__event_handlers = self.__event_handlers || {};
-				if(self.__event_handlers.hasOwnProperty(event)) {
-					_.each(self.__event_handlers[event], function(handler){
-						handler.apply(self, args);
-					});
-				}
 			};
 
 			// Find the status of an entity.
@@ -273,7 +318,7 @@ var noop = function(){};
 							}
 						}
 						this.__fields[field] = value;
-						this.trigger("modify", [property.name, value]);
+						_.trigger(this, "modify", [property.name, value]);
 					}
 				} else {
 					// Just a getter.
@@ -382,7 +427,7 @@ var noop = function(){};
 		};
 
 		// Prepare a promise for completing context loading.
-		var ready = $.Deferred();
+		var ready = _.Deferred();
 		this.ready = ready.promise();
 
 		if(options && options.debug) {
@@ -502,10 +547,10 @@ var noop = function(){};
 
 		var ret = [];
 		_.each(entities, function(entity) {
-			var e = self.build(entity._type, entity);
+			var e = self.build(entity._type(), entity);
 			e = self.intern(e, true);
 			//Make the entity not new...
-			$(e).trigger('persisted');
+			_.trigger(e, 'persisted');
 			ret.push(e);
 		});
 
@@ -648,7 +693,7 @@ var noop = function(){};
 	// Save all the new entities.
 	JEFRi.Runtime.prototype.save_new = function(store) {
 		var transaction = this.transaction();
-		$(this).trigger('saving');
+		_.trigger(this, 'saving');
 
 		//Add all new entities to the transaction
 		transaction.add(this._new);
@@ -659,7 +704,7 @@ var noop = function(){};
 	// Save all entities with changes, including new entities.
 	JEFRi.Runtime.prototype.save_all = function(callback) {
 		var transaction = this.transaction();
-		$(this).trigger('saving');
+		_.trigger(this, 'saving');
 
 		//Add all new entities to the transaction
 		_.each(this._modified, function(modified){
@@ -756,8 +801,8 @@ var noop = function(){};
 	};
 
 	JEFRi.Transaction.prototype.get = function(store) {
-		$(this).trigger('getting');
-		$(this).one('gotten', function(e, data){d.resolve(data);});
+		_.trigger(this, 'getting');
+		_.one(this, 'gotten', function(e, data){d.resolve(data);});
 		// return
 		if( this.store ) { this.store.get(this); }
 
@@ -765,10 +810,10 @@ var noop = function(){};
 
 	JEFRi.Transaction.prototype.persist = function(callback) {
 		var d = _.Deferred().then(callback);
-		$(this).trigger('persisting');
-		$(this).one('persisted', function(e, data){
+		_.trigger(this, 'persisting');
+		_.trigger(this, 'persisted', function(e, data){
 			_.each(e.entities, function(ent){
-				$(ent).trigger('persisted');
+				_.trigger(ent, 'persisted');
 			});
 			d.resolve(data);
 		});
@@ -805,9 +850,9 @@ var noop = function(){};
 		var self = this;
 
 		var _send = function(url, transaction, pre, post) {
-			$(transaction).trigger(pre);
-			$(self).trigger(pre, transaction);
-			$(self).trigger('sending', transaction);
+			_.trigger(transaction, pre);
+			_.trigger(self, pre, transaction);
+			_.trigger(self, 'sending', transaction);
 			return $.ajax({
 				type    : "POST",
 				url     : url,
@@ -818,9 +863,9 @@ var noop = function(){};
 				function(data) {
 //                  console.log("Logging success", data);
 					ec.expand(data, true);//Always updateOnIntern
-					$(self).trigger('sent', data);
-					$(self).trigger(post, data);
-					$(transaction).trigger(post, data);
+					_.trigger(self, 'sent', data);
+					_.trigger(self, post, data);
+					_.trigger(transaction, post, data);
 				},
 				// error
 				function(data){
