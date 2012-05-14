@@ -57,22 +57,22 @@ _.mixin({
 			}
 		}
 		return this;
+	},
+	// Remove a certain callback from an event chain.
+	off: function(obj, event, callback) {
+		// Use jQuery to handle DOM events.
+		if(_.isElement(obj) && jQuery){ return jQuery(obj).off(event, callback); }
+
+		// Use internal handler for pubsub
+		if(this.isString(obj)) { event = obj; obj = this; }
+
+		if(this.isUndefined(obj.__event_handlers)) return;
+		obj.__event_handlers = _.filter(obj.__event_handlers, function(cb){
+			return (cb.toString() === callback.toString());// TODO Make this smarter
+		});
+		return this;
 	}
-	/*
-	This needs to remove a specific function from the chain, not the entire chain
-	// ,
-	// // Remove
-	// off: function(obj, event) {
-	// 	// Use jQuery to handle DOM events.
-	// 	if(_.isElement(obj) && jQuery){ return jQuery(obj).off(event, callback); }
 
-	// 	// Use internal handler for pubsub
-	// 	if(this.isString(obj)) { event = obj; obj = this; }
-
-	// 	if(this.isUndefined(obj.__event_handlers)) return;
-	// 	delete obj._events[event];
-	// }
-	*/
 });
 
 // # JEFRi Namespace
