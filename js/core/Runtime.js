@@ -95,19 +95,16 @@ var JEFRi = {
 
 (function(){
 	// ### Runtime Constructor
-
 	JEFRi.Runtime = function(contextUri, options, protos) {
 		// Private variables we'll be using throughout the class.
 		var self = this;
 		var ec = this;
-		this.settings = {
+		this.settings = _.extend({
 			contextUri     : contextUri,
 			updateOnIntern : true,
 			store          : JEFRi.PostStore,
 			storeURI       : ""
-		};
-
-		_.extend(this.settings, options);
+		}, options);
 
 		this._context = {
 			meta: {},
@@ -147,9 +144,7 @@ var JEFRi = {
 		};
 
 		// Takes a "raw" context object and orders it into the internal _context
-		// storage.  Also builds new prototypes for the context.
-		//
-		// Context  Javascript object with the context
+		// storage.  Also builds constructors and prototypes for the context.
 		var _set_context = function(context, protos) {
 			// Save the attributes
 			ec._context.attributes = context.attributes;
@@ -204,7 +199,7 @@ var JEFRi = {
 						};
 						ec._new = _.remove(ec._new, _.bind(JEFRi.EntityComparator, null, a));
 						ec._modified.remove(this, JEFRi.EntityComparator);
-					}, this));
+					}, ec._context.entities[definition.name]));
 				};
 
 				//Set up the prototype for any of this entity.
@@ -216,7 +211,10 @@ var JEFRi = {
 		var _build_prototype = function(definition, proto) {
 			var ec = self;
 
-			// Get this entity's type.
+			// Store the definition type in the prototype to get to it easily.
+			definition.Constructor.prototype.__type = definition.name;
+
+			// Get this entity's type. Use the closure'd reference.
 			definition.Constructor.prototype._type = function() {
 				return definition.name;
 			};
@@ -674,18 +672,18 @@ var JEFRi = {
 			}
 		}
 
-		//If transaction is not empty
+		// If transaction is not empty
 		if(transaction.entities.length > 0) {
-			//Run the transaction
+			// Run the transaction
 			transaction.get(function(transaction){
-				//Merge the result sets, adding `gotten` things to `had` things.
+				// Merge the result sets, adding `gotten` things to `had` things.
 				_.each(transaction.entities, function(entity){
 					results.push(entity);
 				});
-				deferred.resolve(results, transaction.meta);
+				deferred.resolve(results, transaction.attributes);
 			});
 		} else {
-			//just resolve...
+			// just resolve...
 			deferred.resolve(results, {});
 		}
 		return deferred.promise();
@@ -824,7 +822,7 @@ var JEFRi = {
 		return d.promise();
 	};
 
-	// Ass several entities to the transaction
+	// Add several entities to the transaction
 	JEFRi.Transaction.prototype.add = function(spec) {
 		//Force spec to be an array
 		spec = (spec instanceof Array)?spec:[spec];
@@ -847,7 +845,7 @@ var JEFRi = {
 	// ### Persistence Stores
 	// TODO move this out
 
-	// PostStore
+	// #### PostStore
 	//
 	// Handles POSTing a transaction to a remote JEFRi instance.
 	JEFRi.PostStore = function(ec, options) {
@@ -865,15 +863,14 @@ var JEFRi = {
 				data    : transaction.toString(),
 				dataType: "json"
 			}).then(
-				//Success
 				function(data) {
-//                  console.log("Logging success", data);
-					ec.expand(data, true);//Always updateOnIntern
+/*                  console.log("Logging success", data);*/
+					//Always updateOnIntern
+					ec.expand(data, true);
 					_.trigger(self, 'sent', data);
 					_.trigger(self, post, data);
 					_.trigger(transaction, post, data);
 				},
-				// error
 				function(data){
 					console.log("Logging error", data);
 				}
