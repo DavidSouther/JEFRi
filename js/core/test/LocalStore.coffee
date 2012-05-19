@@ -11,9 +11,10 @@ $(document).ready( ->
 			authinfo = user.set_authinfo(runtime.build('Authinfo', {})).get_authinfo();
 
 			store = new JEFRi.LocalStore
-			runtime.save_new store .then(->)
-
-			start();
+			runtime.save_new(store).then((transaction)->
+				ok(transaction.entities.length == 2)
+				start();
+			)
 		)
 	)
 )
