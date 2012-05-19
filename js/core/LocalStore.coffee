@@ -1,24 +1,24 @@
 ( ->
 	root = @
 
-	root.JEFRi = root.JEFRi ? root.JEFRi : {}
+	`root.JEFRi = root.JEFRi ? root.JEFRi : {}`
 
 	class LocalStore
-		@settings = { version: "1.0", size: Math.pow(2, 16) }
 		constructor: (options) ->
+			@settings = { version: "1.0", size: Math.pow(2, 16) }
 			_.extend(@settings, options)
-			@settings.uri || throw { message: "LocalStore must have a unique name in options.uri" }
+			#@settings.uri || throw { message: "LocalStore must have a unique name in options.uri" }
 			#@store = openDatabase(@settings.uri, @settings.version, "JEFRi LocalStore #{@settings.uri} (#{@settings.version})", @settings.size)
 
-		execute: (type, tranasction) ->
-			$(@).trigger('sending', type, 'localStorage:', transaction, @)
+		execute: (type, transaction) ->
+			_(@).trigger('sending', type, 'localStorage:', transaction, @)
 			if (type == "persist")
 				persist(transaction)
 			else if (type == "get")
 				get(transaction)
 			$.Deferred().resolve(transaction);
 
-		persist: (transaction) ->
+		persist = (transaction) ->
 			transaction.entities = (_save(entity) for entity in transaction.entities)
 
 		_save = (entity) ->
