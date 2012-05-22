@@ -48,10 +48,10 @@ _.mixin({
 	// Publish an event, passing args to each function registered.
 	trigger: function(obj, event, args) {
 		// Use jQuery to handle DOM events.
-		if(_.isElement(obj) && $){return $(obj).trigger(event, callback); }
+		if(_.isElement(obj) && $){return $(obj).trigger(event, args); }
 
 		// Use internal handler for pubsub
-		if(this.isString(obj)) {callback = event; event = obj; obj = this; }
+		if(this.isString(obj)) {args = event; event = obj; obj = this; }
 
 		if(this.isUndefined(obj._events)) return;
 		if (event in obj.__event_handlers) {
@@ -459,176 +459,7 @@ _.mixin({
 		}
 	};
 
-
-	// #### Runtime Prototype
-
-	// Reset the runtime's data, maintains context definitions.
-	JEFRi.Runtime.prototype.clear = function(){
-		this._modified = {};
-		this._new = [];
-		this._instances = {};
-		return this;
-	};
-
-	// Get the definition of an entity type.
-	JEFRi.Runtime.prototype.definition = function(name) {
-		name = (typeof name == "string") ? name : name._type();
-
-		return this._context.entities[name];
-	};
-
-	// Find the relationship back to this entity, if it exists
-	JEFRi.Runtime.prototype.back_rel = function(type, relationship) {
-		var ec = this;
-		var def = ec.definition(relationship.to.type);
-		var back = null;
-		_.each(def.relationships, function(rel){
-			if(rel.to.type === type && rel.name !== relationship.name) {
-				//Found it
-				back = rel;
-			}
-		});
-		return back;
-	};
-
-	// Return the canonical memory reference of the entity.
-	JEFRi.Runtime.prototype.intern = function(entity, updateOnIntern) {
-		updateOnIntern = !!updateOnIntern || this.settings.updateOnIntern;
-
-		if(entity.length && ! entity._type) {
-			//Array-like
-			var q = entity.length, i;
-			for(i = 0 ; i < q ; i++){
-				entity[i] = this.intern(entity[i], updateOnIntern);
-			}
-			return entity;
-		}
-
-		var ret;
-		if(updateOnIntern) {
-			//Merge the given entity into the stored entity.
-			ret = _.extend(this._instances[entity._type()][entity.id()] || {}, entity);
-		} else {
-			//Take the stored one if possible, otherwise use the given entity.
-			ret = this._instances[entity._type()][entity.id()] || entity;
-		}
-		//Update the saved entity
-		this._instances[entity._type()][entity.id()] = ret;
-		return ret;
-	};
-
-	// Add the methods in the extend prototype to the prototype of type specified
-	// affecting _ALL_ instances, both current and future, of type.
-	JEFRi.Runtime.prototype.extend = function(type, extend) {
-		if(this._context.entities[type]) {
-			_.extend(
-				this._context.entities[type].Constructor.prototype,
-				extend.prototype
-			);
-		}
-	};
-
-	// Return a new instance of an object described in the context.
-	JEFRi.Runtime.prototype.build = function(type, obj) {
-		var def = this.definition(type);
-		obj = obj || {};
-		// We are going to build the new entity first, then, if there is a local
-		// instance, we will extend the local instance with the new instance.
-		var r = new this._context.entities[type].Constructor(obj);
-		if(undefined !== obj[def.key]) {
-			// If the entity key is specified in obj, check the local storage.
-			var demi = {_type : type};
-			demi[def.key] = obj[def.key];
-			var instance = this.find(demi);
-			if(false !== instance) {
-				// Local instance, extend it with the new obj and return local.
-				_.extend(instance, r);
-				return instance;
-			}
-		}
-		this._instances[type][r.id()] = r;
-		this._new.push(r);
-		return r;
-	};
-
-	// Expand and intern a transaction.
-	JEFRi.Runtime.prototype.expand = function (transaction) {
-		var self = this;
-		var entities = transaction.entities;
-
-		var ret = [];
-		_.each(entities, function(entity) {
-			var e = self.build(entity._type(), entity);
-			e = self.intern(e, true);
-			//Make the entity not new...
-			_.trigger(e, 'persisted');
-			ret.push(e);
-		});
-
-		transaction.entities = ret;
-		return ret;
-	};
-
-	// Prepare a new transaction
-	JEFRi.Runtime.prototype.transaction = function(spec) {
-		spec = spec || [];
-
-		return new JEFRi.Transaction(spec, this._store);
-	};
-
-	// Return an interned entity from the local instance matching spec.
-	//
-	// Spec requires an _type property and the entity key, or specify the property UUID.
-	JEFRi.Runtime.prototype.find = function(spec) {
-		if(typeof spec == "string") {
-			spec = {_type : spec};
-		}
-		var to_return = [];
-		var r = this.definition(spec._type);
-		var results = this._instances[spec._type];
-		var ret = false;
-
-		if(spec.hasOwnProperty(r.key)) {
-			// If a key is set, return only that result.
-			ret = results[spec[r.key]] || false;
-		} else if(spec.hasOwnProperty("UUID")) {
-			// If UUID is set, return only that result
-			ret = results[spec.UUID] || false;
-		}
-
-		// Add results to an array to clean up the return for the user.
-		_.each(results, function(result){
-			to_return.push(result);
-		});
-
-		return to_return || ret || false;
-	};
-
-	// Return a non-array of interned entities matching spec.
-	//
-	// If spec is an array with multiple elements, and ANY ONE matches, the
-	// result array will have only the matching entities. If NONE matches, the
-	// result array will have one entity per spec.
-	JEFRi.Runtime.prototype.get = function(spec, callback) {
-		spec = (spec instanceof Array) ? spec : [spec];
-		return this.get_empty(spec).then(callback);
-	};
-
-	// Pass the spec to get, and just pop the first entity.
-	JEFRi.Runtime.prototype.get_first = function(spec, callback) {
-		spec = (spec instanceof Array) ? spec : [spec];
-		var d = _.Deferred().then(callback);
-
-		this.get(spec).then(function(data, meta){
-			var _type = spec._type instanceof Function ?
-				spec._type() :
-				spec._type;
-			d.resolve(data[_type].pop(), meta);
-		});
-
-		return d.promise();
-	};
-
+	// #### Entity Array helper
 	var pushResult = function(entity){
 		var type = entity._type();
 		if(!this[type]) {
@@ -637,119 +468,289 @@ _.mixin({
 		this[type].push(entity);
 	};
 
-	// Return a possibly empty array of entities matching the spec.
-	JEFRi.Runtime.prototype.get_empty = function(spec, callback) {
-		spec = (spec instanceof Array) ? spec : [spec];
-		var self = this;
-		var results = {};
-		var transaction = this.transaction();
-		var deferred = _.Deferred().done(callback);
 
-		results.push = pushResult;
+	// #### Runtime Prototype
+	root.JEFRi.Runtime.prototype = _.extend({}, JEFRi.Runtime.prototype, {
+		// Reset the runtime's data, maintains context definitions.
+		clear: function(){
+			this._modified = {};
+			this._new = [];
+			this._instances = {};
+			return this;
+		},
 
-		var q = spec.length, i;
-		for(i=0 ; i < q ; i++) {
-			//Add the queries
-			var _spec = spec[i],
-				_type = (_spec._type instanceof Function) ?
-					_spec._type() :
-					_spec._type;
-			var def = this.definition(_type);
-			var id = _spec[def.key];
+		// Get the definition of an entity type.
+		definition: function(name) {
+			name = (typeof name == "string") ? name : name._type();
 
-			//Check if the ID is set and exists locally
-			if( (undefined !== id) && this._instances[_type][id]) {
-				//It is local, so use that one
-				results.push(this._instances[_type][id]);
+			return this._context.entities[name];
+		},
+
+		// Find the relationship back to this entity, if it exists
+		back_rel: function(type, relationship) {
+			var ec = this;
+			var def = ec.definition(relationship.to.type);
+			var back = null;
+			_.each(def.relationships, function(rel){
+				if(rel.to.type === type && rel.name !== relationship.name) {
+					//Found it
+					back = rel;
+				}
+			});
+			return back;
+		},
+
+		// Return the canonical memory reference of the entity.
+		intern: function(entity, updateOnIntern) {
+			updateOnIntern = !!updateOnIntern || this.settings.updateOnIntern;
+
+			if(entity.length && ! entity._type) {
+				//Array-like
+				var q = entity.length, i;
+				for(i = 0 ; i < q ; i++){
+					entity[i] = this.intern(entity[i], updateOnIntern);
+				}
+				return entity;
 			}
-			else {
-				//Otherwise, add to transaction
-				transaction.add(_spec);
 
-				if(this.hasOwnProperty("_page")) {
-					//Add the page to the meta
-					transaction.attributes({page : this._page});
-					delete this._page;
-/*
-				TODO: If there are multiple specs, this will not work!
-				TODO: Need to figure out what a page means for multiple specs.
-				Page format: {on : 1, lines : 10, sort:[{'Type.field':order},{'Type.field':order}]}
-*/
+			var ret;
+			if(updateOnIntern) {
+				//Merge the given entity into the stored entity.
+				ret = _.extend(this._instances[entity._type()][entity.id()] || {}, entity);
+			} else {
+				//Take the stored one if possible, otherwise use the given entity.
+				ret = this._instances[entity._type()][entity.id()] || entity;
+			}
+			//Update the saved entity
+			this._instances[entity._type()][entity.id()] = ret;
+			return ret;
+		},
+
+		// Add the methods in the extend prototype to the prototype of type specified
+		// affecting _ALL_ instances, both current and future, of type.
+		extend: function(type, extend) {
+			if(this._context.entities[type]) {
+				_.extend(
+					this._context.entities[type].Constructor.prototype,
+					extend.prototype
+				);
+			}
+		},
+
+		// Return a new instance of an object described in the context.
+		build: function(type, obj) {
+			var def = this.definition(type);
+			obj = obj || {};
+			// We are going to build the new entity first, then, if there is a local
+			// instance, we will extend the local instance with the new instance.
+			var r = new this._context.entities[type].Constructor(obj);
+			if(undefined !== obj[def.key]) {
+				// If the entity key is specified in obj, check the local storage.
+				var demi = {_type : type};
+				demi[def.key] = obj[def.key];
+				var instance = this.find(demi);
+				if(false !== instance) {
+					// Local instance, extend it with the new obj and return local.
+					_.extend(instance, r);
+					return instance;
 				}
 			}
-		}
+			this._instances[type][r.id()] = r;
+			this._new.push(r);
+			return r;
+		},
 
-		// If transaction is not empty
-		if(transaction.entities.length > 0) {
-			// Run the transaction
-			transaction.get(function(transaction){
-				// Merge the result sets, adding `gotten` things to `had` things.
-				_.each(transaction.entities, function(entity){
-					results.push(entity);
+		// Expand and intern a transaction.
+		expand: function (transaction) {
+			var self = this;
+			var entities = transaction.entities;
+
+			var ret = [];
+			_.each(entities, function(entity) {
+				var e = self.build(entity._type(), entity);
+				e = self.intern(e, true);
+				//Make the entity not new...
+				_.trigger(e, 'persisted');
+				ret.push(e);
+			});
+
+			transaction.entities = ret;
+			return ret;
+		},
+
+		// Prepare a new transaction
+		transaction: function(spec) {
+			spec = spec || [];
+
+			return new JEFRi.Transaction(spec, this._store);
+		},
+
+		// Return an interned entity from the local instance matching spec.
+		//
+		// Spec requires an _type property and the entity key, or specify the property UUID.
+		find: function(spec) {
+			if(typeof spec == "string") {
+				spec = {_type : spec};
+			}
+			var to_return = [];
+			var r = this.definition(spec._type);
+			var results = this._instances[spec._type];
+			var ret = false;
+
+			if(spec.hasOwnProperty(r.key)) {
+				// If a key is set, return only that result.
+				ret = results[spec[r.key]] || false;
+			} else if(spec.hasOwnProperty("UUID")) {
+				// If UUID is set, return only that result
+				ret = results[spec.UUID] || false;
+			}
+
+			// Add results to an array to clean up the return for the user.
+			_.each(results, function(result){
+				to_return.push(result);
+			});
+
+			return to_return || ret || false;
+		},
+
+		// Return a non-array of interned entities matching spec.
+		//
+		// If spec is an array with multiple elements, and ANY ONE matches, the
+		// result array will have only the matching entities. If NONE matches, the
+		// result array will have one entity per spec.
+		get: function(spec, callback) {
+			spec = (spec instanceof Array) ? spec : [spec];
+			return this.get_empty(spec).then(callback);
+		},
+
+		// Pass the spec to get, and just pop the first entity.
+		get_first: function(spec, callback) {
+			spec = (spec instanceof Array) ? spec : [spec];
+			var d = _.Deferred().then(callback);
+
+			this.get(spec).then(function(data, meta){
+				var _type = spec._type instanceof Function ?
+					spec._type() :
+					spec._type;
+				d.resolve(data[_type].pop(), meta);
+			});
+
+			return d.promise();
+		},
+
+		// Return a possibly empty array of entities matching the spec.
+		get_empty: function(spec, callback) {
+			spec = (spec instanceof Array) ? spec : [spec];
+			var self = this;
+			var results = {};
+			var transaction = this.transaction();
+			var deferred = _.Deferred().done(callback);
+
+			results.push = pushResult;
+
+			var q = spec.length, i;
+			for(i=0 ; i < q ; i++) {
+				//Add the queries
+				var _spec = spec[i],
+					_type = (_spec._type instanceof Function) ?
+						_spec._type() :
+						_spec._type;
+				var def = this.definition(_type);
+				var id = _spec[def.key];
+
+				//Check if the ID is set and exists locally
+				if( (undefined !== id) && this._instances[_type][id]) {
+					//It is local, so use that one
+					results.push(this._instances[_type][id]);
+				}
+				else {
+					//Otherwise, add to transaction
+					transaction.add(_spec);
+
+					if(this.hasOwnProperty("_page")) {
+						//Add the page to the meta
+						transaction.attributes({page : this._page});
+						delete this._page;
+	/*
+					TODO: If there are multiple specs, this will not work!
+					TODO: Need to figure out what a page means for multiple specs.
+					Page format: {on : 1, lines : 10, sort:[{'Type.field':order},{'Type.field':order}]}
+	*/
+					}
+				}
+			}
+
+			// If transaction is not empty
+			if(transaction.entities.length > 0) {
+				// Run the transaction
+				transaction.get(function(transaction){
+					// Merge the result sets, adding `gotten` things to `had` things.
+					_.each(transaction.entities, function(entity){
+						results.push(entity);
+					});
+					deferred.resolve(results, transaction.attributes);
 				});
-				deferred.resolve(results, transaction.attributes);
+			} else {
+				// just resolve...
+				deferred.resolve(results, {});
+			}
+			return deferred.promise();
+		},
+
+		// Save all the new entities.
+		save_new: function(store) {
+			var transaction = this.transaction();
+			_.trigger(this, 'saving');
+
+			//Add all new entities to the transaction
+			transaction.add(this._new);
+
+			return this._save(store, transaction);
+		},
+
+		// Save all entities with changes, including new entities.
+		save_all: function(callback) {
+			var transaction = this.transaction();
+			_.trigger(this, 'saving');
+
+			//Add all new entities to the transaction
+			// Modified is keyed by type...
+			_.each(this._modified, function(modified){
+				// ...and each key contains an object of entity instances
+				_.each(modified, function(entity) {
+					entity.persist(transaction);
+				});
 			});
-		} else {
-			// just resolve...
-			deferred.resolve(results, {});
+
+			_.each(this._new, function(neu){
+				this.persist(neu);
+			});
+
+			return transaction.persist(callback);
+		},
+
+		_save: function(store, transaction){
+			return store.execute('persist', transaction).then(
+				_.bind(this.expand, this)
+			);
+		},
+
+		// Returns transaction of all entities in local cache.
+		get_transaction_dump: function() {
+			var transaction = this.transaction();
+
+			//Add all entities to the transaction
+			// _instances is keyed by type...
+			_.each(this._instances, function(instance){
+				// ...and each key contains an object of entity instances
+				_.each(instance, function(entity) {
+					transaction.add(entity);
+				});
+			});
+
+			return transaction;
 		}
-		return deferred.promise();
-	};
-
-	// Save all the new entities.
-	JEFRi.Runtime.prototype.save_new = function(store) {
-		var transaction = this.transaction();
-		_.trigger(this, 'saving');
-
-		//Add all new entities to the transaction
-		transaction.add(this._new);
-
-		return this._save(store, transaction);
-	};
-
-	// Save all entities with changes, including new entities.
-	JEFRi.Runtime.prototype.save_all = function(callback) {
-		var transaction = this.transaction();
-		_.trigger(this, 'saving');
-
-		//Add all new entities to the transaction
-		// Modified is keyed by type...
-		_.each(this._modified, function(modified){
-			// ...and each key contains an object of entity instances
-			_.each(modified, function(entity) {
-				entity.persist(transaction);
-			});
-		});
-
-		_.each(this._new, function(neu){
-			this.persist(neu);
-		});
-
-		return transaction.persist(callback);
-	};
-
-	JEFRi.Runtime.prototype._save = function(store, transaction){
-		return store.execute('persist', transaction).then(
-			_.bind(this.expand, this)
-		);
-	};
-
-	// Returns transaction of all entities in local cache.
-	JEFRi.Runtime.prototype.get_transaction_dump = function() {
-		var transaction = this.transaction();
-
-		//Add all entities to the transaction
-		// _instances is keyed by type...
-		_.each(this._instances, function(instance){
-			// ...and each key contains an object of entity instances
-			_.each(instance, function(entity) {
-				transaction.add(entity);
-			});
-		});
-
-		return transaction;
-	};
-
+	});
 
 	// ### Transactions
 
