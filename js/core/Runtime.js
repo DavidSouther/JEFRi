@@ -4,6 +4,10 @@
 //     For all details and documentation:
 //     http://jefri.org
 
+
+(function(_, $){
+"use strict";
+
 // ### Underscore Utilities
 _.mixin({
 	// The default underscore indexOf uses a literal value; we often want to use an comparator.
@@ -20,7 +24,7 @@ _.mixin({
 	// Register a function to get called when a certain event is published.
 	on: function(obj, event, callback) {
 		// Use jQuery to handle DOM events.
-		if(_.isElement(obj) && jQuery){return jQuery(obj).on(event, callback); }
+		if(_.isElement(obj) && $){return $(obj).on(event, callback); }
 
 		// Use internal handler for pubsub
 		if(this.isString(obj)) {callback = event; event = obj; obj = this; }
@@ -33,7 +37,7 @@ _.mixin({
 	// Register a function that will be called a single time when the event is published.
 	once: function(obj, event, callback) {
 		// Use jQuery to handle DOM events.
-		if(_.isElement(obj) && jQuery){return jQuery(obj).one(event, callback); }
+		if(_.isElement(obj) && $){return $(obj).one(event, callback); }
 
 		var removeEvent = function() { _.removeEvent(obj, event); };
 		callback = _.compose(removeEvent, callback);
@@ -44,7 +48,7 @@ _.mixin({
 	// Publish an event, passing args to each function registered.
 	trigger: function(obj, event, args) {
 		// Use jQuery to handle DOM events.
-		if(_.isElement(obj) && jQuery){return jQuery(obj).trigger(event, callback); }
+		if(_.isElement(obj) && $){return $(obj).trigger(event, callback); }
 
 		// Use internal handler for pubsub
 		if(this.isString(obj)) {callback = event; event = obj; obj = this; }
@@ -61,7 +65,7 @@ _.mixin({
 	// Remove a certain callback from an event chain.
 	off: function(obj, event, callback) {
 		// Use jQuery to handle DOM events.
-		if(_.isElement(obj) && jQuery){ return jQuery(obj).off(event, callback); }
+		if(_.isElement(obj) && $){ return $(obj).off(event, callback); }
 
 		// Use internal handler for pubsub
 		if(this.isString(obj)) { event = obj; obj = this; }
@@ -74,28 +78,31 @@ _.mixin({
 	}
 
 });
-
-// ## JEFRi Namespace
-var JEFRi = {
-	// Compare two entities for equality. Entities are equal if they
-	// are of the same type and have equivalent IDs.
-	EntityComparator: function(a, b) {
-		var cmp =
-			a && b &&
-			a._type() === b._type() &&
-			a.id() === b.id();
-		return cmp;
-	},
-	//Duck type check if an object is an entity.
-	isEntity: function(obj){
-		return obj._type && obj.id &&
-			_.isFunction(obj._type) && _.isFunction(obj.id);
-	}
-};
+}).call(this, _, jQuery);
 
 (function(){
+	var root = this;
+
+	// ## JEFRi Namespace
+	root.JEFRi = {
+		// Compare two entities for equality. Entities are equal if they
+		// are of the same type and have equivalent IDs.
+		EntityComparator: function(a, b) {
+			var cmp =
+				a && b &&
+				a._type() === b._type() &&
+				a.id() === b.id();
+			return cmp;
+		},
+		//Duck type check if an object is an entity.
+		isEntity: function(obj){
+			return obj._type && obj.id &&
+				_.isFunction(obj._type) && _.isFunction(obj.id);
+		}
+	};
+
 	// ### Runtime Constructor
-	JEFRi.Runtime = function(contextUri, options, protos) {
+	root.JEFRi.Runtime = function(contextUri, options, protos) {
 		// Private variables we'll be using throughout the class.
 		var self = this;
 		var ec = this;
@@ -900,4 +907,4 @@ var JEFRi = {
 			return true;
 		};
 	};
-}(jQuery));
+}).call(this);
