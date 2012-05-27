@@ -556,7 +556,7 @@ _.mixin({
 
 			var ret = [];
 			_.each(entities, function(entity) {
-				var e = self.build(entity._type(), entity);
+				var e = self.build(entity._type, entity);
 				e = self.intern(e, true);
 				//Make the entity not new...
 				_.trigger(e, 'persisted');
