@@ -11,12 +11,13 @@
 			#@store = openDatabase(@settings.uri, @settings.version, "JEFRi LocalStore #{@settings.uri} (#{@settings.version})", @settings.size)
 
 		execute: (type, transaction) ->
-			_(@).trigger('sending', type, 'localStorage:', transaction, @)
+			transactionEvent = JSON.parse(transaction.toString())
+			_(@).trigger('sending', type, 'localStorage:', transactionEvent, @)
 			if (type == "persist")
 				persist(transaction)
 			else if (type == "get")
 				get(transaction)
-			$.Deferred().resolve(transaction);
+			$.Deferred().resolve(transactionEvent);
 
 		persist = (transaction) ->
 			transaction.entities = (_save(entity) for entity in transaction.entities)
