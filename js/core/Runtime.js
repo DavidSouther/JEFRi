@@ -4,7 +4,6 @@
 //     For all details and documentation:
 //     http://jefri.org
 
-
 (function(_, $){
 "use strict";
 
@@ -271,28 +270,18 @@ _.mixin({
 				_build_relationship(definition, relationship);
 			});
 
-			// encode passes this entity to the writer.
-			//
-			// Not so sure about this one any more...
-			definition.Constructor.prototype.encode = function(writer) {
-				var self = this;
+			// Encode returns the bare object.
+			definition.Constructor.prototype._encode = function() {
+				var self = this, min = {};
+
+				min._type = this._type();
 
 				//Add all the properties to the writer.
 				_.each(definition.properties, function(property){
-					writer.add_property(self, property.name, self[property.name]);
+					min[property.name] = self[property.name]();
 				});
 
-				_.each(definition.relationships, function(rel){
-					//Add navigated entities to the writer.
-					var others = self['get_' + rel]();
-					if("has_many" == this.type) {
-						_.each(others, function(){
-							writer.add_entity(this);
-						});
-					} else {
-						writer.add_entity(others);
-					}
-				});
+				return min;
 			};
 
 			if(proto) {_.extend(definition.Constructor.prototype, proto.prototype);}
@@ -766,41 +755,34 @@ _.mixin({
 			transaction.attributes = this.attributes;
 			transaction.entities = [];
 			_.each(this.entities, function(entity) {
-				var self = entity;
-				var ent = {};
-				ent._type = this._type instanceof Function ?
-					entity._type() :
-					entity._type;
-				if(entity.__new) {
-					//Only set if actually new.
-					ent.__new = entity.__new;
-				}
-				var def = store.ec.definition(ent._type);
+				// var self = entity;
+				var ent = entity._encode();
+				// var def = store.ec.definition(ent._type);
 //TODO make this smarter
-				_.each(def.properties, function(property){
-					var value =
-						self[property.name] instanceof Function ?
-							self[property.name]() :
-							self[property.name];
-					if(value instanceof String) {
-						value = value
-							.replace(/\\n/g, "\\n")
-							.replace(/\\'/g, "\\'")
-							.replace(/\\"/g, '\"')
-							.replace(/\\&/g, "\\&")
-							.replace(/\\r/g, "\\r")
-							.replace(/\\t/g, "\\t")
-							.replace(/\\b/g, "\\b")
-							.replace(/\\f/g, "\\f");
-					}
-					ent[property.name] = value;
-				});
-				_.each(def.relationships, function(relationship){
-					if(self[relationship.name]) {
-						//Add the relationships to the get
-						ent[relationship.name] = self[relationship.name];
-					}
-				});
+				// _.each(def.properties, function(property){
+				// 	var value =
+				// 		self[property.name] instanceof Function ?
+				// 			self[property.name]() :
+				// 			self[property.name];
+				// 	if(value instanceof String) {
+				// 		value = value
+				// 			.replace(/\\n/g, "\\n")
+				// 			.replace(/\\'/g, "\\'")
+				// 			.replace(/\\"/g, '\"')
+				// 			.replace(/\\&/g, "\\&")
+				// 			.replace(/\\r/g, "\\r")
+				// 			.replace(/\\t/g, "\\t")
+				// 			.replace(/\\b/g, "\\b")
+				// 			.replace(/\\f/g, "\\f");
+				// 	}
+				// 	ent[property.name] = value;
+				// });
+				// _.each(def.relationships, function(relationship){
+				// 	if(self[relationship.name]) {
+				// 		//Add the relationships to the get
+				// 		ent[relationship.name] = self[relationship.name];
+				// 	}
+				// });
 				transaction.entities.push(ent);
 			});
 			return JSON.stringify(transaction);
@@ -836,6 +818,7 @@ _.mixin({
 		spec = (spec instanceof Array)?spec:[spec];
 		var ents = this.entities;
 		_.each(spec, function(s) {
+			// TODO switch to direct lookup.
 			if(_.indexBy(ents, _.bind(JEFRi.EntityComparator, s)) < 0) {
 				//Hasn't been added yet...
 				ents.push(s);
