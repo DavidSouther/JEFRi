@@ -656,12 +656,11 @@ context.
 		\returns{A reference to this entity.}
 	}
 
-\method{encode}{writer}{Entity}
-	{Pass the {\ilcode entity}, its properties, and its navigation properties to
-		the transaction writer.}
+\method{encode}{}{raw object}
+	{Return a stripped representation of the object that is suitable to add to
+	a data structure to be stringified.}
 	{
-		\param{writer}{Writer that is visiting this entity.}
-		\returns{A reference to this entity.}
+		\returns{A raw object with only the serializable parts of the entity.}
 	}
 
 \subsubsection{Events}
