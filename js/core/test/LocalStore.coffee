@@ -12,7 +12,7 @@ $(document).ready( ->
 
 			store = new JEFRi.LocalStore
 			runtime.save_new(store).then((transaction)->
-				ok(_.intersect(_.keys(transaction), ["entities", "attributes"]).length == 0, "Transaction has unknown keys.");
+				ok(_.difference(_.keys(transaction), ["entities", "attributes"]).length == 0, "Transaction has unknown keys.");
 				ok(transaction.entities.length == 2, "Transaction should only have 2 entities.");
 				start();
 			)
