@@ -505,7 +505,8 @@ _.mixin({
 			var ret;
 			if(updateOnIntern) {
 				//Merge the given entity into the stored entity.
-				ret = _.extend(this._instances[entity._type()][entity.id()] || {}, entity);
+				ret = this._instances[entity._type()][entity.id()] || entity;
+				_.extend(ret.__fields, entity.__fields);
 			} else {
 				//Take the stored one if possible, otherwise use the given entity.
 				ret = this._instances[entity._type()][entity.id()] || entity;
@@ -532,7 +533,7 @@ _.mixin({
 			obj = obj || {};
 			// We are going to build the new entity first, then, if there is a local
 			// instance, we will extend the local instance with the new instance.
-			var r = new this._context.entities[type].Constructor(obj);
+			var r = new def.Constructor(obj);
 			if(undefined !== obj[def.key]) {
 				// If the entity key is specified in obj, check the local storage.
 				var demi = {_type : type};
@@ -540,7 +541,8 @@ _.mixin({
 				var instance = this.find(demi);
 				if(false !== instance) {
 					// Local instance, extend it with the new obj and return local.
-					_.extend(instance, r);
+					instance = instance[0];
+					_.extend(instance.__fields, r.__fields);
 					return instance;
 				}
 			}
