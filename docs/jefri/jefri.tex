@@ -631,25 +631,30 @@ context.
 		\returns{The entity type.}
 	}
 
-\method{get\_`name'}{}{Entity}
-	{Follow a navigation property. If the relationship is an {\ilcode is\_a},
+\method{get}{name}{value|Entity|[Entity...]}
+	{Follow a navigation property or look up a property. If key refers to a
+	property, return its current value. If the relationship is an {\ilcode is\_a},
 	return an instance of the {\ilcode to} type. If the relationship is a
 	{\ilcode has\_a}, return a (possibly new) instance of the {\ilcode to} type.
 	If the relationship is a {\ilcode has\_many}, return a (possibly empty)
-	array of entities of the {\ilcode to} type.}
+	array of entities of the {\ilcode to} type. If there is a property and
+	a relationship with the same name, look up the relationship.}
 	{
-		\returns{A the navigated entity, or an array of the navigated entity.}
+		\returns{The property value, the navigated entity, or an array of the
+		navigated entity.}
 	}
 
-\method{set\_`name'}{to\_entity}{Entity}
-	{Set the {\ilcode has\_a} navigation property. Correctly updates
-	each entities' navigation property values.}
+\method{set}{name, value}{Entity}
+	{Set the property or {\ilcode has\_a} navigation property. Correctly updates
+	each entities' navigation property values. If there is a property and a
+	relationship with the same name, look up the relationship.}
 	{
-		\param{to\_entity}{New entity for a {\ilcode has\_a} relationship.}
+		\param{to\_entity}{New entity for a property or {\ilcode has\_a}
+		relationship.}
 		\returns{A reference to this entity.}
 	}
 
-\method{add\_`name'}{to\_entity}{Entity}
+\method{add}{name, to\_entity}{Entity}
 	{Add to the {\ilcode has\_many} array.}
 	{
 		\param{to\_entity}{New entity to add to the {\ilcode has\_many list.}}
