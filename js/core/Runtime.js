@@ -11,6 +11,7 @@
 _.mixin({
 	// The default underscore indexOf uses a literal value; we often want to use an comparator.
 	indexBy: function(list, func) {
+		list = list || []; func = func || function(){return false;};
 		for (var i = 0, l = list.length; i < l; i++) {
 			if (func(list[i])) return i;
 		}
@@ -182,6 +183,7 @@ _.mixin({
 					this.__new = true;
 					this.__modified = {};
 					this.__fields = {};
+					this.__relationships = {};
 					proto = proto || {};
 
 					// Set a bunch of default values, so they're all available.
@@ -201,7 +203,7 @@ _.mixin({
 					_.on(this, 'persisted', _.bind(function(){
 						this.__new = false;
 						this.__modified = {
-							_count: 0
+							__count: 0
 						};
 						ec._new = _.remove(ec._new, _.bind(JEFRi.EntityComparator, null, a));
 						ec._modified.remove(this, JEFRi.EntityComparator);
@@ -306,9 +308,9 @@ _.mixin({
 							if(this.__modified[field] === value) {
 								// Setting it back to the old value...
 								delete this.__modified[field];
-								this.__modified._count -= 1;
+								this.__modified.__count -= 1;
 							}
-							if(this.__modified._count === 0) {
+							if(this.__modified.__count === 0) {
 								// If it was the last property, remove from the context's modified list.
 								ec._modified.remove(this);
 							}
@@ -342,25 +344,25 @@ _.mixin({
 					spec[relationship.to.property] = this[relationship.property]();
 					this[field] = ec[get](spec);*/
 				}
-				if(undefined === this[field]) {
+				if(undefined === this.__relationships[field]) {
 					// The field hasn't been set, so we haven't ever gotten this relationship before.
 					// We'll need to go through and fix that.
 					if ("has_many" === relationship.type) {
 						// We'll need to grab everything who points to us...
 						var self = this;
-						this[field] = [];
+						this.__relationships[field] = [];
 						_.each(ec._instances[relationship.to.type], function(type){
 							if(type[relationship.to.property]() === self[relationship.property]()) {
 								// Add it
-								self[field].push(this);
+								self.__relationships[field].push(this);
 							}
 						});
 					} else {
 						// Just need the one...
-						this[field] = ec._instances[relationship.to.type][this[relationship.property]()];
+						this.__relationships[field] = ec._instances[relationship.to.type][this[relationship.property]()];
 					}
 				}
-				return this[field];
+				return this.__relationships[field];
 			};
 
 			if("has_many" === relationship.type) {
@@ -374,15 +376,15 @@ _.mixin({
 						return this;
 					}
 
-					if(undefined === this[field]) {
+					if(undefined === this.__relationships[field]) {
 						//Lazy load
 						var load = "get" + field;
 						this[load]();
 					}
 
-					if(_.indexBy(this[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
+					if(_.indexBy(this.__relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
 						//The entity is _NOT_ in this' array.
-						this[field].push(entity);
+						this.__relationships[field].push(entity);
 
 						//Call the reverse setter
 						//Need to find the back relationship...
@@ -403,7 +405,7 @@ _.mixin({
 					var id = entity[relationship.to.property]();
 					if( id !== this[relationship.property]()) {
 						//Changing
-						this[field] = entity;
+						this.__relationships[field] = entity;
 						this[relationship.property](id);
 						if( "is_a" !== relationship.type ) {
 							//Add or set this to the remote entity
