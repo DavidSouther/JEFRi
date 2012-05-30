@@ -1,0 +1,27 @@
+{
+  "name": "jefri",
+  "title": "JEFRi: Entity Framework Runtime",
+  "homepage": "http://www.jefri.org",
+  "version": "0.1.0",
+  "author": {
+    "name": "David Souther",
+    "email": "<davidsouther@gmail.com>"
+  },
+  "description": "A full-featured entity framework for javascript.",
+  "contributors": [
+    {
+      "name": "Jonathan Porta",
+      "email": "jonathan@jonathanporta.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidSouther/JEFRi.git"
+  },
+  "keywords": [
+    "ef",
+    "entity",
+    "entity framework"
+  ],
+  "licenses": [{"type": "BSD"}]
+}

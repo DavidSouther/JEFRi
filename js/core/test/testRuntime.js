@@ -1,6 +1,11 @@
-$(document).ready(function(){
+/*global QUnit:false, module:false, test:false, asyncTest:false, expect:false*/
+/*global start:false, stop:false ok:false, equal:false, notEqual:false, deepEqual:false*/
+/*global notDeepEqual:false, strictEqual:false, notStrictEqual:false, raises:false*/
+/*global jQuery:false, JEFRi:false, isLocal:false*/
 
-var testDone = (function(){
+(function($){
+
+var testDone = function(){
 	var tests = 3;
 	return function(){
 		test--;
@@ -8,7 +13,7 @@ var testDone = (function(){
 
 		}
 	};
-});
+};
 
 module("Entity Context", {
 	teardown: function(){
@@ -62,4 +67,4 @@ test("Transaction Prototype", function(){
 	ok(t.persist, "JEFRi.Transaction::persist");
 });
 
-});
+}(jQuery));

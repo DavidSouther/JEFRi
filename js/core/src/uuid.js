@@ -1,27 +1,26 @@
 /**
  * Renamespaced to be UUID class by David Souther, 2011
  */
-//TODO move this to a separate file, and make it a class that can handle itself
-//as either strings or (preferably) ints.
+
+(function(){
 
 // Build several namespaces, globally...
-var UUID = {};
-var Sha1 = {};
-var Utf8 = {};
+var UUID = this.UUID = {};
+var Sha1 = this.Sha1 = {};
+var Utf8 = this.Utf8 = {};
 
-(function(){	//Closure for privates.
 
 UUID.rvalid = /^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i;
 
 UUID.v4 = function() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+		var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
 		return v.toString(16);
 	});
 };
 
 UUID.v5 = function(msg, namespace) {
-	nst = bin(namespace || '00000000-0000-0000-0000-000000000000');
+	var nst = bin(namespace || '00000000-0000-0000-0000-000000000000');
 
 	var hash = Sha1.hash(nst + msg, true);
 	var uuid =  hash.substring(0, 8) +	//8 digits
@@ -43,11 +42,11 @@ UUID.v5 = function(msg, namespace) {
 var bin = function(uuid) {
 	if ( ! uuid.match(UUID.rvalid))
 	{	//Need a real UUID for this...
-		return FALSE;
+		return false;
 	}
 
 	// Get hexadecimal components of uuid
-	var hex = uuid.replace(/[-{}]/g, '');
+	var hex = uuid.replace(/[\-{}]/g, '');
 
 	// Binary Value
 	var bin = '';
@@ -76,10 +75,11 @@ var bin = function(uuid) {
  * @returns {String}                  Hash of msg as hex character string
  */
 Sha1.hash = function(msg, utf8encode) {
-	utf8encode =  (typeof utf8encode == 'undefined') ? true : utf8encode;
+	var i, t;
+	utf8encode =  (typeof utf8encode === 'undefined') ? true : utf8encode;
 
 	// convert string to UTF-8, as SHA only deals with byte-streams
-	if (utf8encode) msg = Utf8.encode(msg);
+	if (utf8encode){ msg = Utf8.encode(msg); }
 
 	// constants [§4.2.1]
 	var K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
@@ -93,7 +93,7 @@ Sha1.hash = function(msg, utf8encode) {
 	var N = Math.ceil(l/16);   // number of 16-integer-blocks required to hold 'l' ints
 	var M = new Array(N);
 
-	for (var i=0; i<N; i++) {
+	for (i=0; i<N; i++) {
 		M[i] = new Array(16);
 		for (var j=0; j<16; j++) {  // encode 4 chars per integer, big-endian encoding
 			M[i][j] = (msg.charCodeAt(i*64+j*4)<<24) | (msg.charCodeAt(i*64+j*4+1)<<16) |
@@ -116,17 +116,17 @@ Sha1.hash = function(msg, utf8encode) {
 	// HASH COMPUTATION [§6.1.2]
 
 	var W = new Array(80); var a, b, c, d, e;
-	for (var i=0; i<N; i++) {
+	for (i=0; i<N; i++) {
 
 		// 1 - prepare message schedule 'W'
-		for (var t=0;  t<16; t++) W[t] = M[i][t];
-		for (var t=16; t<80; t++) W[t] = Sha1.ROTL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
+		for (t=0;  t<16; t++){ W[t] = M[i][t]; }
+		for (t=16; t<80; t++){ W[t] = Sha1.ROTL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); }
 
 		// 2 - initialise five working variables a, b, c, d, e with previous hash value
 		a = H0; b = H1; c = H2; d = H3; e = H4;
 
 		// 3 - main loop
-		for (var t=0; t<80; t++) {
+		for (t=0; t<80; t++) {
 			var s = Math.floor(t/20); // seq for blocks of 'f' functions and 'K' constants
 			var T = (Sha1.ROTL(a,5) + Sha1.f(s,b,c,d) + e + K[s] + W[t]) & 0xffffffff;
 			e = d;
@@ -234,6 +234,6 @@ Utf8.decode = function(strUtf) {
 				return String.fromCharCode(cc); }
 		);
 	return strUni;
-}
+};
 
-})();
+}.call(this));

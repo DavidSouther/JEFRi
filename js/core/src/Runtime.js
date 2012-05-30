@@ -13,7 +13,7 @@ _.mixin({
 	indexBy: function(list, func) {
 		list = list || []; func = func || function(){return false;};
 		for (var i = 0, l = list.length; i < l; i++) {
-			if (func(list[i])) return i;
+			if (func(list[i])){ return i; }
 		}
 		return -1;
 	},
@@ -29,8 +29,8 @@ _.mixin({
 		// Use internal handler for pubsub
 		if(this.isString(obj)) {callback = event; event = obj; obj = this; }
 
-		if(this.isUndefined(obj.__event_handlers)) obj.__event_handlers = {};
-		if (!(event in obj.__event_handlers)) obj.__event_handlers[event] = [];
+		if(this.isUndefined(obj.__event_handlers)){ obj.__event_handlers = {}; }
+		if (!(event in obj.__event_handlers)){ obj.__event_handlers[event] = []; }
 		obj.__event_handlers[event].push(callback);
 		return this;
 	},
@@ -53,7 +53,7 @@ _.mixin({
 		// Use internal handler for pubsub
 		if(this.isString(obj)) {args = event; event = obj; obj = this; }
 
-		if(this.isUndefined(obj._events)) return;
+		if(this.isUndefined(obj._events)){ return; }
 		if (event in obj.__event_handlers) {
 			var events = obj.__event_handlers[event].concat();
 			for (var i = 0, ii = events.length; i < ii; i++) {
@@ -70,7 +70,7 @@ _.mixin({
 		// Use internal handler for pubsub
 		if(this.isString(obj)) { event = obj; obj = this; }
 
-		if(this.isUndefined(obj.__event_handlers)) return;
+		if(this.isUndefined(obj.__event_handlers)){ return; }
 		obj.__event_handlers = _.filter(obj.__event_handlers, function(cb){
 			return (cb.toString() === callback.toString());// TODO Make this smarter
 		});
@@ -78,9 +78,9 @@ _.mixin({
 	}
 
 });
-}).call(this, _, jQuery);
+}.call(this, _, jQuery));
 
-(function(){
+(function(_, $){
 	var root = this;
 
 	// ## JEFRi Namespace
@@ -205,7 +205,8 @@ _.mixin({
 						this.__modified = {
 							__count: 0
 						};
-						ec._new = _.remove(ec._new, _.bind(JEFRi.EntityComparator, null, a));
+						//TODO remove this from the _new array.
+						//ec._new = _.remove(ec._new, _.bind(JEFRi.EntityComparator, null, a));
 						ec._modified.remove(this, JEFRi.EntityComparator);
 					}, ec._context.entities[definition.name]));
 				};
@@ -439,9 +440,9 @@ _.mixin({
 				dataType: "text"
 			}).done(
 				function(data) {
-					if(!data) throw {
+					if(!data){throw {
 						message: "Context loaded, but invalid."
-					};
+					};}
 					data = JSON.parse(data);
 					_set_context(data, protos);
 					ready.resolve();
@@ -472,7 +473,7 @@ _.mixin({
 
 		// Get the definition of an entity type.
 		definition: function(name) {
-			name = (typeof name == "string") ? name : name._type();
+			name = (typeof name === "string") ? name : name._type();
 
 			return this._context.entities[name];
 		},
@@ -582,7 +583,7 @@ _.mixin({
 		//
 		// Spec requires an _type property and the entity key, or specify the property UUID.
 		find: function(spec) {
-			if(typeof spec == "string") {
+			if(typeof spec === "string") {
 				spec = {_type : spec};
 			}
 			var to_return = [];
@@ -761,32 +762,6 @@ _.mixin({
 			_.each(this.entities, function(entity) {
 				// var self = entity;
 				var ent = entity._encode();
-				// var def = store.ec.definition(ent._type);
-//TODO make this smarter
-				// _.each(def.properties, function(property){
-				// 	var value =
-				// 		self[property.name] instanceof Function ?
-				// 			self[property.name]() :
-				// 			self[property.name];
-				// 	if(value instanceof String) {
-				// 		value = value
-				// 			.replace(/\\n/g, "\\n")
-				// 			.replace(/\\'/g, "\\'")
-				// 			.replace(/\\"/g, '\"')
-				// 			.replace(/\\&/g, "\\&")
-				// 			.replace(/\\r/g, "\\r")
-				// 			.replace(/\\t/g, "\\t")
-				// 			.replace(/\\b/g, "\\b")
-				// 			.replace(/\\f/g, "\\f");
-				// 	}
-				// 	ent[property.name] = value;
-				// });
-				// _.each(def.relationships, function(relationship){
-				// 	if(self[relationship.name]) {
-				// 		//Add the relationships to the get
-				// 		ent[relationship.name] = self[relationship.name];
-				// 	}
-				// });
 				transaction.entities.push(ent);
 			});
 			return JSON.stringify(transaction);
@@ -795,11 +770,12 @@ _.mixin({
 
 	// Execute the transaction as a GET request
 	JEFRi.Transaction.prototype.get = function(store) {
+		var d = new _.Deffered();
 		_.trigger(this, 'getting');
 		_.one(this, 'gotten', function(e, data){d.resolve(data);});
 		// return
 		if( this.store ) { this.store.get(this); }
-
+		return d.promise();
 	};
 
 	// Execute the transaction as a POST request
@@ -857,7 +833,7 @@ _.mixin({
 				url     : url,
 				data    : transaction.toString(),
 				dataType: "json"
-			}).then(
+			}).done(
 				function(data) {
 /*                  console.log("Logging success", data);*/
 					//Always updateOnIntern
@@ -865,9 +841,6 @@ _.mixin({
 					_.trigger(self, 'sent', data);
 					_.trigger(self, post, data);
 					_.trigger(transaction, post, data);
-				},
-				function(data){
-					console.log("Logging error", data);
 				}
 			);
 		};
@@ -895,4 +868,4 @@ _.mixin({
 			return true;
 		};
 	};
-}).call(this);
+}.call(this, _, jQuery));
