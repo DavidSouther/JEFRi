@@ -58,5 +58,5 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-coffee');
 
-	grunt.registerTask('default', 'lint coffee concat min');
+	grunt.registerTask('default', 'coffee concat min');
 };
