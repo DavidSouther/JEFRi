@@ -11,7 +11,7 @@ test("Unit Testing Environment", function () {
 });
 
 asyncTest("Context", function() {
-	var runtime = new JEFRi.Runtime("/context.json");
+	var runtime = new JEFRi.Runtime("../context.json");
 	runtime.ready.done(function(){
 		ok(runtime._context.entities, "Has entities.");
 
