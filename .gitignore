@@ -1,1 +1,4 @@
 *.pdf
+node_modules
+dist
+coffee
