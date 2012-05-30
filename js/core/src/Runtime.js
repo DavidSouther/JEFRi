@@ -1,4 +1,4 @@
-//     JEFRi Runtime.js 1.0.1
+//     JEFRi Runtime.js 0.1.0
 //     (c) 2011-2012 David Souther
 //     JEFRi is freely distributable under the MIT license.
 //     For all details and documentation:
