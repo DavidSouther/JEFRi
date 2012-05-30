@@ -23,5 +23,5 @@
     "entity",
     "entity framework"
   ],
-  "licenses": [{"type": "BSD"}]
+  "licenses": [{"type": "MIT"}]
 }
