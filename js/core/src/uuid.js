@@ -1,6 +1,8 @@
-/**
- * Renamespaced to be UUID class by David Souther, 2011
- */
+//     JEFRi UUID.js 1.0.1
+//     (c) 2011-2012 David Souther
+//     JEFRi is freely distributable under the MIT license.
+//     For all details and documentation:
+//     http://jefri.org
 
 (function(){
 
@@ -33,12 +35,10 @@ UUID.v5 = function(msg, namespace) {
 	return uuid;
 };
 
-/**
- * Convert a string UUID to binary format.
- *
- * @param   string  uuid
- * @return  string
- */
+// Convert a string UUID to binary format.
+//
+// @param   string  uuid
+// @return  string
 var bin = function(uuid) {
 	if ( ! uuid.match(UUID.rvalid))
 	{	//Need a real UUID for this...
@@ -59,21 +59,18 @@ var bin = function(uuid) {
 	return bin;
 };
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/*  SHA-1 implementation in JavaScript | (c) Chris Veness 2002-2010 | www.movable-type.co.uk      */
-/*   - see http://csrc.nist.gov/groups/ST/toolkit/secure_hashing.html                             */
-/*         http://csrc.nist.gov/groups/ST/toolkit/examples.html                                   */
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+//  SHA-1 implementation in JavaScript | (c) Chris Veness 2002-2010
+//             | www.movable-type.co.uk/scripts/sha256.html
+//   - see http://csrc.nist.gov/groups/ST/toolkit/secure_hashing.html
+//         http://csrc.nist.gov/groups/ST/toolkit/examples.html
 
 //var Sha1 = {};  // Sha1 namespace
 
-/**
- * Generates SHA-1 hash of string
- *
- * @param {String} msg                String to be hashed
- * @param {Boolean} [utf8encode=true] Encode msg as UTF-8 before generating hash
- * @returns {String}                  Hash of msg as hex character string
- */
+// Generates SHA-1 hash of string
+//
+// @param {String} msg                String to be hashed
+// @param {Boolean} [utf8encode=true] Encode msg as UTF-8 before generating hash
+// @returns {String}                  Hash of msg as hex character string
 Sha1.hash = function(msg, utf8encode) {
 	var i, t;
 	utf8encode =  (typeof utf8encode === 'undefined') ? true : utf8encode;
@@ -179,22 +176,18 @@ Sha1.toHexStr = function(n) {
 };
 
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/*  Utf8 class: encode / decode between multi-byte Unicode characters and UTF-8 multiple          */
-/*              single-byte character encoding (c) Chris Veness 2002-2010                         */
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+//  Utf8 class: encode / decode between multi-byte Unicode characters and UTF-8 multiple
+//              single-byte character encoding (c) Chris Veness 2002-2010
 
 //var Utf8 = {};  // Utf8 namespace
 
-/**
- * Encode multi-byte Unicode string into utf-8 multiple single-byte characters
- * (BMP / basic multilingual plane only)
- *
- * Chars in range U+0080 - U+07FF are encoded in 2 chars, U+0800 - U+FFFF in 3 chars
- *
- * @param {String} strUni Unicode string to be encoded as UTF-8
- * @returns {String} encoded string
- */
+// Encode multi-byte Unicode string into utf-8 multiple single-byte characters
+// (BMP / basic multilingual plane only)
+//
+// Chars in range U+0080 - U+07FF are encoded in 2 chars, U+0800 - U+FFFF in 3 chars
+//
+// @param {String} strUni Unicode string to be encoded as UTF-8
+// @returns {String} encoded string
 Utf8.encode = function(strUni) {
 	// use regular expressions & String.replace callback function for better efficiency
 	// than procedural approaches
@@ -213,12 +206,10 @@ Utf8.encode = function(strUni) {
 	return strUtf;
 };
 
-/**
- * Decode utf-8 encoded string back into multi-byte Unicode characters
- *
- * @param {String} strUtf UTF-8 string to be decoded back to Unicode
- * @returns {String} decoded string
- */
+// Decode utf-8 encoded string back into multi-byte Unicode characters
+//
+// @param {String} strUtf UTF-8 string to be decoded back to Unicode
+// @returns {String} decoded string
 Utf8.decode = function(strUtf) {
 	// note: decode 3-byte chars first as decoded 2-byte strings could appear to be 3-byte char!
 	var strUni = strUtf.replace(
