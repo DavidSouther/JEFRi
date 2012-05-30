@@ -18,7 +18,7 @@ module.exports = function(grunt) {
 		coffee: {
 			app: {
 				src: ['src/**/*.coffee'],
-				dest: 'coffee/'
+				dest: 'dist/coffee/'
 			}
 		},
 		docco: {
@@ -26,7 +26,7 @@ module.exports = function(grunt) {
 		},
 		concat: {
 			dist: {
-				src: ['<banner:meta.banner>', 'src/**/*.js', 'coffee/**/*.js'],
+				src: ['<banner:meta.banner>', 'src/**/*.js', 'dist/coffee/**/*.js'],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
