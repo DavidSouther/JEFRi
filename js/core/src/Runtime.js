@@ -75,12 +75,53 @@ _.mixin({
 			return (cb.toString() === callback.toString());// TODO Make this smarter
 		});
 		return this;
-	}
+	},
+	ajax: function (options){
+		var xhr, d = _.Deferred();
+		// Nice clean way to get an xhr
+		xhr = new (window.ActiveXObject || XMLHttpRequest)('Microsoft.XMLHTTP');
+		xhr.open(options.type || 'GET', options.url, true);
+		if ('overrideMimeType' in xhr) {
+			xhr.overrideMimeType(options.dataType || 'text/plain');
+		}
+		xhr.onreadystatechange = function() {
+			var _ref;
+			if (xhr.readyState === 4) {
+				if ((_ref = xhr.status) === 0 || _ref === 200) {
+					d.resolve(xhr.responseText);
+				} else {
+					d.reject(new Error("Could not load " + options.url));
+				}
+				return;
+			}
+			d.notify(xhr);
+		};
 
+		if(options.data){
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.setRequestHeader("Content-length", options.data.length);
+			xhr.setRequestHeader("Connection", "close");
+		}
+
+		xhr.send(options.data || null);
+
+		return d.promise();
+	},
+	get: function(url, options){
+		options.url = url;
+		options.type = 'GET';
+		options.data = null;
+		return _.ajax(options);
+	},
+	post: function(url, options){
+		options.url = url;
+		options.type = 'POST';
+		return _.ajax(options);
+	}
 });
 }.call(this, _, jQuery));
 
-(function(_, $){
+(function(_){
 	var root = this;
 
 	// ## JEFRi Namespace
@@ -432,12 +473,9 @@ _.mixin({
 		if(options && options.debug) {
 			_set_context(options.debug.context, protos);
 		} else if(!this.settings.contextUri) {
-
 		} else {
-			$.ajax({
-				type    : "GET",
-				url     : this.settings.contextUri,
-				dataType: "text"
+			_.get(this.settings.contextUri, {
+				dataType: "application/json"
 			}).done(
 				function(data) {
 					if(!data){throw {
@@ -828,11 +866,9 @@ _.mixin({
 			_.trigger(transaction, pre);
 			_.trigger(self, pre, transaction);
 			_.trigger(self, 'sending', transaction);
-			return $.ajax({
-				type    : "POST",
-				url     : url,
+			return _.post(url, {
 				data    : transaction.toString(),
-				dataType: "json"
+				dataType: "application/json"
 			}).done(
 				function(data) {
 /*                  console.log("Logging success", data);*/

@@ -26,6 +26,11 @@ test("Unit Testing Environment", function () {
 	ok( !isLocal, "Unit tests shouldn't be run from file://, especially in Chrome. If you must test from file:// with Chrome, run it with the --allow-file-access-from-files flag!" );
 });
 
+test("Underscore utils", function(){
+	ok(_.on && _.once && _.off && _.trigger, "Underscore has additional pubsub?");
+	ok(_.ajax && _.get && _.post, "Does Underscore have additional ajax?");
+});
+
 test("Runtime Prototype", function() {
 	ok(JEFRi.Runtime, "JEFRi Runtime is available.");
 	var runtime = new JEFRi.Runtime();
