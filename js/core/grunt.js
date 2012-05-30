@@ -18,12 +18,12 @@ module.exports = function(grunt) {
 		coffee: {
 			app: {
 				src: ['src/**/*.coffee'],
-				dest: 'coffee/'
+				dest: 'dist/coffee/'
 			}
 		},
 		concat: {
 			dist: {
-				src: ['<banner:meta.banner>', 'src/uuid.js', 'src/Runtime.js', 'coffee/**/*.js'],
+				src: ['<banner:meta.banner>', 'src/uuid.js', 'src/Runtime.js', 'dist/coffee/**/*.js'],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
