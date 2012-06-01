@@ -4,6 +4,21 @@
 # For all details and documentation:
 # http://jefri.org
 
+((($) ->
+	$.fn.merge = (doms) ->
+		doms.each (i, dom) =>
+			dom = $(dom)
+			child = this.children("#" + dom.attr("id"))
+			if child.length is 0
+				this.append(dom.remove())
+			else
+				child.merge(dom.children())
+				# dom.children removed, replace kids
+				this.children(":not([id])").remove()
+				this.append(dom.children().remove())
+		this
+).call(this, jQuery))
+
 (((_, $, JEFRi)->
 	# A deferred to handle Binding's ready state.
 	ready = $.Deferred()
@@ -21,7 +36,7 @@
 
 	# Add a new root block to our templates.
 	mergeTemplate = (html) ->
-		template.append($(html))
+		template.merge($(html))
 
 	# Load several templates
 	loadTemplates = (templates) ->
