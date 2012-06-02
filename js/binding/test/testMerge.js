@@ -11,7 +11,7 @@ test("Unit Testing Environment", function () {
 });
 
 test("Merge", function (){
-	var base, q = "<div><span class='d'></span></div>", a = "<div id='a'><div id='b'></div></div>", b = "<div id='a'><div id='c'></div><span class='e'></span></div>";
+	var base, q = "<div><span class='d'></span></div>", a = "<div id='a'><div id='b'></div></div>", b = "<div id='a'><div id='c'></div></div><span class='e'></span>";
 	base = $(q);
 	ok($.fn.merge, "jQuery has no DOM Merge plugin.");
 	ok(base.merge($(a)).children("div").length === 1, "Appended first merge attempt.");
