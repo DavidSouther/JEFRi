@@ -14,7 +14,9 @@ asyncTest("Binding", function (){
 	ok(JEFRi.Binding, "JEFRi Binding never defined.");
 	ok(JEFRi.Binding.init, "Can't initialize JEFRi Binding.");
 	ok(JEFRi.Binding.ready, "Can't hook to Binding's ready.");
-	JEFRi.Binding.ready.done(function(){
+	JEFRi.Binding.init({
+		templates: ["../src/binding.html", "./testBindings.html"]
+	}).done(function(){
 		ok(JEFRi.Binding.templates, "Templates not ready.");
 		ok(JEFRi.Binding.templates().find("#_default_theme").length, "Templates didn't load.");
 		ok(JEFRi.Binding.find, "Can't use binding template finder.");
@@ -27,8 +29,18 @@ asyncTest("Binding", function (){
 		ok(JEFRi.Binding.find("..User.MISSINGPROPERTY.list").length, "Can't find missing property view.");
 		start();
 	});
-	JEFRi.Binding.init({
+});
+
+asyncTest("Templating", function (){
+	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+	var init = JEFRi.Binding.init({
 		templates: ["../src/binding.html", "./testBindings.html"]
+	});
+	_.when(runtime.ready, init).done(function(){
+		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
+		var view = JEFRi.Binding.render(user);
+		ok(view.length, "Render basic view.");
+		start();
 	});
 });
 
