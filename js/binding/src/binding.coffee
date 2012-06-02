@@ -16,7 +16,7 @@
 				child.merge(dom.children())
 			null
 		rest = doms.filter(":not([id])")
-		#[id]s removed, replace kids
+		#[id]s handled, replace kids
 		if rest.length
 			this.children(":not([id])").remove()
 			this.append(rest)
@@ -24,9 +24,6 @@
 ).call(this, jQuery))
 
 (((_, $, JEFRi)->
-	# A deferred to handle Binding's ready state.
-	ready = $.Deferred()
-
 	# Global Binding settings.
 	settings = {
 		paths : {
@@ -36,7 +33,11 @@
 	}
 
 	# Detached DOM node to hold templates.
-	template = $("<div id='_jefri_binding_templates'></div>");
+	template = $()
+	_clear = () ->
+		template = $("<div id='_jefri_binding_templates'></div>");
+		template.clear = _clear
+		true
 
 	# Add a new root block to our templates.
 	mergeTemplate = (html) ->
@@ -47,11 +48,12 @@
 		templates = if _.isArray(templates) then templates else Array.prototype.slice.call(arguments)
 		# Load each template
 		templates[i] = $.get(T) for T, i in templates
-		$.when.apply(null, templates).done () ->
+		_.when.apply(null, templates).done(() ->
 			# When behaves differently if there are 1 or 2+ args.
 			args = if templates.length is 1 then [arguments] else arguments
 			mergeTemplate tmpl[0] for tmpl in args
 			ready.resolve()
+		).promise()
 
 	# Finders to coalesce different templates into a single hierarchical system
 	find = (path) ->
@@ -102,19 +104,38 @@
 			_view.clone()
 	})
 
+	# The renderer returns the built and bound DOM for a JEFRi renderable thing.
+	render = (thing) ->
+		if JEFRi.isEntity(thing)
+			render.entity(thing)
+		else
+			render.page(thing)
+
+	_.extend(render, {
+		page: (page) ->
+			find(".._page")
+
+		entity: (entity) ->
+			find(".." + entity._type())
+
+		property: (type, name, property) ->
+			find(".." + type + "." + name)
+	})
+
 	init = (options) ->
-		$.extend(true, settings, options)
-		loadTemplates(settings.templates).done(->ready.resolve())
+		_clear()
+		_.extend(true, settings, options)
+		loadTemplates(settings.templates).done().promise()
 
 	JEFRi.Binding = {
-		ready: ready.promise()
 		init: init
 		templates: () -> template
 		loadTemplates: loadTemplates
 		settings: settings
 		find: find
+		render: render
 	}
 
 	return
 
-).call(this, _, jQuery, JEFRi))
+).call(this, _, jQuery || null, JEFRi))
