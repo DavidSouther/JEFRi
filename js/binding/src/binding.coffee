@@ -6,16 +6,20 @@
 
 ((($) ->
 	$.fn.merge = (doms) ->
-		doms.each (i, dom) =>
+		doms.filter("[id]").each (i, dom) =>
 			dom = $(dom)
-			child = this.children("#" + dom.attr("id"))
+			id = dom.attr("id")
+			child = this.children("#" + id)
 			if child.length is 0
-				this.append(dom.remove())
+				this.append(dom)
 			else
 				child.merge(dom.children())
-				# dom.children removed, replace kids
-				this.children(":not([id])").remove()
-				this.append(dom.children().remove())
+			null
+		rest = doms.filter(":not([id])")
+		#[id]s removed, replace kids
+		if rest.length
+			this.children(":not([id])").remove()
+			this.append(rest)
 		this
 ).call(this, jQuery))
 
@@ -92,9 +96,9 @@
 
 		view: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "?", view = "view") ->
 			_property = find.property(root, theme, entity, property)
-			_view = _property.find("." + view)
+			_view = _property.find("#" + view)
 			if _view.length isnt 1
-				_view = _property.find(".view");
+				_view = _property.find("#view");
 			_view.clone()
 	})
 
