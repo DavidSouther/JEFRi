@@ -118,7 +118,7 @@
 					});
 
 					// Set the key, if it wasn't set by the proto.
-					if ( ! proto[key] ) { this[key](UUID.v4()); }
+					if ( ! proto[key] ) { this[key](_.UUID.v4()); }
 
 					//Add/extend our methods
 					_.extend(this.prototype, proto.prototype);
@@ -506,7 +506,7 @@
 
 		// Return an interned entity from the local instance matching spec.
 		//
-		// Spec requires an _type property and the entity key, or specify the property UUID.
+		// Spec requires an _type property and the entity key.
 		find: function(spec) {
 			if(typeof spec === "string") {
 				spec = {_type : spec};
@@ -519,9 +519,6 @@
 			if(spec.hasOwnProperty(r.key)) {
 				// If a key is set, return only that result.
 				ret = results[spec[r.key]] || false;
-			} else if(spec.hasOwnProperty("UUID")) {
-				// If UUID is set, return only that result
-				ret = results[spec.UUID] || false;
 			}
 
 			// Add results to an array to clean up the return for the user.
