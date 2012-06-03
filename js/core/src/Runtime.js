@@ -211,6 +211,10 @@
 				return min;
 			};
 
+			definition.Constructor.prototype._definition = function() {
+				return definition;
+			};
+
 			if(proto) {_.extend(definition.Constructor.prototype, proto.prototype);}
 		};
 
