@@ -368,7 +368,7 @@
 					if(!data){throw {
 						message: "Context loaded, but invalid."
 					};}
-					data = JSON.parse(data);
+					data = _.isString(data) ? JSON.parse(data) : data;
 					_set_context(data, protos);
 					ready.resolve();
 				}
