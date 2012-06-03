@@ -13,7 +13,6 @@ test("Unit Testing Environment", function () {
 asyncTest("Binding", function (){
 	ok(JEFRi.Binding, "JEFRi Binding never defined.");
 	ok(JEFRi.Binding.init, "Can't initialize JEFRi Binding.");
-	ok(JEFRi.Binding.ready, "Can't hook to Binding's ready.");
 	JEFRi.Binding.init({
 		templates: ["../src/binding.html", "./testBindings.html"]
 	}).done(function(){
