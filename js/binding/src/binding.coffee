@@ -45,15 +45,18 @@
 
 	# Load several templates
 	loadTemplates = (templates) ->
+		d = _.Deferred()
 		templates = if _.isArray(templates) then templates else Array.prototype.slice.call(arguments)
 		# Load each template
-		templates[i] = $.get(T) for T, i in templates
+		templates[i] = _.get(T) for T, i in templates
 		_.when.apply(null, templates).done(() ->
 			# When behaves differently if there are 1 or 2+ args.
 			args = if templates.length is 1 then [arguments] else arguments
-			mergeTemplate tmpl[0] for tmpl in args
-			ready.resolve()
-		).promise()
+			mergeTemplate(if _.isArray(tmpl) then tmpl[0] else tmpl) for tmpl in args
+			d.resolve()
+			null
+		)
+		d.promise()
 
 	# Finders to coalesce different templates into a single hierarchical system
 	find = (path) ->
@@ -116,7 +119,10 @@
 			find(".._page")
 
 		entity: (entity) ->
-			find(".." + entity._type())
+			entity_view = find(".." + entity._type() + ".?.view")
+			definition = entity._definition()
+			entity_view.children(".properties").append(render.property(entity._type(), property.name, entity[property.name]())) for property in definition.properties
+			entity_view
 
 		property: (type, name, property) ->
 			find(".." + type + "." + name)
@@ -125,7 +131,7 @@
 	init = (options) ->
 		_clear()
 		_.extend(true, settings, options)
-		loadTemplates(settings.templates).done().promise()
+		loadTemplates(settings.templates).promise()
 
 	JEFRi.Binding = {
 		init: init
