@@ -24,6 +24,13 @@
 ).call(this, jQuery))
 
 (((_, $, JEFRi)->
+	# Need to make some different assumptions about Templating
+	_.templateSettings = {
+		escape: /{{-([\s\S]+?)}}/g,
+		evaluate: /{{([\s\S]+?)}}/g,
+		interpolate: /{{=([\s\S]+?)}}/g
+	}
+
 	# Global Binding settings.
 	settings = {
 		paths : {
