@@ -112,10 +112,10 @@ entity references several entities of some type. Using these relationship
 primitives, a
 
 When an application has an instantiated entity, relationships can be navigated
-by calling the appropriate {\ilcode get\_`navprop'} method of the entity. For
+by calling the appropriate {\ilcode `navprop'} methods of the entity. For
 example, if a Receipt has an associated Client, you could call {\ilcode
-receipt.get\_client()} which would return a single Client. Conversely, from the
-client end, you could call {\ilcode client.get\_receipts()} to return an array
+receipt.client.get()} which would return a single Client. Conversely, from the
+client end, you could call {\ilcode client.receipts.get()} to return an array
 of Receipt entities. Notice how the navigation methods are properly pluralized.
 This is a result of naming the relationships {\ilcode user} and {\ilcode
 receipts} in the context- it is not the runtime's responsibility to handle
@@ -187,9 +187,9 @@ and each Relationship has three keys --- {\ilcode type}, one of {\ilcode is\_a},
 {\ilcode has\_a}, or {\ilcode has\_many}; {\ilcode property}, the entity
 property to define the relationship; and {\ilcode to}, describing the second
 entity taking part in the relationship. {\ilcode name} must be a locally unique,
-valid Javascript identifier. Further, it determines which {\ilcode get\_} method
+valid Javascript identifier. Further, it determines the method properties which
 must be called to navigate the relationship (specifically, {\ilcode
-entity.get\_`name'()}). {\ilcode type} determines what will be returned when
+entity.`name'()}). {\ilcode type} determines what will be returned when
 navigating the relationship. {\ilcode has\_a} and {\ilcode is\_a} will return a
 single entity, while {\ilcode has\_many} will return a (possibly empty) array of
 entities. The runtime is responsible for ensuring a method with the correct
@@ -632,7 +632,18 @@ context.
 		\returns{The entity type.}
 	}
 
-\method{get}{name}{value|Entity|[Entity...]}
+\method{`navprop`}{args}{value|Entity|[Entity...]}
+	{Overloaded \& combined getter and setter. If given no arguments, acts as
+	{\ilcode `navprop`.get()}. If given arguments, acts as either {\ilcode
+	`navprop`.set(args)} or {\ilcode `navprop`.add(args)}, depending on the {\ilcode
+	type} of the relationship.}
+	{
+		\param{args}{Either empty, an entity, or an array of entities. }
+		\returns{Either {\ilcode this} entity, the single related entity, or
+		an array of related entities.}
+	}
+
+\method{`navprop`.get}{}{value|Entity|[Entity...]}
 	{Follow a navigation property or look up a property. If key refers to a
 	property, return its current value. If the relationship is an {\ilcode is\_a},
 	return an instance of the {\ilcode to} type. If the relationship is a
@@ -645,7 +656,7 @@ context.
 		navigated entity.}
 	}
 
-\method{set}{name, value}{Entity}
+\method{`navprop`.set}{value}{Entity}
 	{Set the property or {\ilcode has\_a} navigation property. Correctly updates
 	each entities' navigation property values. If there is a property and a
 	relationship with the same name, look up the relationship.}
@@ -655,7 +666,7 @@ context.
 		\returns{A reference to this entity.}
 	}
 
-\method{add}{name, to\_entity}{Entity}
+\method{`navprop`.add}{to\_entity}{Entity}
 	{Add to the {\ilcode has\_many} array.}
 	{
 		\param{to\_entity}{New entity to add to the {\ilcode has\_many list.}}
