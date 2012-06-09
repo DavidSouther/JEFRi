@@ -101,7 +101,7 @@
 
 		view: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "?", view = "view") ->
 			_property = find.property(root, theme, entity, property)
-			_view = _property.find("#" + view)
+			_view = _property.find("##{view}")
 			if _view.length isnt 1
 				_view = _property.find("#view");
 			_view.clone()
@@ -119,13 +119,16 @@
 			find(".._page")
 
 		entity: (entity) ->
-			entity_view = find(".." + entity._type() + ".?.view")
+			entity_view = find("..#{entity._type()}.?.view")
 			definition = entity._definition()
-			entity_view.children(".properties").append(render.property(entity._type(), property.name, entity[property.name]())) for property in definition.properties
+			entity_view.children(".properties").append(render.property(entity._type(), property, entity[property]())) for own property, property_def of definition.properties
 			entity_view
 
 		property: (type, name, property) ->
-			find(".." + type + "." + name)
+			view = find("..#{type}.#{name}.view")
+			data = {}
+			data[name] = property;
+			view.text(_.template(view.text(), data))
 	})
 
 	init = (options) ->
