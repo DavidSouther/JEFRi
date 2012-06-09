@@ -788,4 +788,4 @@
 			return true;
 		};
 	};
-}.call(this, _, jQuery));
+}.call(this, _));
