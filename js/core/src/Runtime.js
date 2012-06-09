@@ -81,23 +81,23 @@
 			ec._context.attributes = context.attributes;
 
 			// Prepare each entity
-			_.each(context.entities, function(definition) {
-				ec._context.entities[definition.name] = definition;
-				ec._instances[definition.name] = {};
+			_.each(context.entities, function(definition, name) {
+				ec._context.entities[name] = definition;
+				ec._instances[name] = {};
 				var key = definition.key;
 
 				//Store the properties
 				var props = {};
-				_.each(definition.properties, function(property) {
-					props[property.name] = property;
+				_.each(definition.properties, function(property, name) {
+					props[name] = property;
 				});
 				definition.properties = props;
 
 				// Store the relationships
 				var rels = {};
-				_.each(definition.relationships, function(relationship){
+				_.each(definition.relationships, function(relationship, name){
 					//`this` is the relationship
-					rels[relationship.name] = relationship;
+					rels[name] = relationship;
 				});
 				definition.relationships = rels;
 
@@ -132,24 +132,24 @@
 						//TODO remove this from the _new array.
 						//ec._new = _.remove(ec._new, _.bind(JEFRi.EntityComparator, null, a));
 						ec._modified.remove(this, JEFRi.EntityComparator);
-					}, ec._context.entities[definition.name]));
+					}, ec._context.entities[name]));
 				};
 
 				//Set up the prototype for any of this entity.
-				_build_prototype(definition, (protos && protos[definition.name]));
+				_build_prototype(name, definition, (protos && protos[name]));
 			});
 		};
 
 		// Set up all the required methods - id(), _type(), and the mutaccs.
-		var _build_prototype = function(definition, proto) {
+		var _build_prototype = function(name, definition, proto) {
 			var ec = self;
 
 			// Store the definition type in the prototype to get to it easily.
-			definition.Constructor.prototype.__type = definition.name;
+			definition.Constructor.prototype.__type = name;
 
 			// Get this entity's type. Use the closure'd reference.
 			definition.Constructor.prototype._type = function() {
-				return definition.name;
+				return name;
 			};
 
 			// Get this entity's ID.
@@ -188,13 +188,13 @@
 			};
 
 			// Prep the property mutaccs
-			_.each(definition.properties, function(property) {
-				_build_mutacc(definition, property);
+			_.each(definition.properties, function(property, prop_name) {
+				_build_mutacc(definition, prop_name, property);
 			});
 
 			// Prep all the navigation mutaccs.
-			_.each(definition.relationships, function(relationship){
-				_build_relationship(definition, relationship);
+			_.each(definition.relationships, function(relationship, rel_name){
+				_build_relationship(definition, rel_name, relationship);
 			});
 
 			// Encode returns the bare object.
@@ -204,8 +204,8 @@
 				min._type = this._type();
 
 				//Add all the properties to the writer.
-				_.each(definition.properties, function(property){
-					min[property.name] = self[property.name]();
+				_.each(definition.properties, function(prop, name){
+					min[name] = self[name]();
 				});
 
 				return min;
@@ -220,9 +220,9 @@
 
 		// Prepare a mutacc for a specific property.
 		// The property mutacc must handle entity accounting details.
-		var _build_mutacc = function(definition, property) {
-			var field = '_' + property.name;
-			definition.Constructor.prototype[property.name] = function(value) {
+		var _build_mutacc = function(definition, prop_name, property) {
+			var field = '_' + prop_name;
+			definition.Constructor.prototype[prop_name] = function(value) {
 				var ret = this;
 				if(undefined !== value) {
 				// Value is defined, so this is a setter
@@ -245,7 +245,7 @@
 							}
 						}
 						this.__fields[field] = value;
-						_.trigger(this, "modify", [property.name, value]);
+						_.trigger(this, "modify", [prop_name, value]);
 					}
 				} else {
 					// Just a getter.
@@ -257,9 +257,9 @@
 
 		// Attach the mutators and accessors (mutaccs) to the prototype.
 		/* TODO Thoroughly debug these functions... */
-		var _build_relationship = function(definition, relationship) {
+		var _build_relationship = function(definition, rel_name, relationship) {
 			var ec = self;
-			var field = '_' + relationship.name;
+			var field = '_' + rel_name;
 
 			//Build the getter
 			var get = ("has_many" === relationship.type) ?
@@ -317,7 +317,7 @@
 
 						//Call the reverse setter
 						//Need to find the back relationship...
-						var back_rel = ec.back_rel(this._type(), relationship);
+						var back_rel = ec.back_rel(this._type(), rel_name, relationship);
 						//Make sure it exists
 						if(back_rel) {
 							var back = "set_" + back_rel.name;
@@ -339,7 +339,7 @@
 						if( "is_a" !== relationship.type ) {
 							//Add or set this to the remote entity
 							//Need to find the back relationship...
-							var back_rel = ec.back_rel(this._type(), relationship);
+							var back_rel = ec.back_rel(this._type(), rel_name, relationship);
 							var back = ("has_many" === back_rel.type) ?
 								'add_' :
 								'set_';
@@ -404,14 +404,15 @@
 		},
 
 		// Find the relationship back to this entity, if it exists
-		back_rel: function(type, relationship) {
+		back_rel: function(type, rel_name, relationship) {
 			var ec = this;
 			var def = ec.definition(relationship.to.type);
 			var back = null;
-			_.each(def.relationships, function(rel){
-				if(rel.to.type === type && rel.name !== relationship.name) {
+			_.each(def.relationships, function(rel, srel_name){
+				if(rel.to.type === type && srel_name !== rel_name) {
 					//Found it
 					back = rel;
+					back.name = srel_name;
 				}
 			});
 			return back;
