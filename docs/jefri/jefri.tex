@@ -136,7 +136,7 @@ directly, creating a clean interface between the departments.
 
 A context specification is an object with two properties --- {\ilcode
 attributes}, describing the context specific options, and {\tt entities}, an
-array of entity descriptions.
+object of entity descriptions.
 
 A context's {\ilcode attribute} is an object containing arbitrary keyed data for
 a runtime's consumption. For example, an {\ilcode attribute} could declare
@@ -148,13 +148,14 @@ particular implementation must specify the specific attributes it handles, as
 well as their meanings. Many JEFRi extensions will define some attributes,
 allowing runtimes to choose which extensions to handle, as needed.
 
-The {\ilcode entities} array is the heart of the context. Each entry describes
-one entity type available. The entries are objects with five keys. Those are
-{\ilcode name}, the canonical name for the entity type; {\ilcode key}, the
-property containing the entity's UUID; {\ilcode properties}, an array containing
-the properties of the entity; {\ilcode relationships}, an array containing
-descriptions of the various navigation properties; and {\ilcode attributes}, an
-object describing various metadata about the entity itself.
+The {\ilcode entities} object is the heart of the context. Each entry describes
+one entity type available. Each key in the {\ilcode entiries} object is the
+{\ilcode name}, the canonical name for the entity type. Each entry object has
+four keys: {\ilcode key}, the property containing the entity's UUID; {\ilcode
+properties}, an array containing the properties of the entity; {\ilcode
+relationships}, an array containing descriptions of the various navigation
+properties; and {\ilcode attributes}, an object describing various metadata
+about the entity itself.
 
 {\ilcode name} is the canonical type name for an entity. It is used extensively
 to look up property definitions from several points in the application,
@@ -166,12 +167,12 @@ must be valid Javascript object keys --- {\ilcode $=\sim$
 {\ilcode key} is the name of the property containing the entity's key. See the
 section on entity keys for more details on how keys are used in JEFRi.
 
-{\ilcode properties} is an array of objects similar in layout to entities, but
-without keys or relationships. Specifically, properties must define a name, a
-type, and an array of attributes. The name is the Javascript-safe property
-identifier, and must be unique among the properties of an entity. The type is
-the platform- agnostic datatype specifier. Canonically recognized types are
-{\ilcode int}, {\ilcode float}, and {\ilcode string}.
+{\ilcode properties} is an object of objects similar in layout to entities, but
+without keys or relationships. Specifically, properties are keyed by name, and
+must define a type and an object of attributes. The name is the Javascript-safe
+property identifier, and must be unique among the properties of an entity. The
+type is the platform- agnostic datatype specifier. Canonically recognized types
+are {\ilcode int}, {\ilcode float}, and {\ilcode string}.
 
 {\ilcode attributes} is an object of arbitrary key/value pairs. Currently
 recognized attributes are {\ilcode nullable} (for {\ilcode int}, {\ilcode
@@ -180,14 +181,14 @@ or {\ilcode null}; and {\ilcode length} (for {\ilcode string}, specifying the
 maximum number of characters. Again, it is the runtime implementor's
 responsibility to document recognized attributes and their behavior.
 
-{\ilcode relationships} is an array describing the various navigation properties
-available to an entity. A relationship has four keys --- {\ilcode name}, the
-identifier for the navigation; {\ilcode type}, one of {\ilcode is\_a}, {\ilcode
-has\_a}, or {\ilcode has\_many}; {\ilcode property}, the entity property to
-define the relationship; and {\ilcode to}, describing the second entity taking
-part in the relationship. {\ilcode name} must be a locally unique, valid
-Javascript identifier. Further, it determines which {\ilcode get\_} method must
-be called to navigate the relationship (specifically, {\ilcode
+{\ilcode relationships} is an object describing the various navigation
+properties available to an entity. {\ilcode relationships} are keyed by name,
+and each Relationship has three keys --- {\ilcode type}, one of {\ilcode is\_a},
+{\ilcode has\_a}, or {\ilcode has\_many}; {\ilcode property}, the entity
+property to define the relationship; and {\ilcode to}, describing the second
+entity taking part in the relationship. {\ilcode name} must be a locally unique,
+valid Javascript identifier. Further, it determines which {\ilcode get\_} method
+must be called to navigate the relationship (specifically, {\ilcode
 entity.get\_`name'()}). {\ilcode type} determines what will be returned when
 navigating the relationship. {\ilcode has\_a} and {\ilcode is\_a} will return a
 single entity, while {\ilcode has\_many} will return a (possibly empty) array of
@@ -205,7 +206,7 @@ to} type field {\it must} resolve to a valid entity name. The property fields
 are used slightly differently depending on what the type of the relationship is.
 In every relationship, {\ilcode to.property} must equal {\ilcode property}, and
 the navigation method will return the one {\ilcode to.type} whose key is equal
-to the {\ilcode from.property} for a {\ilcode has\_a} relationship,  or the
+to the {\ilcode from.property} for a {\ilcode has\_a} relationship, or the
 array of entities for a {\ilcode has\_many} relationship.
 
 If {\ilcode attributes} at any level is empty, it may be removed from the
