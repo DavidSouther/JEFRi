@@ -105,6 +105,7 @@
 				definition.Constructor = function(proto) {
 					var self = this;
 					this.__new = true;
+					this.__type = name;
 					this.__modified = {};
 					this.__fields = {};
 					this.__relationships = {};
@@ -144,17 +145,14 @@
 		var _build_prototype = function(name, definition, proto) {
 			var ec = self;
 
-			// Store the definition type in the prototype to get to it easily.
-			definition.Constructor.prototype.__type = name;
-
 			// Get this entity's type. Use the closure'd reference.
 			definition.Constructor.prototype._type = function() {
 				return name;
 			};
 
 			// Get this entity's ID.
-			definition.Constructor.prototype.id = function() {
-				return this[definition.key]();
+			definition.Constructor.prototype.id = function(full) {
+				return (full ? this._type() + "/" : "") + this[definition.key]();
 			};
 
 			// Add this entity to the persist transaction

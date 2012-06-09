@@ -56,6 +56,7 @@ asyncTest("Instantiate Runtime", function() {
 		var authinfo = user.authinfo(runtime.build('Authinfo', {})).authinfo();
 		equal(authinfo._status(), "NEW", "Built authinfo should be New");
 		ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
+		ok(authinfo.id(true).match(/[a-zA-Z_\-]+\/[a-f0-9\-]{36}/i), "id(true) returns full path.");
 		equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
 
 		var user2 = runtime.build("User", {name: "portaj", address: "rurd4me@example.com"});
