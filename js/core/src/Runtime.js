@@ -755,7 +755,6 @@
 				dataType: "application/json"
 			}).done(
 				function(data) {
-/*                  console.log("Logging success", data);*/
 					//Always updateOnIntern
 					ec.expand(data, true);
 					_.trigger(self, 'sent', data);
