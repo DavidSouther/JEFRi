@@ -132,7 +132,7 @@
 			entity_view = find("..#{entity._type()}.?.#{view}")
 			definition = entity._definition()
 			entity_view.children(".properties").append(render.property(entity._type(), property, entity[property](), view)) for own property, property_def of definition.properties
-			entity_view.children(".relationships").append(render.relationship(entity, relationship, view)) for relationship in definition.relationships
+			entity_view.children(".relationships").append(render.relationship(entity, rel_name, relationship, view)) for own rel_name, relationship of definition.relationships
 			entity_view
 
 		property: (type, name, property, view = "view") ->
@@ -144,15 +144,14 @@
 			    removeAttr('id').
 				html(_.template(property_view.html(), data))
 
-		relationship: (entity, relationship, view = "view") ->
-			if (relationship.type is "has_a" or relationship.type is "is_a")
-				return render.entity(entity["get_" + relationship.name]())
-			else
+		relationship: (entity, rel_name, relationship, view = "view") ->
+			if relationship.type is "has_many"
 				rel = $()
-				rels = entity["get_" + relationship.name]()
+				rels = entity[rel_name]()
 				rel.append(render.entity(ent)) for ent in rels
 				return rel
-
+			else
+				return render.entity(entity[rel_name]())
 	})
 
 	init = (options) ->
