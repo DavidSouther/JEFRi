@@ -337,6 +337,7 @@
 						return this;
 					}
 				});
+			// Mutaccs for has_a and is_a
 			} else {
 				_.extend(definition.Constructor.prototype[rel_name], {
 					get: function(longGet) {
@@ -348,6 +349,13 @@
 						if(undefined === this.__relationships[field]) {
 							// Just need the one...
 							this.__relationships[field] = ec._instances[relationship.to.type][this[relationship.property]()];
+							// Make sure we found one
+							if(undefined === this.__relationships[field]){
+								// If not, create it.
+								var key = {};
+								key[ec.definition(relationship.to.type).key] = this[relationship.to.property]();
+								this[rel_name](ec.build(relationship.to.type, key))
+							}
 						}
 						return this.__relationships[field];
 					},
