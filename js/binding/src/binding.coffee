@@ -104,6 +104,9 @@
 			_property = _entity.find("#" + property)
 			if _property.length isnt 1
 				_property = _entity.children("#_default_property")
+				#If there STILL isn't a property, fall back to using `_default_entity`
+				if _property.length isnt 1
+					_property = find.property(root, theme, "_default_entity", property)
 			_property.clone()
 
 		view: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "?", view = "view") ->
