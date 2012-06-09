@@ -39,6 +39,7 @@ asyncTest("Templating", function (){
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 		var view = JEFRi.Binding.render(user);
 		ok(view.length, "Render basic view.");
+		view.appendTo("#bindings-target");
 		start();
 	});
 });
