@@ -21,7 +21,7 @@ $(document).ready( ->
 		runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
 		runtime.ready.done( ->
 			user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
-			authinfo = user.set_authinfo(runtime.build('Authinfo', {})).get_authinfo();
+			authinfo = user.authinfo(runtime.build('Authinfo', {})).authinfo();
 
 			store = new JEFRi.LocalStore
 			runtime.save_new(store).then((transaction)->

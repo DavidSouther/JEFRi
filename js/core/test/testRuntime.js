@@ -53,7 +53,7 @@ asyncTest("Instantiate Runtime", function() {
 		ok(user.id().match(/[a-f0-9\-]{36}/i), "User should have a valid id.");
 		equal(user.id(), user.user_id(), "User id() and user_id properties must match.");
 
-		var authinfo = user.set_authinfo(runtime.build('Authinfo', {})).get_authinfo();
+		var authinfo = user.authinfo(runtime.build('Authinfo', {})).authinfo();
 		equal(authinfo._status(), "NEW", "Built authinfo should be New");
 		ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
 		equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");

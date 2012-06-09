@@ -17,10 +17,10 @@ asyncTest("Context", function() {
 
 		var context = runtime.build("Context", {});
 		var hostsEntity = runtime.build("Entity", {"name": "Host", "key": "host_id"});
-		context.add_entities(hostsEntity);
+		context.entities(hostsEntity);
 
 		var ct = runtime.find("Context")[0];
-		ok(ct.get_entities()[0].get_context().id() === ct.id(), "Navigating relationships succeeded.");
+		ok(ct.entities()[0].context().id() === ct.id(), "Navigating relationships succeeded.");
 
 		var properties = [];
 		properties.push(runtime.build("Property", {"name": "host_id", "type": "string"}));
@@ -28,9 +28,9 @@ asyncTest("Context", function() {
 		properties.push(runtime.build("Property", {"name": "ip", "type": "string"}));
 		properties.push(runtime.build("Property", {"name": "mac", "type": "string"}));
 
-		hostsEntity.add_properties(properties);
+		hostsEntity.properties(properties);
 
-		ok(hostsEntity.get_properties().length === 4, "4 properties added.");
+		ok(hostsEntity.properties().length === 4, "4 properties added.");
 
 		start();
 	});
