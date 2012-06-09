@@ -1,14 +1,14 @@
 {	"attributes": {},
-	"entities": [
-		{	"name": "Context",
+	"entities": {
+		"Context": {
 			"key": "context_id",
-			"properties": [
-				{	"name": "context_id",
+			"properties": {
+				"context_id": {
 					"type": "string"
 				}
-			],
-			"relationships": [
-				{	"name": "entities",
+			},
+			"relationships": {
+				"entities": {
 					"type": "has_many",
 					"property": "context_id",
 					"to": {
@@ -16,26 +16,26 @@
 						"property": "context_id"
 					}
 				}
-			]
+			}
 		},
-		{	"name": "Entity",
+		"Entity": {
 			"key": "entity_id",
-			"properties": [
-				{	"name": "entity_id",
+			"properties": {
+				"entity_id": {
 					"type": "string"
 				},
-				{	"name": "context_id",
+				"context_id": {
 					"type": "string"
 				},
-				{	"name": "name",
+				"name": {
 					"type": "string"
 				},
-				{	"name": "key",
+				"key": {
 					"type": "string"
 				}
-			],
-			"relationships": [
-				{	"name": "context",
+			},
+			"relationships": {
+				"context": {
 					"type": "has_a",
 					"property": "context_id",
 					"to": {
@@ -43,7 +43,7 @@
 						"property": "context_id"
 					}
 				},
-				{	"name": "properties",
+				"properties": {
 					"type": "has_many",
 					"property": "entity_id",
 					"to": {
@@ -51,7 +51,7 @@
 						"property": "entity_id"
 					}
 				},
-				{	"name": "to_relationships",
+				"to_relationships": {
 					"type": "has_many",
 					"property": "entity_id",
 					"to": {
@@ -59,7 +59,7 @@
 						"property": "to_entity_id"
 					}
 				},
-				{	"name": "from_relationships",
+				"from_relationships": {
 					"type": "has_many",
 					"property": "entity_id",
 					"to": {
@@ -67,28 +67,26 @@
 						"property": "from_entity_id"
 					}
 				}
-			]
+			}
 		},
-		{	"name": "Property",
+		"Property": {
 			"key": "property_id",
-			"properties": [
-				{	"name": "property_id",
+			"properties": {
+				"property_id": {
 					"type": "string"
 				},
-				{	"name": "entity_id",
+				"entity_id": {
 					"type": "string"
 				},
-				{
-					"name": "name",
+				"name": {
 					"type": "string"
 				},
-				{
-					"name": "type",
+				"type": {
 					"type": "string"
 				}
-			],
-			"relationships": [
-				{	"name": "entity",
+			},
+			"relationships": {
+				"entity": {
 					"type": "has_a",
 					"property": "entity_id",
 					"to": {
@@ -96,32 +94,32 @@
 						"property": "entity_id"
 					}
 				}
-			]
+			}
 		},
-		{	"name": "Relationship",
+		"Relationship": {
 			"key": "relationship_id",
-			"properties": [
-				{	"name": "relationship_id",
+			"properties": {
+				"relationship_id": {
 					"type": "string"
 				},
-				{	"name": "to_entity_id",
+				"to_entity_id": {
 					"type": "string"
 				},
-				{	"name": "from_entity_id",
+				"from_entity_id": {
 					"type": "string"
 				},
-				{	"name": "name",
+				"name": {
 					"type": "string"
 				},
-				{	"name": "type",
+				"type": {
 					"type": "string"
 				},
-				{	"name": "property",
+				"property": {
 					"type": "string"
 				}
-			],
-			"relationships": [
-				{	"name": "to_entity",
+			},
+			"relationships": {
+				"to_entity": {
 					"type": "has_a",
 					"property": "to_entity_id",
 					"to": {
@@ -129,7 +127,7 @@
 						"property": "entity_id"
 					}
 				},
-				{	"name": "from_entity",
+				"from_entity": {
 					"type": "has_a",
 					"property": "from_entity_id",
 					"to": {
@@ -137,7 +135,7 @@
 						"property": "entity_id"
 					}
 				},
-				{	"name": "to",
+				"to": {
 					"type": "has_a",
 					"property": "relationship_id",
 					"to": {
@@ -145,23 +143,23 @@
 						"property": "relationship_id"
 					}
 				}
-			]
+			}
 		},
-		{	"name": "RelationshipTo",
+		"RelationshipTo": {
 			"key": "relationship_id",
-			"properties": [
-				{	"name": "relationship_id",
+			"properties": {
+				"relationship_id": {
 					"type": "string"
 				},
-				{	"name": "type",
+				"type": {
 					"type": "string"
 				},
-				{	"name": "property",
+				"property": {
 					"type": "string"
 				}
-			],
-			"relationships": [
-				{	"name": "Relationship",
+			},
+			"relationships": {
+				"Relationship": {
 					"type": "has_a",
 					"property": "relationship_id",
 					"to": {
@@ -169,7 +167,7 @@
 						"property": "relationship_id"
 					}
 				}
-			]
+			}
 		}
-	]
+	}
 }

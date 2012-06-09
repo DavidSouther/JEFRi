@@ -1,106 +1,106 @@
 {"attributes":{},
-"entities":[
-	{	"name": "User",
+"entities":{
+	"User": {
 		"key": "user_id",
-		"properties": [
-			{	"name": "user_id",
+		"properties": {
+			"user_id": {
 				"type": "int",
 				"attributes": {
 					"primary": "true"}},
-			{	"name": "name",
+			"name": {
 				"type": "string",
 				"attributes": {}},
-			{	"name": "address",
+			"address": {
 				"type": "string",
 				"attributes": {
-					"unique": "true"}}],
-		"relationships": [
-			{	"name": "authinfo",
+					"unique": "true"}}},
+		"relationships": {
+			"authinfo": {
 				"type": "has_a",
 				"property": "user_id",
 				"to": {
 					"type": "Authinfo",
-					"property": "user_id"}}],
+					"property": "user_id"}}},
 		"attributes": {
 			"vname": "users"}},
 
-	{	"name": "Authinfo",
+	"Authinfo": {
 		"key": "authinfo_id",
-		"properties": [
-			{	"name": "authinfo_id",
+		"properties": {
+			"authinfo_id": {
 				"type": "int",
 				"attributes": {
 					"primary": "true"}},
-			{	"name": "user_id",
+			"user_id": {
 				"type": "int",
 				"attributes": {}},
-			{	"name": "username",
+			"username": {
 				"type": "string",
 				"attributes": {
 					"length": "45"}},
-			{	"name": "password",
+			"password": {
 				"type": "string",
 				"attributes": {
 					"length": "45"}},
-			{	"name": "activated",
+			"activated": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "banned",
+			"banned": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "ban_reason",
+			"ban_reason": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new_password_key",
+			"new_password_key": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new_password_requested",
+			"new_password_requested": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new_email",
+			"new_email": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "new_email_key",
+			"new_email_key": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "last_ip",
+			"last_ip": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "last_login",
+			"last_login": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "created",
+			"created": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
 					"length": "45"}},
-			{	"name": "modified",
+			"modified": {
 				"type": "string",
 				"attributes": {
 					"nullable": "true",
-					"length": "45"}}],
-		"relationships": [
-			{	"name": "user",
+					"length": "45"}}},
+		"relationships": {
+			"user": {
 				"type": "has_a",
 				"property": "user_id",
 				"to": {
 					"type": "User",
-					"property": "user_id"}}]}]}
+					"property": "user_id"}}}}}}
