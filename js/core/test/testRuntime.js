@@ -58,6 +58,12 @@ asyncTest("Instantiate Runtime", function() {
 		ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
 		equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
 
+		var user2 = runtime.build("User", {name: "portaj", address: "rurd4me@example.com"});
+		var authinfo2 = user2.authinfo();
+		ok(authinfo2, "Default relationship created.");
+		ok(authinfo2.id().match(/[a-f0-9\-]{36}/i), "Authinfo2 should have a valid id.")
+		equal(authinfo2.user_id(), user2.id(), "Authinfo2 refers to correct user.");
+
 		start();
 	});
 });
