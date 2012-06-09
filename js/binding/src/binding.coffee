@@ -128,17 +128,20 @@
 		page: (page) ->
 			find(".._page")
 
-		entity: (entity) ->
-			entity_view = find("..#{entity._type()}.?.view")
+		entity: (entity, view = "view") ->
+			entity_view = find("..#{entity._type()}.?.#{view}")
 			definition = entity._definition()
-			entity_view.children(".properties").append(render.property(entity._type(), property, entity[property]())) for own property, property_def of definition.properties
+			entity_view.children(".properties").append(render.property(entity._type(), property, entity[property](), view)) for own property, property_def of definition.properties
 			entity_view
 
-		property: (type, name, property) ->
-			view = find("..#{type}.#{name}.view")
+		property: (type, name, property, view = "view") ->
+			property_view = find("..#{type}.#{name}.#{view}")
 			data = {}
-			data[name] = property;
-			view.text(_.template(view.text(), data))
+			data._name = name
+			data[name] = data._value = property
+			property_view.addClass("#{type} _property #{name} _#{view}").
+			    removeAttr('id').
+				html(_.template(property_view.html(), data))
 	})
 
 	init = (options) ->
