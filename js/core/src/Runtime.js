@@ -105,7 +105,6 @@
 				definition.Constructor = function(proto) {
 					var self = this;
 					this.__new = true;
-					this.__type = name;
 					this.__modified = {};
 					this.__fields = {};
 					this.__relationships = {};
@@ -120,6 +119,7 @@
 
 					// Set the key, if it wasn't set by the proto.
 					if ( ! proto[key] ) { this[key](_.UUID.v4()); }
+					this._id = this.id(true);
 
 					//Add/extend our methods
 					_.extend(this.prototype, proto.prototype);
@@ -186,8 +186,8 @@
 			};
 
 			// Prep the property mutaccs
-			_.each(definition.properties, function(property, prop_name) {
-				_build_mutacc(definition, prop_name, property);
+			_.each(definition.properties, function(property, field) {
+				_build_mutacc(definition, field, property);
 			});
 
 			// Prep all the navigation mutaccs.
@@ -218,19 +218,18 @@
 
 		// Prepare a mutacc for a specific property.
 		// The property mutacc must handle entity accounting details.
-		var _build_mutacc = function(definition, prop_name, property) {
-			var field = '_' + prop_name;
-			definition.Constructor.prototype[prop_name] = function(value) {
+		var _build_mutacc = function(definition, field, property) {
+			definition.Constructor.prototype[field] = function(value) {
 				// Overloaded getter and setter.
 				if(undefined !== value) {
 					// Value is defined, so this is a setter
-					return this[prop_name].set.call(this, value);
+					return this[field].set.call(this, value);
 				} else {
 					// Just a getter.
-					return this[prop_name].get.call(this);
+					return this[field].get.call(this);
 				}
 			};
-			_.extend(definition.Constructor.prototype[prop_name], {
+			_.extend(definition.Constructor.prototype[field], {
 				set: function(value){
 					// Only actually update it if it is a new value.
 					if(value !== this.__fields[field]) {
@@ -251,7 +250,7 @@
 							}
 						}
 						this.__fields[field] = value;
-						_.trigger(this, "modify", [prop_name, value]);
+						_.trigger(this, "modify", [field, value]);
 					}
 				},
 				get: function(){
@@ -263,25 +262,24 @@
 
 		// Attach the mutators and accessors (mutaccs) to the prototype.
 		/* TODO Thoroughly debug these functions... */
-		var _build_relationship = function(definition, rel_name, relationship) {
+		var _build_relationship = function(definition, field, relationship) {
 			var ec = self;
-			var field = '_' + rel_name;
 
 			//Build the getter
 			var get = ("has_many" === relationship.type) ?
 				'get_empty' : 'get_first';
 
-			definition.Constructor.prototype[rel_name] = function(entity){
+			definition.Constructor.prototype[field] = function(entity){
 				if(arguments.length > 0){
 					var set = (relationship.type === "has_many") ? "add" : "set";
-					return this[rel_name][set].call(this, entity);
+					return this[field][set].call(this, entity);
 				} else {
-					return this[rel_name].get.call(this);
+					return this[field].get.call(this);
 				}
 			};
 
 			if ("has_many" === relationship.type) {
-				_.extend(definition.Constructor.prototype[rel_name], {
+				_.extend(definition.Constructor.prototype[field], {
 					get: function(longGet) {
 						if(longGet) {
 							// Lazy load
@@ -309,14 +307,14 @@
 					add: function(entity) {
 						if(_.isArray(entity)){
 							for(var _i=0; _i<entity.length; _i++){
-								this[rel_name].add.call(this, entity[_i]);
+								this[field].add.call(this, entity[_i]);
 							}
 							return this;
 						}
 
 						if(undefined === this.__relationships[field]) {
 							//Lazy load
-							this[rel_name].get.call(this);
+							this[field].get.call(this);
 						}
 
 						if(_.indexBy(this.__relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
@@ -325,7 +323,7 @@
 
 							//Call the reverse setter
 							//Need to find the back relationship...
-							var back_rel = ec.back_rel(this._type(), rel_name, relationship);
+							var back_rel = ec.back_rel(this._type(), field, relationship);
 							//Make sure it exists
 							if(back_rel) {
 								entity[back_rel.name].set.call(entity, this);
@@ -337,7 +335,7 @@
 				});
 			// Mutaccs for has_a and is_a
 			} else {
-				_.extend(definition.Constructor.prototype[rel_name], {
+				_.extend(definition.Constructor.prototype[field], {
 					get: function(longGet) {
 						if(longGet) {
 							// Lazy load
@@ -352,7 +350,7 @@
 								// If not, create it.
 								var key = {};
 								key[ec.definition(relationship.to.type).key] = this[relationship.to.property]();
-								this[rel_name](ec.build(relationship.to.type, key))
+								this[field](ec.build(relationship.to.type, key))
 							}
 						}
 						return this.__relationships[field];
@@ -366,7 +364,7 @@
 							if( "is_a" !== relationship.type ) {
 								//Add or set this to the remote entity
 								//Need to find the back relationship...
-								var back_rel = ec.back_rel(this._type(), rel_name, relationship);
+								var back_rel = ec.back_rel(this._type(), field, relationship);
 								var back = ("has_many" === back_rel.type) ?
 									'add' :
 									'set';
@@ -430,12 +428,12 @@
 		},
 
 		// Find the relationship back to this entity, if it exists
-		back_rel: function(type, rel_name, relationship) {
+		back_rel: function(type, field, relationship) {
 			var ec = this;
 			var def = ec.definition(relationship.to.type);
 			var back = null;
 			_.each(def.relationships, function(rel, srel_name){
-				if(rel.to.type === type && srel_name !== rel_name) {
+				if(rel.to.type === type && srel_name !== field) {
 					//Found it
 					back = rel;
 					back.name = srel_name;
@@ -494,7 +492,7 @@
 				var demi = {_type : type};
 				demi[def.key] = obj[def.key];
 				var instance = this.find(demi);
-				if(false !== instance) {
+				if(instance.length > 0) {
 					// Local instance, extend it with the new obj and return local.
 					instance = instance[0];
 					_.extend(instance.__fields, r.__fields);
@@ -541,19 +539,20 @@
 			var to_return = [];
 			var r = this.definition(spec._type);
 			var results = this._instances[spec._type];
-			var ret = false;
 
 			if(spec.hasOwnProperty(r.key)) {
 				// If a key is set, return only that result.
-				ret = results[spec[r.key]] || false;
+				if (results[spec[r.key]]) {
+					to_return.push(results[spec[r.key]]);
+				}
+			} else {
+				// Add results to an array to clean up the return for the user.
+				_.each(results, function(result){
+					to_return.push(result);
+				});
 			}
 
-			// Add results to an array to clean up the return for the user.
-			_.each(results, function(result){
-				to_return.push(result);
-			});
-
-			return to_return || ret || false;
+			return to_return;
 		},
 
 		// Return a non-array of interned entities matching spec.
