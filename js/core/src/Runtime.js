@@ -223,36 +223,44 @@
 		var _build_mutacc = function(definition, prop_name, property) {
 			var field = '_' + prop_name;
 			definition.Constructor.prototype[prop_name] = function(value) {
-				var ret = this;
+				// Overloaded getter and setter.
 				if(undefined !== value) {
-				// Value is defined, so this is a setter
-					if(value !== this.__fields[field]) {
+					// Value is defined, so this is a setter
+					return this[prop_name].set.call(this, value);
+				} else {
+					// Just a getter.
+					return this[prop_name].get.call(this);
+				}
+			};
+			_.extend(definition.Constructor.prototype[prop_name], {
+				set: function(value){
 					// Only actually update it if it is a new value.
-						if(!this.__modified[field]) {
+					if(value !== this.__fields[field]) {
 						// Update it if not set...
+						if(!this.__modified[field]) {
 							this.__modified[field] = this.__fields[field];
 							this.__modified._count += 1;
 							ec._modified.set(this);
 						} else {
+							// Setting it back to the old value...
 							if(this.__modified[field] === value) {
-								// Setting it back to the old value...
 								delete this.__modified[field];
 								this.__modified.__count -= 1;
 							}
+							// If it was the last property, remove from the context's modified list.
 							if(this.__modified.__count === 0) {
-								// If it was the last property, remove from the context's modified list.
 								ec._modified.remove(this);
 							}
 						}
 						this.__fields[field] = value;
 						_.trigger(this, "modify", [prop_name, value]);
 					}
-				} else {
+				},
+				get: function(){
 					// Just a getter.
-					ret = this.__fields[field];
+					return this.__fields[field];
 				}
-				return ret;
-			};
+			});
 		};
 
 		// Attach the mutators and accessors (mutaccs) to the prototype.
@@ -264,92 +272,104 @@
 			//Build the getter
 			var get = ("has_many" === relationship.type) ?
 				'get_empty' : 'get_first';
-			definition.Constructor.prototype['get' + field] = function(longGet) {
-				if(longGet) {
-					// Lazy load
-/*                  var spec = {
-						_type: relationship.to.type,
-					};
-					spec[relationship.to.property] = this[relationship.property]();
-					this[field] = ec[get](spec);*/
+
+			definition.Constructor.prototype[rel_name] = function(entity){
+				if(arguments.length > 0){
+					var set = (relationship.type === "has_many") ? "add" : "set";
+					return this[rel_name][set].call(this, entity);
+				} else {
+					return this[rel_name].get.call(this);
 				}
-				if(undefined === this.__relationships[field]) {
-					// The field hasn't been set, so we haven't ever gotten this relationship before.
-					// We'll need to go through and fix that.
-					if ("has_many" === relationship.type) {
-						// We'll need to grab everything who points to us...
-						var self = this;
-						this.__relationships[field] = [];
-						_.each(ec._instances[relationship.to.type], function(type){
-							if(type[relationship.to.property]() === self[relationship.property]()) {
-								// Add it
-								self.__relationships[field].push(this);
-							}
-						});
-					} else {
-						// Just need the one...
-						this.__relationships[field] = ec._instances[relationship.to.type][this[relationship.property]()];
-					}
-				}
-				return this.__relationships[field];
 			};
 
-			if("has_many" === relationship.type) {
-				//Need an adder
-				definition.Constructor.prototype['add' + field] =
-				function(entity) {
-					if(_.isArray(entity)){
-						_.each(entity, _.bind(function(entity){
-							this['add' + field](entity);
-						}, this));
-						return this;
-					}
-
-					if(undefined === this.__relationships[field]) {
-						//Lazy load
-						var load = "get" + field;
-						this[load]();
-					}
-
-					if(_.indexBy(this.__relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
-						//The entity is _NOT_ in this' array.
-						this.__relationships[field].push(entity);
-
-						//Call the reverse setter
-						//Need to find the back relationship...
-						var back_rel = ec.back_rel(this._type(), rel_name, relationship);
-						//Make sure it exists
-						if(back_rel) {
-							var back = "set_" + back_rel.name;
-							entity[back](this);
+			if ("has_many" === relationship.type) {
+				_.extend(definition.Constructor.prototype[rel_name], {
+					get: function(longGet) {
+						if(longGet) {
+							// Lazy load
+							// This needs a bit of thought
+							//TODO
 						}
-					}
+						if(undefined === this.__relationships[field]) {
+							// The field hasn't been set, so we haven't ever gotten this relationship before.
+							// We'll need to go through and fix that.
+							// We'll need to grab everything who points to us...
+							var self = this;
+							this.__relationships[field] = [];
+							_.each(ec._instances[relationship.to.type], function(type){
+								if(type[relationship.to.property]() === self[relationship.property]()) {
+									// Add it
+									self.__relationships[field].push(this);
+								}
+							});
+						}
+						return this.__relationships[field];
+					},
+					set: function(entity) {
+						// ??
+					},
+					add: function(entity) {
+						if(_.isArray(entity)){
+							for(var _i=0; _i<entity.length; _i++){
+								this[rel_name].add.call(this, entity[_i]);
+							}
+							return this;
+						}
 
-					return this;
-				};
-			} else {
-				//Need a setter
-				definition.Constructor.prototype['set' + field] =
-				function(entity) {
-					var id = entity[relationship.to.property]();
-					if( id !== this[relationship.property]()) {
-						//Changing
-						this.__relationships[field] = entity;
-						this[relationship.property](id);
-						if( "is_a" !== relationship.type ) {
-							//Add or set this to the remote entity
+						if(undefined === this.__relationships[field]) {
+							//Lazy load
+							this[rel_name].get.call(this);
+						}
+
+						if(_.indexBy(this.__relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
+							//The entity is _NOT_ in this' array.
+							this.__relationships[field].push(entity);
+
+							//Call the reverse setter
 							//Need to find the back relationship...
 							var back_rel = ec.back_rel(this._type(), rel_name, relationship);
-							var back = ("has_many" === back_rel.type) ?
-								'add_' :
-								'set_';
-							back += back_rel.name;
-							entity[back](this);
+							//Make sure it exists
+							if(back_rel) {
+								entity[back_rel.name].set.call(entity, this);
+							}
 						}
-					}
 
-					return this;
-				};
+						return this;
+					}
+				});
+			} else {
+				_.extend(definition.Constructor.prototype[rel_name], {
+					get: function(longGet) {
+						if(longGet) {
+							// Lazy load
+							// This needs a bit of thought
+							//TODO
+						}
+						if(undefined === this.__relationships[field]) {
+							// Just need the one...
+							this.__relationships[field] = ec._instances[relationship.to.type][this[relationship.property]()];
+						}
+						return this.__relationships[field];
+					},
+					set: function(entity) {
+						var id = entity[relationship.to.property]();
+						if( id !== this[relationship.property]()) {
+							//Changing
+							this.__relationships[field] = entity;
+							this[relationship.property](id);
+							if( "is_a" !== relationship.type ) {
+								//Add or set this to the remote entity
+								//Need to find the back relationship...
+								var back_rel = ec.back_rel(this._type(), rel_name, relationship);
+								var back = ("has_many" === back_rel.type) ?
+									'add' :
+									'set';
+								entity[back_rel.name][back].call(entity, this);
+							}
+						}
+						return this;
+					}
+				});
 			}
 		};
 
