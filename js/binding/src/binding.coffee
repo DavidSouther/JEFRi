@@ -154,6 +154,26 @@
 				return render.entity(entity[rel_name]())
 	})
 
+	(()->
+		key = {}
+
+		lock = (entity) ->
+			if key[entity.id(true)]
+				return false
+			return key[entity.id(true)] = true;
+
+		unlock = (entity) ->
+			delete key[entity.id(true)]
+
+		r_e = render.entity
+		render.entity = (entity, view = "view") ->
+			e = $("");
+			if lock(entity)
+				e = r_e(entity, view)
+				unlock(entity)
+			return e
+	)()
+
 	init = (options) ->
 		_clear()
 		_.extend(true, settings, options)
