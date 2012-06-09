@@ -21,8 +21,15 @@ module.exports = function(grunt) {
 				dest: 'dist/coffee/'
 			}
 		},
+		clean: {
+			app: {
+				src: ["dist", "docs"]
+			}
+		},
 		docco: {
-			files: ['src/**/*']
+			app: {
+				src: ['**/*.coffee', '**/*.js']
+			}
 		},
 		concat: {
 			dist: {
@@ -59,7 +66,5 @@ module.exports = function(grunt) {
 		uglify: {}
 	});
 
-	grunt.loadNpmTasks('grunt-coffee');
-
-	grunt.registerTask('default', 'lint coffee concat min');
+	grunt.registerTask('default', 'clean lint docco coffee concat min');
 };
