@@ -39,6 +39,8 @@ asyncTest("Templating", function (){
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 		var view = JEFRi.Binding.render(user);
 		ok(view.length, "Render basic view.");
+		ok(view.find("._property.name b").length === 1, "B for name in _defualt_property.");
+		ok(view.find("._property.user_id em").length === 1, "EM override in user_id property.");
 		view.appendTo("#bindings-target");
 		start();
 	});
