@@ -444,6 +444,17 @@
 			return back;
 		},
 
+		// Add the methods in the extend prototype to the prototype of type specified
+		// affecting _ALL_ instances, both current and future, of type.
+		extend: function(type, extend) {
+			if(this._context.entities[type]) {
+				_.extend(
+					this._context.entities[type].Constructor.prototype,
+					extend.prototype
+				);
+			}
+		},
+
 		// Return the canonical memory reference of the entity.
 		intern: function(entity, updateOnIntern) {
 			updateOnIntern = !!updateOnIntern || this.settings.updateOnIntern;
@@ -469,17 +480,6 @@
 			//Update the saved entity
 			this._instances[entity._type()][entity.id()] = ret;
 			return ret;
-		},
-
-		// Add the methods in the extend prototype to the prototype of type specified
-		// affecting _ALL_ instances, both current and future, of type.
-		extend: function(type, extend) {
-			if(this._context.entities[type]) {
-				_.extend(
-					this._context.entities[type].Constructor.prototype,
-					extend.prototype
-				);
-			}
 		},
 
 		// Return a new instance of an object described in the context.
