@@ -350,17 +350,17 @@
 								// If not, create it.
 								var key = {};
 								key[ec.definition(relationship.to.type).key] = this[relationship.to.property]();
-								this[field](ec.build(relationship.to.type, key))
+								this[field](ec.build(relationship.to.type, key));
 							}
 						}
 						return this.__relationships[field];
 					},
 					set: function(entity) {
-						var id = entity[relationship.to.property]();
-						if( id !== this[relationship.property]()) {
+						var id = this[relationship.property]();
+						if( id !== entity[relationship.to.property]()) {
 							//Changing
 							this.__relationships[field] = entity;
-							this[relationship.property](id);
+							entity[relationship.to.property](id);
 							if( "is_a" !== relationship.type ) {
 								//Add or set this to the remote entity
 								//Need to find the back relationship...
