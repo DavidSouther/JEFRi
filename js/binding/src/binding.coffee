@@ -130,9 +130,11 @@
 
 		entity: (entity, view = "view") ->
 			entity_view = find("..#{entity._type()}.?.#{view}")
+			entity_view.addClass("_entity #{entity._type()} #{view}").removeAttr("id")
 			definition = entity._definition()
 			entity_view.children(".properties").append(render.property(entity._type(), property, entity[property](), view)) for own property, property_def of definition.properties
 			entity_view.children(".relationships").append(render.relationship(entity, rel_name, relationship, view)) for own rel_name, relationship of definition.relationships
+			if entity_view.find(".relationships ._entity").length == 0 then entity_view.children('.relationships').remove()
 			entity_view
 
 		property: (type, name, property, view = "view") ->
