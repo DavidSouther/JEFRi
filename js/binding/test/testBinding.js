@@ -41,6 +41,7 @@ asyncTest("Templating", function (){
 		ok(view.length, "Render basic view.");
 		ok(view.find("._property.name b").length === 1, "B for name in _defualt_property.");
 		ok(view.find("._property.user_id em").length === 1, "EM override in user_id property.");
+		ok(view.find(".relationships ._entity").length === 1, "User has one relationship.");
 		view.appendTo("#bindings-target");
 		start();
 	});
