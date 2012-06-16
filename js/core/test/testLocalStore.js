@@ -31,7 +31,8 @@ $(document).ready(function(){
 				ok(_.symmetricDifference(_.keys(transaction), ["entities", "attributes"]).length === 0, "Transaction has unknown keys.");
 				ok(transaction.entities.length == 2, "Transaction should only have 2 entities.");
 				ok(_.keys(transaction.entities[0]).length == 6, "Entity has unexpected keys.");
-				ok(_.symmetricDifference(_.keys(transaction.entities[0].__fields), ["user_id", "name", "address"]).length === 0, "Entity has unexpected fields.");
+				// This is a really bad assertion...
+				ok(_.symmetricDifference(_.keys(transaction.entities[0]._fields), ["user_id", "name", "address"]).length === 0, "Entity has unexpected fields.");
 				start();
 			});
 		});

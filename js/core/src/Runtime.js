@@ -31,31 +31,46 @@
 		var self = this;
 		var ec = this;
 		this.settings = _.extend({
+			// The location of our context
 			contextUri     : contextUri,
+			// If an entity already exists, does JEFRi update or replace?
 			updateOnIntern : true,
-			store          : JEFRi.PostStore,
-			storeURI       : ""
+			// The constructor for the default store.
+			store          : JEFRi.PostStore
 		}, options);
 
+		// Prepare a promise for completing context loading.
+		var ready = _.Deferred();
+		this.ready = ready.promise();
+
+		// In-memory representation of the loaded context.
 		this._context = {
 			meta: {},
 			contexts: {},
 			entities: {}
 		};
+		// In-memory store of JEFRi entities.
 		this._instances = {};
+		// List of entities that have been built, but not persisted.
 		this._new = [];
+		// Collection of entities that have modifications since their inception or last persistence. Partitioned by types.
 		this._modified = {};
-		this._store = new this.settings.store(ec, {target: this.settings.storeURI});
+		// The default store
+		this._store = new this.settings.store(ec);
 
 		// Some helper methods to manage modified entities.
+		// Add an entity to the modified set.
 		this._modified.set = function(entity){
+			// Check if the type exists yet
 			if(!self._modified[entity._type()]) {
 				// Add the type, since we didn't have it before.
 				self._modified[entity._type()] = {};
 			}
+			// Add the entity to the bucket.
 			self._modified[entity._type()][entity.id()] = entity;
 		};
 
+		// Remove an entity from the modified set.
 		this._modified.remove = function(entity) {
 			delete self._modified[entity._type()][entity.id()];
 		};
@@ -63,7 +78,7 @@
 		// #### Private helper functions
 		// These handle most of the heavy lifting of building Entity classes.
 
-		// A few default types.
+		// A few default property values.
 		var _default = function(type){
 			switch(type) {
 				case "boolean": return false;
@@ -78,140 +93,137 @@
 		// storage.  Also builds constructors and prototypes for the context.
 		var _set_context = function(context, protos) {
 			// Save the attributes
-			ec._context.attributes = context.attributes;
+			_.extend(ec._context.attributes, context.attributes);
 
 			// Prepare each entity
 			_.each(context.entities, function(definition, name) {
+				// Keep the definition locally, modifying it directly with the ctor and prototypes.
 				ec._context.entities[name] = definition;
+				// Ready the instances bucket
 				ec._instances[name] = {};
-				var key = definition.key;
-
-				//Store the properties
-				var props = {};
-				_.each(definition.properties, function(property, name) {
-					props[name] = property;
-				});
-				definition.properties = props;
-
-				// Store the relationships
-				var rels = {};
-				_.each(definition.relationships, function(relationship, name){
-					//`this` is the relationship
-					rels[name] = relationship;
-				});
-				definition.relationships = rels;
 
 				// Build an entity's constructor.
 				definition.Constructor = function(proto) {
 					var self = this;
-					this.__new = true;
-					this.__modified = {};
-					this.__fields = {};
-					this.__relationships = {};
+
+					// Set the privileged accounting and property data.
+					this._new = true;
+					this._modified = {};
+					this._fields = {};
+					this._relationships = {};
+					// Check for runtime prototype override.
 					proto = proto || {};
 
 					// Set a bunch of default values, so they're all available.
-					_.each(props, function(property, key){
-						var field = '_' + key;
-						var def = proto[key] || _default(property.type);
-						self[key](def);
+					_.each(definition.properties, function(property, name){
+						// Use the value provided to the constructor, or the default.
+						var def = proto[name] || _default(property.type);
+						self[name](def);
 					});
 
 					// Set the key, if it wasn't set by the proto.
-					if ( ! proto[key] ) { this[key](_.UUID.v4()); }
+					if ( ! proto[definition.key] ) { this[definition.key](_.UUID.v4()); }
+					// Attach a privileged copy of the full id, more for debugging than use.
 					this._id = this.id(true);
 
-					//Add/extend our methods
+					// Add runtime methods
 					_.extend(this.prototype, proto.prototype);
 
-					//Set a few event handlers
+					// Set a few event handlers
+					// Manage accounting after an entity has been persisted
 					_.on(this, 'persisted', _.bind(function(){
-						this.__new = false;
-						this.__modified = {
-							__count: 0
+						this._new = false;
+						this._modified = {
+							_count: 0
 						};
-						//TODO remove this from the _new array.
-						//ec._new = _.remove(ec._new, _.bind(JEFRi.EntityComparator, null, a));
-						ec._modified.remove(this, JEFRi.EntityComparator);
+						ec._modified.remove(this);
 					}, ec._context.entities[name]));
 				};
 
 				//Set up the prototype for any of this entity.
 				_build_prototype(name, definition, (protos && protos[name]));
 			});
+
+			ready.resolve();
 		};
 
 		// Set up all the required methods - id(), _type(), and the mutaccs.
 		var _build_prototype = function(name, definition, proto) {
 			var ec = self;
 
-			// Get this entity's type. Use the closure'd reference.
-			definition.Constructor.prototype._type = function() {
-				return name;
-			};
+			_.extend(definition.Constructor.prototype, {
+				// Get this entity's type. Use the closure'd reference.
+				_type: function(full) {
+					full = full || false;
+					return name;
+				},
 
-			// Get this entity's ID.
-			definition.Constructor.prototype.id = function(full) {
-				return (full ? this._type() + "/" : "") + this[definition.key]();
-			};
+				// Get this entity's ID.
+				id: function(full) {
+					return (full ? this._type() + "/" : "") + this[definition.key]();
+				},
 
-			// Add this entity to the persist transaction
-			definition.Constructor.prototype.persist = function(transaction, callback) {
-				var deferred = _.Deferred().then(callback);
+				// Find the status of an entity.
+				_status: function() {
+					var state = "MODIFIED";
+					if(this._new) {
+						state = "NEW";
+					} else if(_.isEmpty(this._modified)) {
+						state = "PERSISTED";
+					}
+					return state;
+				},
 
-				var self = this;
-				var top = !transaction;
-				transaction = top ? new JEFRi.Transaction() : transaction;
-				transaction.add(this);
+				_definition: function() {
+					return definition;
+				},
 
-				//Call the on_persist handler
-				if(this.on_persist) { this.on_persist(transaction); }
-				this.trigger('onPersist', transaction);
+				// Add this entity to the persist transaction
+				_persist: function(transaction, callback) {
+					var deferred = _.Deferred().then(callback);
+					var top = !transaction;
+					transaction = top ? new JEFRi.Transaction() : transaction;
+					transaction.add(this);
 
-				//If we're on top, run the transaction...
-				if( top ) { transaction.persist(callback); }
+					//Call the on_persist handler
+					this.trigger('persisting', this, transaction);
 
-				return deferred.promise();
-			};
+					//If we're on top, run the transaction...
+					if( top ) { transaction.persist(callback); }
 
-			// Find the status of an entity.
-			definition.Constructor.prototype._status = function() {
-				var state = "MODIFIED";
-				if(this.__new) {
-					state = "NEW";
-				} else if(_.isEmpty(this.__modified)) {
-					state = "PERSISTED";
+					return deferred.promise();
+				},
+
+				// Encode returns the bare object.
+				_encode: function() {
+					var min = {};
+
+					min._type = this._type();
+
+					//Add all the properties to the writer.
+					_.each(definition.properties, _.bind(function(prop, name){
+						min[name] = this[name]();
+					}, this));
+
+					// Don't add relationships. Any walker will be responsible for adding only the entities they need.
+
+					return min;
 				}
-				return state;
-			};
+			});
 
-			// Prep the property mutaccs
+			// Alias _encode as toJSON for ES5 JSON.stringify()
+			definition.Constructor.prototype.toJSON = definition.Constructor.prototype._encode;
+
+			// Prepare property mutaccs.
 			_.each(definition.properties, function(property, field) {
 				_build_mutacc(definition, field, property);
 			});
 
-			// Prep all the navigation mutaccs.
+			// Prepare navigation mutaccs.
 			_.each(definition.relationships, function(relationship, rel_name){
 				_build_relationship(definition, rel_name, relationship);
 			});
 
-			// Encode returns the bare object.
-			definition.Constructor.prototype._encode = function() {
-				var self = this, min = {};
-
-				min._type = this._type();
-
-				//Add all the properties to the writer.
-				_.each(definition.properties, function(prop, name){
-					min[name] = self[name]();
-				});
-
-				return min;
-			};
-
-			definition.Constructor.prototype._definition = function() {
-				return definition;
-			};
 
 			if(proto) {_.extend(definition.Constructor.prototype, proto.prototype);}
 		};
@@ -219,6 +231,7 @@
 		// Prepare a mutacc for a specific property.
 		// The property mutacc must handle entity accounting details.
 		var _build_mutacc = function(definition, field, property) {
+			// Each field name is its own function combining getters and setters, depending on arguments.
 			definition.Constructor.prototype[field] = function(value) {
 				// Overloaded getter and setter.
 				if(undefined !== value) {
@@ -229,33 +242,37 @@
 					return this[field].get.call(this);
 				}
 			};
+			// Add the actual getters and setters to the new field
 			_.extend(definition.Constructor.prototype[field], {
+				// The setter has some accounting details to handle
 				set: function(value){
 					// Only actually update it if it is a new value.
-					if(value !== this.__fields[field]) {
+					if(value !== this._fields[field]) {
 						// Update it if not set...
-						if(!this.__modified[field]) {
-							this.__modified[field] = this.__fields[field];
-							this.__modified._count += 1;
+						if(!this._modified[field]) {
+							this._modified[field] = this._fields[field];
+							this._modified._count += 1;
 							ec._modified.set(this);
 						} else {
-							// Setting it back to the old value...
-							if(this.__modified[field] === value) {
-								delete this.__modified[field];
-								this.__modified.__count -= 1;
+							// It might be getting set to the old value...
+							if(this._modified[field] === value) {
+								delete this._modified[field];
+								this._modified._count -= 1;
 							}
 							// If it was the last property, remove from the context's modified list.
-							if(this.__modified.__count === 0) {
+							if(this._modified._count === 0) {
 								ec._modified.remove(this);
 							}
 						}
-						this.__fields[field] = value;
+						// The actual set
+						this._fields[field] = value;
+						// Notify observers
 						_.trigger(this, "modify", [field, value]);
 					}
 				},
 				get: function(){
 					// Just a getter.
-					return this.__fields[field];
+					return this._fields[field];
 				}
 			});
 		};
@@ -265,45 +282,49 @@
 		var _build_relationship = function(definition, field, relationship) {
 			var ec = self;
 
-			//Build the getter
-			var get = ("has_many" === relationship.type) ?
-				'get_empty' : 'get_first';
-
+			// The relationship is the name of a function that acts as getter/setter
 			definition.Constructor.prototype[field] = function(entity){
+				// Use arguments, since we might have a few things coming.
 				if(arguments.length > 0){
 					var set = (relationship.type === "has_many") ? "add" : "set";
-					return this[field][set].call(this, entity);
+					return this[field][set].apply(this, arguments);
 				} else {
 					return this[field].get.call(this);
 				}
 			};
 
+			// The multiple relations functions.
 			if ("has_many" === relationship.type) {
 				_.extend(definition.Constructor.prototype[field], {
+					// Return the set of entities in the relationship.
 					get: function(longGet) {
+						// Lazy load
 						if(longGet) {
-							// Lazy load
 							// This needs a bit of thought
 							//TODO
 						}
-						if(undefined === this.__relationships[field]) {
+						// Check if the field has ever been set
+						if(undefined === this._relationships[field]) {
 							// The field hasn't been set, so we haven't ever gotten this relationship before.
 							// We'll need to go through and fix that.
 							// We'll need to grab everything who points to us...
 							var self = this;
-							this.__relationships[field] = [];
+							this._relationships[field] = [];
+							// Loop over every entity this relationship could point to
 							_.each(ec._instances[relationship.to.type], function(type){
+								// If these are related
 								if(type[relationship.to.property]() === self[relationship.property]()) {
 									// Add it
-									self.__relationships[field].push(this);
+									self._relationships[field].push(this);
 								}
 							});
 						}
-						return this.__relationships[field];
+						return this._relationships[field];
 					},
 					set: function(entity) {
 						// ??
 					},
+					// Add an entity to the relationship.
 					add: function(entity) {
 						if(_.isArray(entity)){
 							for(var _i=0; _i<entity.length; _i++){
@@ -312,14 +333,14 @@
 							return this;
 						}
 
-						if(undefined === this.__relationships[field]) {
+						if(undefined === this._relationships[field]) {
 							//Lazy load
 							this[field].get.call(this);
 						}
 
-						if(_.indexBy(this.__relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
+						if(_.indexBy(this._relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0) {
 							//The entity is _NOT_ in this' array.
-							this.__relationships[field].push(entity);
+							this._relationships[field].push(entity);
 
 							//Call the reverse setter
 							//Need to find the back relationship...
@@ -329,6 +350,9 @@
 								entity[back_rel.name].set.call(entity, this);
 							}
 						}
+
+						// Notify observers
+						_.trigger(this, "modify", [field, entity]);
 
 						return this;
 					}
@@ -342,24 +366,24 @@
 							// This needs a bit of thought
 							//TODO
 						}
-						if(undefined === this.__relationships[field]) {
+						if(undefined === this._relationships[field]) {
 							// Just need the one...
-							this.__relationships[field] = ec._instances[relationship.to.type][this[relationship.property]()];
+							this._relationships[field] = ec._instances[relationship.to.type][this[relationship.property]()];
 							// Make sure we found one
-							if(undefined === this.__relationships[field]){
+							if(undefined === this._relationships[field]){
 								// If not, create it.
 								var key = {};
 								key[ec.definition(relationship.to.type).key] = this[relationship.to.property]();
 								this[field](ec.build(relationship.to.type, key));
 							}
 						}
-						return this.__relationships[field];
+						return this._relationships[field];
 					},
 					set: function(entity) {
 						var id = this[relationship.property]();
 						if( id !== entity[relationship.to.property]()) {
 							//Changing
-							this.__relationships[field] = entity;
+							this._relationships[field] = entity;
 							entity[relationship.to.property](id);
 							if( "is_a" !== relationship.type ) {
 								//Add or set this to the remote entity
@@ -371,17 +395,18 @@
 								entity[back_rel.name][back].call(entity, this);
 							}
 						}
+
+						// Notify observers
+						_.trigger(this, "modify", [field, entity]);
+
 						return this;
 					}
 				});
 			}
 		};
 
-		// Prepare a promise for completing context loading.
-		var ready = _.Deferred();
-		this.ready = ready.promise();
-
 		if(options && options.debug) {
+			// The context object was provided by the caller
 			_set_context(options.debug.context, protos);
 		} else if(!this.settings.contextUri) {
 		} else {
@@ -394,7 +419,6 @@
 					};}
 					data = _.isString(data) ? JSON.parse(data) : data;
 					_set_context(data, protos);
-					ready.resolve();
 				}
 			);
 		}
@@ -470,7 +494,7 @@
 			if(updateOnIntern) {
 				//Merge the given entity into the stored entity.
 				ret = this._instances[entity._type()][entity.id()] || entity;
-				_.extend(ret.__fields, entity.__fields);
+				_.extend(ret._fields, entity._fields);
 			} else {
 				//Take the stored one if possible, otherwise use the given entity.
 				ret = this._instances[entity._type()][entity.id()] || entity;
@@ -495,7 +519,7 @@
 				if(instance.length > 0) {
 					// Local instance, extend it with the new obj and return local.
 					instance = instance[0];
-					_.extend(instance.__fields, r.__fields);
+					_.extend(instance._fields, r._fields);
 					return instance;
 				}
 			}
@@ -660,7 +684,7 @@
 			_.each(this._modified, function(modified){
 				// ...and each key contains an object of entity instances
 				_.each(modified, function(entity) {
-					entity.persist(transaction);
+					entity._persist(transaction);
 				});
 			});
 

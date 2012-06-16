@@ -4,6 +4,8 @@
 \usepackage{hyperref}
 \usepackage[underline=true,rounded corners=false]{pgf-umlsd}
 
+\renewcommand{\|}{\textbar}
+
 \usepackage{fullpage}
 \linespread{1.3}
 
@@ -617,10 +619,11 @@ Entity methods must be created by the runtime when an entity type is read from a
 context.
 \\
 \\
-\method{id}{}{UUID}
+\method{id}{full=false}{UUID}
 	{Return the UUID of the object, independent of whichever property
 	actually stores it.}
 	{
+		\param{full}{When true, prefix the ID with the entity's type.}
 		\returns{The UUID of the entity in the runtime's native format.}
 	}
 
@@ -632,10 +635,42 @@ context.
 		\returns{The entity type.}
 	}
 
-\method{`navprop`}{args}{value|Entity|[Entity...]}
+\method{\_status}{}{``MODIFIED"\|``NEW"\|``PERSISTED"}
+	{Determine the entity's persistence state. {\ilcode ``MODIFIED"}
+	indicates the entity has been persisted to another JEFRi Runtime, but has more
+	recent data that hasn't been stored. {\ilcode ``PERSISTED"} indicates all values
+	in the local copy of the entity have been persisted to at least one other runtime.
+	{\ilcode ``NEW"} indicates that this entity has never been sent to a remote
+	runtime.}
+	{
+		\returns{A string from the enumeration of entity states}
+	}
+
+\method{\_definition}{}{Definition}
+	{Get a representation of the entity's context definition.}
+	{
+		\returns{An object with the definition of the entity's type.}
+	}
+
+\method{\_persist}{transaction}{Promise}
+	{Register an entity with a persistence transaction.}
+	{
+		\param{transaction}{The transaction to attach to. If empty, starts a new
+		transaction against the default store and executes it.}
+		\returns{A promise representing the completion of the persist transaction.}
+	}
+
+\method{\_encode}{}{raw object}
+	{Return a stripped representation of the object that is suitable to add to
+	a data structure to be stringified.}
+	{
+		\returns{A raw object with only the serializable parts of the entity.}
+	}
+
+\method{`navprop'}{args}{value\|Entity\|[Entity...]}
 	{Overloaded \& combined getter and setter. If given no arguments, acts as
-	{\ilcode `navprop`.get()}. If given arguments, acts as either {\ilcode
-	`navprop`.set(args)} or {\ilcode `navprop`.add(args)}, depending on the {\ilcode
+	{\ilcode `navprop'.get()}. If given arguments, acts as either {\ilcode
+	`navprop'.set(args)} or {\ilcode `navprop'.add(args)}, depending on the {\ilcode
 	type} of the relationship.}
 	{
 		\param{args}{Either empty, an entity, or an array of entities. }
@@ -643,7 +678,7 @@ context.
 		an array of related entities.}
 	}
 
-\method{`navprop`.get}{}{value|Entity|[Entity...]}
+\method{`navprop'.get}{}{value\|Entity\|[Entity...]}
 	{Follow a navigation property or look up a property. If key refers to a
 	property, return its current value. If the relationship is an {\ilcode is\_a},
 	return an instance of the {\ilcode to} type. If the relationship is a
@@ -656,7 +691,7 @@ context.
 		navigated entity.}
 	}
 
-\method{`navprop`.set}{value}{Entity}
+\method{`navprop'.set}{value}{Entity}
 	{Set the property or {\ilcode has\_a} navigation property. Correctly updates
 	each entities' navigation property values. If there is a property and a
 	relationship with the same name, look up the relationship.}
@@ -666,18 +701,11 @@ context.
 		\returns{A reference to this entity.}
 	}
 
-\method{`navprop`.add}{to\_entity}{Entity}
+\method{`navprop'.add}{to\_entity}{Entity}
 	{Add to the {\ilcode has\_many} array.}
 	{
 		\param{to\_entity}{New entity to add to the {\ilcode has\_many list.}}
 		\returns{A reference to this entity.}
-	}
-
-\method{encode}{}{raw object}
-	{Return a stripped representation of the object that is suitable to add to
-	a data structure to be stringified.}
-	{
-		\returns{A raw object with only the serializable parts of the entity.}
 	}
 
 \subsubsection{Events}
