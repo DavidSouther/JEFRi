@@ -15,7 +15,7 @@ var testDone = function(){
 	};
 };
 
-module("Entity Context", {
+module("JEFRi Runtime", {
 	teardown: function(){
 		testDone();
 	}
