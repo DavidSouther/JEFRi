@@ -2,8 +2,13 @@
 <html>
 <head>
 
-  <script type="text/javascript" src="http://documentcloud.github.com/underscore/underscore.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+  <script type="text/javascript">
+    _jQuery = jQuery;
+    jQuery = null;
+  </script>
+
+  <script type="text/javascript" src="http://documentcloud.github.com/underscore/underscore.js"></script>
   <script type="text/javascript" src="//github.com/jashkenas/coffee-script/raw/master/extras/coffee-script.js"></script>
   <script type="text/javascript" src="//github.com/DavidSouther/superscore/raw/master/dist/superscore.js"></script>
 

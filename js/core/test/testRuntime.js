@@ -80,4 +80,4 @@ test("Transaction Prototype", function(){
 	ok(t.persist, "JEFRi.Transaction::persist");
 });
 
-}(jQuery));
+}(_jQuery));

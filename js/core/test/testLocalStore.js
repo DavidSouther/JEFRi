@@ -2,26 +2,21 @@
 /*global start:false, stop:false ok:false, equal:false, notEqual:false, deepEqual:false*/
 /*global notDeepEqual:false, strictEqual:false, notStrictEqual:false, raises:false*/
 
-$(document).ready(function(){
+_jQuery(document).ready(function(){
 
-	_.symmetricDifference = function(){
-		return _.reduce(arguments, function(first, second){
-			return _.union(
-				_.difference(first, second),
-				_.difference(second, first)
-			);
-		});
-	};
-
-	module("Local Storage");
+	module("Local Storage", {
+		setup: function(){
+			// Global in testing environment.
+			runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+		}
+	});
 
 	test("Unit Testing Environment", function(){
 		expect(1);
 		ok (!isLocal, "Unit tests shouldn't be run from file://, especially in Chrome. If you must test from file:// with Chrome, run it with the --allow-file-access-from-files flag!");
 	});
 
-	asyncTest("LocalStore", function(){
-		runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+	asyncTest("LocalStore minimal save", function(){
 		runtime.ready.done( function(){
 			user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 			authinfo = user.authinfo(runtime.build('Authinfo', {})).authinfo();
@@ -37,4 +32,11 @@ $(document).ready(function(){
 			});
 		});
 	});
+
+	asyncTest("LocalStore", function(){
+		runtime.ready.done(function(){
+			start();
+		});
+	});
+
 });

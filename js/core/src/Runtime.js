@@ -108,11 +108,14 @@
 
 					// Set the privileged accounting and property data.
 					this._new = true;
-					this._modified = {};
+					this._modified = {_count: 0};
 					this._fields = {};
 					this._relationships = {};
 					// Check for runtime prototype override.
 					proto = proto || {};
+
+					// Set the key; generate if not set by proto.
+					proto[definition.key] = proto[definition.key] || _.UUID.v4();
 
 					// Set a bunch of default values, so they're all available.
 					_.each(definition.properties, function(property, name){
@@ -121,8 +124,6 @@
 						self[name](def);
 					});
 
-					// Set the key, if it wasn't set by the proto.
-					if ( ! proto[definition.key] ) { this[definition.key](_.UUID.v4()); }
 					// Attach a privileged copy of the full id, more for debugging than use.
 					this._id = this.id(true);
 
@@ -131,13 +132,13 @@
 
 					// Set a few event handlers
 					// Manage accounting after an entity has been persisted
-					_.on(this, 'persisted', _.bind(function(){
+					_.on(this, 'persisted', function(){
 						this._new = false;
 						this._modified = {
 							_count: 0
 						};
 						ec._modified.remove(this);
-					}, ec._context.entities[name]));
+					});
 				};
 
 				//Set up the prototype for any of this entity.
@@ -248,7 +249,10 @@
 				set: function(value){
 					// Only actually update it if it is a new value.
 					if(value !== this._fields[field]) {
-						// Update it if not set...
+						// The actual set
+						this._fields[field] = value;
+
+						// Update the modified list if not set...
 						if(!this._modified[field]) {
 							this._modified[field] = this._fields[field];
 							this._modified._count += 1;
@@ -264,8 +268,7 @@
 								ec._modified.remove(this);
 							}
 						}
-						// The actual set
-						this._fields[field] = value;
+
 						// Notify observers
 						_.trigger(this, "modify", [field, value]);
 					}
