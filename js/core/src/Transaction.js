@@ -4,73 +4,83 @@
 //     For all details and documentation:
 //     http://jefri.org
 
+// ## Transactions
 (function(_, JEFRi){
 
-	// ### Transactions
-
+	// ### Transaction
 	// Object to handle transactions.
 	JEFRi.Transaction = function(spec, store) {
 		this.attributes = {};
 		this.store = store;
 		this.entities = (spec instanceof Array)?spec:[spec];
+	};
 
-		this.toString = function() {
+	// ### Prototype
+	_.extend(JEFRi.Transaction.prototype, {
+		// ### toString
+		toString: function() {
 			var store = this.store;
 			var transaction = {};
 			transaction.attributes = this.attributes;
 			transaction.entities = [];
 			_.each(this.entities, function(entity) {
-				// var self = entity;
-				var ent = entity._encode();
+				var ent = _.isEntity(entity) ? entity._encode() : entity;
 				transaction.entities.push(ent);
 			});
 			return JSON.stringify(transaction);
-		};
-	};
+		},
 
-	// Execute the transaction as a GET request
-	JEFRi.Transaction.prototype.get = function(store) {
-		var d = new _.Deffered();
-		_.trigger(this, 'getting');
-		_.one(this, 'gotten', function(e, data){d.resolve(data);});
-		// return
-		if( this.store ) { this.store.get(this); }
-		return d.promise();
-	};
-
-	// Execute the transaction as a POST request
-	JEFRi.Transaction.prototype.persist = function(callback) {
-		var d = _.Deferred().then(callback);
-		_.trigger(this, 'persisting');
-		_.trigger(this, 'persisted', function(e, data){
-			_.each(e.entities, function(ent){
-				_.trigger(ent, 'persisted');
+		// ### get*([store])*
+		// Execute the transaction as a GET request
+		get: function(store) {
+			var d = new _.Deferred();
+			_.trigger(this, 'getting');
+			_.once(this, 'gotten', function(){
+				d.resolve(this);
 			});
-			d.resolve(data);
-		});
-		if( this.store ) { this.store.persist(this); }
-		return d.promise();
-	};
+			store = store || this.store;
+			store.execute('get', this);
+			return d.promise();
+		},
 
-	// Add several entities to the transaction
-	JEFRi.Transaction.prototype.add = function(spec) {
-		//Force spec to be an array
-		spec = (spec instanceof Array)?spec:[spec];
-		var ents = this.entities;
-		_.each(spec, function(s) {
-			// TODO switch to direct lookup.
-			if(_.indexBy(ents, _.bind(JEFRi.EntityComparator, s)) < 0) {
-				//Hasn't been added yet...
-				ents.push(s);
-			}
-		});
-		return this;
-	};
+		// ### persist*([store])*
+		// Execute the transaction as a POST request
+		persist: function(store) {
+			var d = _.Deferred();
+			store = store || this.store;
+			_.trigger(this, 'persisting');
+			_.trigger(this, 'persisted', function(e, data){
+				_.each(e.entities, function(ent){
+					_.trigger(ent, 'persisted');
+				});
+				d.resolve(data);
+			});
+			if( this.store ) { this.store.persist(this); }
+			return d.promise();
+		},
 
-	// Set several attributes on the transaction
-	JEFRi.Transaction.prototype.attributes = function(attributes) {
-		_.extend(this.attributes, attributes);
-		return this;
-	};
+		// ### add*(spec...)*
+		// Add several entities to the transaction
+		add: function(spec) {
+			//Force spec to be an array
+			spec = _.isArray(spec)?spec:[].slice.call(arguments, 0);
+			var ents = this.entities;
+			_.each(spec, function(s) {
+				// TODO switch to direct lookup.
+				if(_.indexBy(ents, _.bind(JEFRi.EntityComparator, s)) < 0) {
+					//Hasn't been added yet...
+					ents.push(s);
+				}
+			});
+			return this;
+		},
+
+		// ### attributes*(attributes)*
+		// Set several attributes on the transaction
+		attributes: function(attributes) {
+			_.extend(this.attributes, attributes);
+			return this;
+		}
+	});
 
 }.call(this, _, this.JEFRi));
