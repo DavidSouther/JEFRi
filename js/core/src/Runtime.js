@@ -25,6 +25,9 @@
 		}
 	};
 
+	// Add isEntity to the underscore function.
+	_.mixin({isEntity: JEFRi.isEntity});
+
 	// ### Runtime Constructor
 	root.JEFRi.Runtime = function(contextUri, options, protos) {
 		// Private variables we'll be using throughout the class.
@@ -36,7 +39,7 @@
 			// If an entity already exists, does JEFRi update or replace?
 			updateOnIntern : true,
 			// The constructor for the default store.
-			store          : JEFRi.PostStore
+			store          : JEFRi.LocalStore
 		}, options);
 
 		// Prepare a promise for completing context loading.
@@ -56,7 +59,7 @@
 		// Collection of entities that have modifications since their inception or last persistence. Partitioned by types.
 		this._modified = {};
 		// The default store
-		this._store = new this.settings.store(ec);
+		this._store = new this.settings.store({runtime: this});
 
 		// Some helper methods to manage modified entities.
 		// Add an entity to the modified set.
@@ -532,16 +535,17 @@
 		},
 
 		// Expand and intern a transaction.
-		expand: function (transaction) {
+		expand: function (transaction, action) {
 			var self = this;
 			var entities = transaction.entities;
+			action = action || "persisted";
 
 			var ret = [];
 			_.each(entities, function(entity) {
 				var e = self.build(entity._type, entity);
 				e = self.intern(e, true);
 				//Make the entity not new...
-				_.trigger(e, 'persisted');
+				_.trigger(e, action);
 				ret.push(e);
 			});
 
@@ -587,33 +591,12 @@
 		// If spec is an array with multiple elements, and ANY ONE matches, the
 		// result array will have only the matching entities. If NONE matches, the
 		// result array will have one entity per spec.
-		get: function(spec, callback) {
-			spec = (spec instanceof Array) ? spec : [spec];
-			return this.get_empty(spec).then(callback);
-		},
-
-		// Pass the spec to get, and just pop the first entity.
-		get_first: function(spec, callback) {
-			spec = (spec instanceof Array) ? spec : [spec];
-			var d = _.Deferred().then(callback);
-
-			this.get(spec).then(function(data, meta){
-				var _type = spec._type instanceof Function ?
-					spec._type() :
-					spec._type;
-				d.resolve(data[_type].pop(), meta);
-			});
-
-			return d.promise();
-		},
-
-		// Return a possibly empty array of entities matching the spec.
-		get_empty: function(spec, callback) {
+		get: function(spec) {
 			spec = (spec instanceof Array) ? spec : [spec];
 			var self = this;
 			var results = {};
 			var transaction = this.transaction();
-			var deferred = _.Deferred().done(callback);
+			var deferred = _.Deferred();
 
 			results.push = pushResult;
 
@@ -631,8 +614,7 @@
 				if( (undefined !== id) && this._instances[_type][id]) {
 					//It is local, so use that one
 					results.push(this._instances[_type][id]);
-				}
-				else {
+				} else {
 					//Otherwise, add to transaction
 					transaction.add(_spec);
 
@@ -652,7 +634,7 @@
 			// If transaction is not empty
 			if(transaction.entities.length > 0) {
 				// Run the transaction
-				transaction.get(function(transaction){
+				transaction.get().done(function(transaction){
 					// Merge the result sets, adding `gotten` things to `had` things.
 					_.each(transaction.entities, function(entity){
 						results.push(entity);
@@ -666,6 +648,21 @@
 			return deferred.promise();
 		},
 
+		// Pass the spec to get, and just pop the first entity.
+		get_first: function(spec) {
+			spec = (spec instanceof Array) ? spec : [spec];
+			var d = _.Deferred();
+
+			this.get(spec).then(function(data, meta){
+				var _type = spec._type instanceof Function ?
+					spec._type() :
+					spec._type;
+				d.resolve(data[_type].pop(), meta);
+			});
+
+			return d.promise();
+		},
+
 		// Save all the new entities.
 		save_new: function(store) {
 			var transaction = this.transaction();
@@ -674,11 +671,11 @@
 			//Add all new entities to the transaction
 			transaction.add(this._new);
 
-			return this._save(store, transaction);
+			return this._save(transaction, store);
 		},
 
 		// Save all entities with changes, including new entities.
-		save_all: function(callback) {
+		save_all: function(store) {
 			var transaction = this.transaction();
 			_.trigger(this, 'saving');
 
@@ -695,10 +692,11 @@
 				this.persist(neu);
 			});
 
-			return transaction.persist(callback);
+			return this._save(transaction, store);
 		},
 
-		_save: function(store, transaction){
+		_save: function(transaction, store){
+			store = store || this._store;
 			return store.execute('persist', transaction).then(
 				_.bind(this.expand, this)
 			);
