@@ -7,10 +7,7 @@
 (function(_){
 	var root = this;
 
-	// ### Persistence Stores
-	// TODO move this out
-
-	// #### PostStore
+	// ### PostStore
 	//
 	// Handles POSTing a transaction to a remote JEFRi instance.
 	root.JEFRi.PostStore = function(ec, options) {
@@ -50,6 +47,8 @@
 		} else {
 			//No backing data store, so do nothing.
 			this.get = this.persist = function(transaction) {
+				transaction.entities = [];
+				_.trigger(transaction, "gotten");
 				return _.Deferred().resolve().promise();
 			};
 		}
@@ -59,4 +58,10 @@
 			return true;
 		};
 	};
+
+	_.extend(root.JEFRi.PostStore.prototype, {
+		execute: function(type, transaction){
+			this[type](transaction);
+		}
+	});
 }.call(this, _, JEFRi));
