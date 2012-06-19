@@ -358,42 +358,46 @@ To capture the full expressiveness developers need in describing data, there are
 several rules transactions will use to determine the entities to return from a
 {\ilcode get} transaction.
 
-If the property is the entity key, it will be converted to an appropriate format
+\begin{enumerate}
+
+\item If the property is the entity key, it will be converted to an appropriate format
 for the store, and the property must match exactly. While the UUID can be
 transmitted as a hex string, it is recommended to transmit it as a 16-byte
 integer when possible, to conserve space.
 
-If value is an integer, properties must match exactly.
+\item If value is an integer, properties must match exactly.
 
-If value is a float, either it should be matched at a $2^{-8}$ threshold or it
+\item If value is a float, either it should be matched at a $2^{-8}$ threshold or it
 can be the first number of an array tuple, whose second parameter specifies the
 threshold precision as an integer $n$ such that the threshold is $2^{-n}$.
 
-If the value is a string, it will be treated as an SQL LIKE operation. Returned
+\item If the value is a string, it will be treated as an SQL LIKE operation. Returned
 entities will have properties whose values contain the string (case sensitive).
 
-If the value is an array, the first field in the array may specify an operation,
+\item If the value is an array, the first field in the array may specify an operation,
 may be a floating point number (see above), may be a compound filter, or may be
 an enumeration of values the field's value must be {\ilcode in}.
 
-Valid operations are any of {\ilcode $<$}, {\ilcode $<=$}, {\ilcode $>$},
+\item Valid operations are any of {\ilcode $<$}, {\ilcode $<=$}, {\ilcode $>$},
 {\ilcode $>=$}, {\ilcode $=$}, and {\ilcode REGEX}. {\ilcode REGEX} treats the
 next value as a PCRE regular expression, and any returned entities will have
 that property matching the regex. Otherwise, the operations are as specified by
 the store, but generally should be numerical ordering for numbers, and
 lexicographical ordering for strings.
 
-%SUM? AVERAGE? COUNT? MAX? MIN?
+%\item SUM? AVERAGE? COUNT? MAX? MIN?
 
-%GROUP BY?
+%\item GROUP BY?
 
-If the value is an array whose first parameter is not an operator or another
-array, the returned entity's property will match as an IN clause, with integers
+\item If the value is an array whose first parameter is not an operator, a float, or
+another array, the returned entity's property will match as an IN clause, with integers
 matching exactly and string matching as described above.
 
-If the first parameter is an array, then each element of the value's array is
+\item If the first parameter is an array, then each element of the value's array is
 treated as an ANDed where clause, with the components of sub arrays following
 the same (value) or (operator, value) rules presented here.
+
+\end{enumerate}
 
 Using a common SQL driver,
 \linespread{1}
