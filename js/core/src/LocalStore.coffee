@@ -1,3 +1,9 @@
+#     JEFRi LocalStore.coffee 0.1.0
+#     (c) 2011-2012 David Souther
+#     JEFRi is freely distributable under the MIT license.
+#     For full details and documentation:
+#     http://jefri.org
+
 ( ->
 	root = @
 
@@ -7,30 +13,136 @@
 		constructor: (options) ->
 			@settings = { version: "1.0", size: Math.pow(2, 16) }
 			_.extend(@settings, options)
+			if not @settings.runtime
+				throw {message: "LocalStore instantiated without runtime to reference."}
 
+		# ### execute*(type, transaction)*
+		# Run the transaction.
 		execute: (type, transaction) ->
 			transactionEvent = JSON.parse(transaction.toString())
 			_(@).trigger('sending', type, 'localStorage:', transactionEvent, @)
 			if (type == "persist")
-				persist(transaction)
+				@persist(transaction)
 			else if (type == "get")
-				get(transaction)
-			_.Deferred().resolve(transactionEvent);
+				@get(transaction)
+			_.Deferred().resolve(transaction);
 
-		persist = (transaction) ->
-			transaction.entities = (_save(entity) for entity in transaction.entities)
+		# ### persist*(transction)*
+		# Treat the transaction as a persistence call. Save the data.
+		persist: (transaction) ->
+			transaction.entities = (@_save(entity) for entity in transaction.entities)
 
-		_save = (entity) ->
-			entity = _.extend({}, entity, _find(entity))
-			localStorage[_key(entity)] = entity;
+		# ### _save*(entity)*
+		# Save the data in the browser's localStorage.
+		_save: (entity) ->
+			# Merge the new data over the old data.
+			entity = _.extend({}, @_find(entity), entity)
+			# Store the JSON of the entity.
+			localStorage[_key(entity)] = JSON.stringify(entity)
+			# Register the entity with the type map.
+			_type(entity._type(), entity.id());
+			# Return the bare encoded object.
+			entity._encode()
 
-		get = (transaction) ->
-			entities = (_find(entity) for entity in transaction.entities)
+		# ### get*(transaction)*
+		# Treat the transaction as a lookup. Find all data matching the specs.
+		get: (transaction) ->
+			# Let _lookup handle the actual lookups. Each spec is an `or` op, so flatten then remove duplicates.
+			transaction.entities = _.uniq(
+				# The lookup
+				_.flatten((@_lookup(entity) for entity in transaction.entities)),
+				false,
+				# Uniq based on type.id
+				(e) => e._type + '.' + e[@settings.runtime.definition(e._type).key]
+			)
+			# Put the entities back in the runtime
+			@settings.runtime.expand(transaction, "gotten")
+			# Fire events
+			_.trigger(transaction, 'gotten')
+			transaction
 
-		_find = (entity) ->
-			localStorage[_key(entity)] || {}
+		# ### _find*(entity)*
+		# Return an entity directly, or pass a spec to _lookup.
+		_find: (entity) ->
+			if _.isEntity(entity)
+				JSON.parse(localStorage[_key(entity)] || "{}")
+			else
+				@_lookup(entity)
 
-		_key = (entity) -> entity.id(true)
+		# ### _lookup*(spec)*
+		# Given a transaction spec, pull all entities (including relationships) that match.
+		# See JEFRi Core documentation 5.1.1 Gory Get Details for rules.
+		_lookup: (spec) ->
+			# Need the key, properties, and relationships details
+			def = @settings.runtime.definition(spec._type)
+			# Get everything for this type
+			results = (JSON.parse(localStorage[spec._type + "." + id]) for id in _.keys(_type(spec._type)))
+
+			# Start immediately with the key to pear down results quickly. Rule 1.
+			if key of spec
+				results = [results[spec[key]]]
+
+			# Filter based on property specifications
+			_.each def.properties, (property, name) =>
+				if name of spec and name isnt key
+					results = _(results).filter(_seive(name, property, spec[name]))
+
+
+			results
+
+		_type = (type, id=null) ->
+			list = JSON.parse(localStorage[type] || "{}");
+			if id
+				list[id] = ""
+				localStorage[type] = JSON.stringify(list)
+			list
+
+		_key = (entity) ->
+			entity._type() + "." + entity.id()
+
+		_seive = (name, property, spec) ->
+			# Normalize rules 2 and 3 to operator array
+			if _.isNumber(spec)
+				if spec % 1 is 0
+					spec = ['=', spec]
+				else
+					spec = [spec, 8]
+
+			# Rule 4, string behaves as SQL "Like"
+			if _.isString(spec)
+				spec = ['REGEX', '.*' + spec + '.*']
+
+			# Spec should be an array by now, if it isn't, there's a problem.
+			if not _.isArray(spec)
+				throw { message: "Specification is invalid.", name: name, property: property, spec: spec}
+
+			# Rule 3, only floats are allowed in operator position
+			if _.isNumber(spec[0])
+				return (entity) ->
+					Math.abs(entity[name] - spec[0]) < Math.pow(2, -spec[1])
+
+			# Rule 8, AND specs.
+			if _.isArray(spec[0])
+				spec[i] = _seive(name, property, spec[i]) for s, i in spec
+				return (entity) ->
+					for filter in spec
+						if not filter(entity)
+							return false
+					return true
+
+			# Rule 6, several valid operators.
+			switch spec[0]
+				when "=" then return (entity) -> entity[name] == spec[1]
+				when "<=" then return (entity) -> entity[name] <= spec[1]
+				when ">=" then return (entity) -> entity[name] >= spec[1]
+				when "<" then return (entity) -> entity[name] < spec[1]
+				when ">" then return (entity) -> entity[name] > spec[1]
+				when "REGEX" then return (entity) -> ("" + entity[name]).match(spec[1])
+				# Rule 7, IN list
+				else return (entity) ->
+					while field = spec.shift
+						if entity[name] is field
+							return true
 
 	root.JEFRi.LocalStore = LocalStore
 )();
