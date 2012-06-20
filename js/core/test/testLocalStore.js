@@ -7,10 +7,10 @@ _jQuery(document).ready(function(){
 	module("Local Storage", {
 		setup: function(){
 			// Clear localStorage
-			for(o in localStorage){delete localStorage[o]};
+			for(var o in localStorage){ delete localStorage[o]; }
 
 			// Global in testing environment.
-			runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+			runtime = new JEFRi.Runtime("testContext.json", {store: JEFRi.LocalStore});
 		}
 	});
 
@@ -24,8 +24,7 @@ _jQuery(document).ready(function(){
 			user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 			authinfo = user.authinfo(runtime.build('Authinfo', {})).authinfo();
 
-			store = new JEFRi.LocalStore();
-			runtime.save_new(store).then(function(transaction){
+			runtime.save_new().then(function(transaction){
 				ok(transaction.entities && transaction.attributes, "Transaction entities and attributes.");
 				ok(transaction.entities.length == 2, "Transaction should only have 2 entities.");
 				ok(_.keys(transaction.entities[0]).length == 6, "Entity has unexpected keys.");
@@ -37,9 +36,9 @@ _jQuery(document).ready(function(){
 	});
 
 	var users = [
-		["David Souther", "davidsouther@gmail.com", {username: "southerd", activated: "true", created: new Date(2011, 01, 15, 15, 34, 5).toJSON(), last_ip: "192.168.2.79"}],
-		["JPorta", "jporta@example.com", {username: "portaj", activated: "true", created: new Date(2012, 01, 15, 15, 34, 5).toJSON(), last_ip: "192.168.2.80"}],
-		["Niemants", "andrew@example.com", {username: "andrew", activated: "false", created: new Date(2012, 01, 17, 15, 34, 5).toJSON(), last_ip: "80.234.2.79"}]
+		["David Souther", "davidsouther@gmail.com", {username: "southerd", activated: "true", created: new Date(2011, 1, 15, 15, 34, 5).toJSON(), last_ip: "192.168.2.79"}],
+		["JPorta", "jporta@example.com", {username: "portaj", activated: "true", created: new Date(2012, 1, 15, 15, 34, 5).toJSON(), last_ip: "192.168.2.80"}],
+		["Niemants", "andrew@example.com", {username: "andrew", activated: "false", created: new Date(2012, 1, 17, 15, 34, 5).toJSON(), last_ip: "80.234.2.79"}]
 	];
 
 	asyncTest("LocalStore", function(){
@@ -51,12 +50,25 @@ _jQuery(document).ready(function(){
 				user.authinfo(authinfo);
 			}
 			runtime.save_new().then(function(){
-				runtime.get({_type: "User"}).then(function(results){
-					equal(results.User.length, 3, "Find users.");
+				_.when(
+					runtime.get({_type: "User"}).then(function(results){
+						equal(results.User.length, 3, "Find users.");
+					}),
+					runtime.get({_type: "Authinfo", username: "southerd"}).then(function(results){
+						equal(results.Authinfo.length, 1, "Find southerd.");
+					}),
+					runtime.get({_type: "User", authinfo: {}}).then(function(results){
+						equal(results.Authinfo.length, 3, "Included authinfo relations.");
+						// Check that users and authinfos point to eachother...
+					}),
+					runtime.get({_type: "User", authinfo: {created: [">", new Date(2012, 1, 1).toJSON()]}}).then(function(results){
+						equal(results.Authinfo.length, 2, "Included and filtered authinfo relations.");
+						equal(results.User.length, 2, "Only included filtered relations.");
+					})
+				).done(function(){
 					start();
 				});
 			});
 		});
 	});
-
 });
