@@ -32,7 +32,7 @@
 		persist: (transaction) ->
 			transaction.entities = (@_save(entity) for entity in transaction.entities)
 
-		# ### _save*(entity)*
+		# #### _save*(entity)*
 		# Save the data in the browser's localStorage.
 		_save: (entity) ->
 			# Merge the new data over the old data.
@@ -61,7 +61,7 @@
 			_.trigger(transaction, 'gotten')
 			transaction
 
-		# ### _find*(entity)*
+		# #### _find*(entity)*
 		# Return an entity directly, or pass a spec to _lookup.
 		_find: (entity) ->
 			if _.isEntity(entity)
@@ -69,7 +69,7 @@
 			else
 				@_lookup(entity)
 
-		# ### _lookup*(spec)*
+		# #### _lookup*(spec)*
 		# Given a transaction spec, pull all entities (including relationships) that match.
 		# See JEFRi Core documentation 5.1.1 Gory Get Details for rules.
 		_lookup: (spec) ->
@@ -79,28 +79,53 @@
 			results = (JSON.parse(localStorage[spec._type + "." + id]) for id in _.keys(_type(spec._type)))
 
 			# Start immediately with the key to pear down results quickly. Rule 1.
-			if key of spec
+			if def.key of spec
 				results = [results[spec[key]]]
 
 			# Filter based on property specifications
-			_.each def.properties, (property, name) =>
-				if name of spec and name isnt key
-					results = _(results).filter(_seive(name, property, spec[name]))
+			for name, property of def.properties
+				if name of spec and name isnt def.key
+					results = _(results).filter(_sieve(name, property, spec[name]))
 
+			# Include relationships
+			relations = []
+			for name, relationship of def.relationships
+				if name of spec
+					# For all the entities found so far, include their relationships as well
+					for entity in results
+						relations.push ( =>
+							relspec = _.extend({}, spec[name], {_type: relationship.to.type})
+							relspec[relationship.to.property] = entity[relationship.property]
+							# Just going to use 
+							@_lookup(relspec)
+						)() 
+			results.push(relations)
 
+			# Return the filtered results.
 			results
 
+		# #### _type*(type[, id])*
+		# Get a set of stored IDs for a particular type. If an ID is passed in, add it to the set.
 		_type = (type, id=null) ->
+			# Get the current set
 			list = JSON.parse(localStorage[type] || "{}");
 			if id
+				# Indexed by ID, so just need an empty set.
 				list[id] = ""
+				# Restringify. Silly localStorage being string => string
 				localStorage[type] = JSON.stringify(list)
+			# Return the list.
 			list
 
+		# #### _key*(entity)*
+		# Return the full key type/id string for an entity, since this is the bare entity with no methods.
 		_key = (entity) ->
 			entity._type() + "." + entity.id()
 
-		_seive = (name, property, spec) ->
+		# ### _sieve*(name, property, spec)*
+		# Return a function to use to filter on a particular spec field. These functions implement
+		# the logic described in JEFRi Core docs 5.1.1
+		_sieve = (name, property, spec) ->
 			# Normalize rules 2 and 3 to operator array
 			if _.isNumber(spec)
 				if spec % 1 is 0
@@ -123,7 +148,7 @@
 
 			# Rule 8, AND specs.
 			if _.isArray(spec[0])
-				spec[i] = _seive(name, property, spec[i]) for s, i in spec
+				spec[i] = _sieve(name, property, spec[i]) for s, i in spec
 				return (entity) ->
 					for filter in spec
 						if not filter(entity)
@@ -132,17 +157,18 @@
 
 			# Rule 6, several valid operators.
 			switch spec[0]
-				when "=" then return (entity) -> entity[name] == spec[1]
+				when "="  then return (entity) -> entity[name] == spec[1]
 				when "<=" then return (entity) -> entity[name] <= spec[1]
 				when ">=" then return (entity) -> entity[name] >= spec[1]
-				when "<" then return (entity) -> entity[name] < spec[1]
-				when ">" then return (entity) -> entity[name] > spec[1]
+				when "<"  then return (entity) -> entity[name] <  spec[1]
+				when ">"  then return (entity) -> entity[name] >  spec[1]
 				when "REGEX" then return (entity) -> ("" + entity[name]).match(spec[1])
 				# Rule 7, IN list
 				else return (entity) ->
 					while field = spec.shift
 						if entity[name] is field
 							return true
+					return false
 
 	root.JEFRi.LocalStore = LocalStore
 )();
