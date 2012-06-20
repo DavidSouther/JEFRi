@@ -71,7 +71,6 @@ class Controller_Jefri extends Controller {
 		}
 
 		echo $writer->toString();
-#		echo $this->encode($data);
 	}
 
 	private function meta($meta, $writer) {
@@ -86,7 +85,6 @@ class Controller_Jefri extends Controller {
 					$instantiator = $moduleclass->getMethod("instance");
 					$instance = $instantiator->invoke(new $class());
 					$metadata = $instance->execute($data);
-#echo Kohana::debug($writer, $module, $metadata);
 					$writer->add_meta($module, $metadata);
 				}
 				catch (ReflectionException $re)
@@ -102,30 +100,6 @@ class Controller_Jefri extends Controller {
 	}
 
 	private function encode($transaction) {
-#		$json = "{\"meta\":{";
-#		$parts = array();
-#		foreach($transaction->meta as $key => $value)
-#		{
-#			$parts[] = "\"$key\":\"$value\"";
-#		}
-#		$json .= implode($parts, ',');
-#		$json .= "},\"entities\":[";
-#		$ents = array();
-#		foreach($transaction->entities as $entity)
-#		{
-#			if(!$entity instanceof Jefri_Model){continue;}
-#			$parts = array();
-#			$def = $entity->_definition();
-#			$parts[] = "\"_type\": \"{$def->name}\"";
-#			foreach($def->properties as $prop)
-#			{
-#				$n = $prop->name;
-#				$parts[] = "\"{$n}\": \"{$entity->$n}\"";
-#			}
-#			$ents[] = "{" . implode($parts, ',') . "}";
-#		}
-#		$json .= implode($ents, ',');
-#		$json .= "]}";
 		return $json;
 	}
 }
