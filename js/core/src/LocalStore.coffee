@@ -88,18 +88,28 @@
 					results = _(results).filter(_sieve(name, property, spec[name]))
 
 			# Include relationships
-			relations = []
 			for name, relationship of def.relationships
 				if name of spec
 					# For all the entities found so far, include their relationships as well
-					for entity in results
-						relations.push ( =>
+					give = []
+					take = []
+					for entity, i in results
+						related = ( =>
 							relspec = _.extend({}, spec[name], {_type: relationship.to.type})
 							relspec[relationship.to.property] = entity[relationship.property]
 							# Just going to use 
 							@_lookup(relspec)
-						)() 
-			results.push(relations)
+						)()
+						if related.length
+							give.push(related)
+						else
+							take.push(i)
+					take.reverse()
+					for i in take
+						end = results[i+1...]
+						results = results[...i]
+						[].push.apply(results, end)
+					[].push.apply(results, give)
 
 			# Return the filtered results.
 			results
