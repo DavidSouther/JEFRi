@@ -70,5 +70,8 @@ module.exports = function(grunt) {
 		uglify: {}
 	});
 
+	grunt.loadNpmTasks('grunt-contrib');
+	grunt.loadNpmTasks('grunt-docco');
+
 	grunt.registerTask('default', 'clean docco coffee concat min');
 };
