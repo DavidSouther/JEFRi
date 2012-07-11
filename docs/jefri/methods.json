@@ -1,0 +1,119 @@
+//context.json
+{"attributes":{},
+"entities":{
+	"User": {
+		"key": "user_id",
+		"properties": {
+			"user_id": {
+				"type": "int",
+				"attributes": {
+					"primary": "true"}},
+			"name": {
+				"type": "string",
+				"attributes": {}},
+			"address": {
+				"type": "string",
+				"attributes": {
+					"unique": "true"}}},
+		"methods": {
+			"displayName": {
+				"return": "string",
+				"definitions":
+				{
+					"coffeescript": "-> \"#{this.name()} <${this.address()}>\"",
+					"javascript": "function(){return \"\" + this.name() + \" <\" + this.address() + \">\";}",
+				}
+			},
+			"privateAddress": {
+				"comment": "Returns a representation of the address suitable for public display without publishing the entire address.",
+				"params": [
+					{
+						"name": "length",
+						"type": "int",
+						"default": 3,
+						"comment": "Max length of characters in the local part of the email address."
+					}
+				],
+				"return": "string",
+			}
+		}
+	},
+	"Authinfo": {
+		"key": "authinfo_id",
+		"properties": {
+			"authinfo_id": {
+				"type": "int",
+				"attributes": {
+					"primary": "true"}},
+			"username": {
+				"type": "string",
+				"attributes": {
+					"length": "45"}},
+			"password": {
+				"type": "string",
+				"attributes": {
+					"length": "45"}},
+			"activated": {
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			"banned": {
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			"last_ip": {
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}},
+			"last_login": {
+				"type": "string",
+				"attributes": {
+					"nullable": "true",
+					"length": "45"}}
+			}
+		},
+		"methods": {
+			"login": {
+				"comments": "Determine if the login credentials are valid, and the account is open.",
+				"params": [
+					{
+						"name": "passwordHash",
+						"type": "string"
+					},
+					{
+						"name": "ip",
+						"type": "string",
+						"comment": "IP address of this login attempt, for accounting purposes.",
+						"default": "0.0.0.0"
+					}
+				]
+			}
+		}
+	}
+}
+
+// methods.json
+{
+	"User": {
+		"privateAddress": {
+			"coffeescript": "(length=3) ->
+			            addr = this.address().split('@')
+			            \"#{addr[0].substring(0, length)}...@#{addr[1]}\""
+		}
+	},
+	"Authinfo": {
+		"javascript": "function(passwordHash, ip){
+			if(this.activated() && !this.banned()) {
+				if(this.password() === passwordHash) {
+					this.last_login(new Date().toJSON());
+					this.last_ip(ip || \"0.0.0.0\");
+					return true;
+				}
+			}
+			return false;
+		}"
+	}
+}
