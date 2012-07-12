@@ -4,7 +4,7 @@
 #     For full details and documentation:
 #     http://jefri.org
 
-( ->
+do ->
 	root = @
 
 	`root.JEFRi = root.JEFRi ? root.JEFRi : {}`
@@ -100,11 +100,14 @@
 							# Just going to use 
 							@_lookup(relspec)
 						)()
+						# Giveth, or taketh away
 						if related.length
 							give.push(related)
 						else
 							take.push(i)
+					# Remove the indicies which didn't have a relation.
 					take.reverse()
+					# 
 					for i in take
 						end = results[i+1...]
 						results = results[...i]
@@ -181,4 +184,3 @@
 					return false
 
 	root.JEFRi.LocalStore = LocalStore
-)();
