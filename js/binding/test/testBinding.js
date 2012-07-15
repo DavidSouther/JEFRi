@@ -13,21 +13,21 @@ test("Unit Testing Environment", function () {
 });
 
 asyncTest("Binding", function (){
-	ok(JEFRi.Binding, "JEFRi Binding never defined.");
-	ok(JEFRi.Binding.init, "Can't initialize JEFRi Binding.");
+	ok(JEFRi.Binding, "JEFRi Binding definition.");
+	ok(JEFRi.Binding.init, "Initialize JEFRi Binding.");
 	JEFRi.Binding.init({
 		templates: ["../src/binding.html", "./testBindings.html"]
 	}).done(function(){
-		ok(JEFRi.Binding.templates, "Templates not ready.");
-		ok(JEFRi.Binding.templates().find("#_default_theme").length, "Templates didn't load.");
-		ok(JEFRi.Binding.find, "Can't use binding template finder.");
-		ok(JEFRi.Binding.find("JEFRi").length, "Can't find system root.");
-		ok(JEFRi.Binding.find(".").length, "Can't find default theme.");
-		ok(JEFRi.Binding.find(".MISSING_THEME").length, "Can't find default theme for missing theme.");
-		ok(JEFRi.Binding.find("..User").length, "Can't find default entity.");
-		ok(JEFRi.Binding.find("..User.?").length, "Can't find entity view.");
-		ok(JEFRi.Binding.find("..User..list").length, "Can't find property view.");
-		ok(JEFRi.Binding.find("..User.MISSINGPROPERTY.list").length, "Can't find missing property view.");
+		ok(JEFRi.Binding.templates, "Templates ready.");
+		ok(JEFRi.Binding.templates().find("#_default_theme").length, "Template load.");
+		ok(JEFRi.Binding.find, "Binding template finder.");
+		ok(JEFRi.Binding.find("JEFRi").length, "Find system root.");
+		ok(JEFRi.Binding.find(".").length, "Find default theme.");
+		ok(JEFRi.Binding.find(".MISSING_THEME").length, "Find default theme for missing theme.");
+		ok(JEFRi.Binding.find("..User").length, "Find default entity.");
+		ok(JEFRi.Binding.find("..User.?").length, "Find entity view.");
+		ok(JEFRi.Binding.find("..User..list").length, "Find property view.");
+		ok(JEFRi.Binding.find("..User.MISSINGPROPERTY.list").length, "Find missing property view.");
 		start();
 	});
 });
