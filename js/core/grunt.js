@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 		},
 		concat: {
 			dist: {
-				src: ['<banner:meta.banner>', 'src/uuid.js', 'src/Runtime.js', 'src/Transaction.js', 'src/PostStore.js', 'dist/coffee/**/*.js'],
+				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/coffee/Runtime.js', 'src/Transaction.js', 'src/PostStore.js', 'dist/coffee/*Store.js'],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
