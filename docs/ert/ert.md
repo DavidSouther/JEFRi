@@ -74,7 +74,7 @@ pages and collections, as well.
 
 ### Thin
 
-
+Templates 
 
 ### Replaceable
 
@@ -83,7 +83,8 @@ pages and collections, as well.
 Communication between the underlying entities and the rendered template views
 should be as decoupled as possible. A routing framework serves as a platform
 to attach code at various points in the application's lifecycle between user
-interaction and data updates. This decoupling allows 
+interaction and data updates. This decoupling allows cross-cutting concerns
+easy access to aspect points. Libraries can focus on providing
 
 ### Eventing
 
