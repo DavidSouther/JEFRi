@@ -52,6 +52,7 @@ do (_=_) =>
 				meta: {}
 				contexts: {}
 				entities: {}
+				attributes: {}
 
 			# In-memory store of JEFRi entities.
 			_instances: {}
@@ -61,7 +62,6 @@ do (_=_) =>
 
 			# Collection of entities that have modifications since their inception or last persistence. Partitioned by types.
 			_modified:
-
 				# Some helper methods to manage modified entities.
 				# Add an entity to the modified set.
 				set: (entity) ->
@@ -99,22 +99,22 @@ do (_=_) =>
 			# Save the attributes
 			_.extend ec._context.attributes, context.attributes
 
-			# Prepare each entity. Uses _.each to put (definition, name) in a closure.
-			_.each context.entities, (definition, name) ->
+			# Prepare each entity. Uses _.each to put (definition, type) in a closure.
+			_.each context.entities, (definition, type) ->
 				# Keep the definition locally, modifying it directly with the ctor and prototypes.
-				ec._context.entities[name] = definition
+				ec._context.entities[type] = definition
 				# Ready the instances bucket
-				ec._instances[name] = {}
+				ec._instances[type] = {}
 
 				# Build an entity's constructor.
 				definition.Constructor = (proto) ->
-					self = @
-
 					# Set the privileged accounting and property data.
-					@_new = true
-					@_modified = {_count: 0}
-					@_fields = {}
-					@_relationships = {}
+					_.extend @,
+						_new: true
+						_modified: {_count: 0}
+						_fields: {}
+						_relationships: {}
+
 					# Check for runtime prototype override.
 					proto = proto || {}
 
@@ -125,7 +125,7 @@ do (_=_) =>
 					for name, property of definition.properties
 						# Use the value provided to the constructor, or the default.
 						def = proto[name] || _default(property.type)
-						self[name](def)
+						@[name](def)
 
 					# Attach a privileged copy of the full id, more for debugging than use.
 					@_id = @id(true)
@@ -136,25 +136,25 @@ do (_=_) =>
 					# Set a few event handlers
 					# Manage accounting after an entity has been persisted
 					_.on @, 'persisted', () ->
-						@_new = false
-						@_modified = {
-							_count: 0
-						}
+						_.extend @,
+							_new: false
+							_modified:
+								_count: 0
 						ec._modified.remove(@)
 					@
 
 				#Set up the prototype for any of this entity.
-				_build_prototype(name, definition, (protos && protos[name]))
+				_build_prototype(type, definition, (protos && protos[type]))
 
 			ready.resolve()
 
 		# Set up all the required methods - id(), _type(), and the mutaccs.
-		_build_prototype = (name, definition, proto) =>
+		_build_prototype = (type, definition, proto) =>
 			_.extend definition.Constructor.prototype,
 				# Get this entity's type. Use the closure'd reference.
 				_type: (full) ->
 					full = full || false
-					return name
+					return type
 
 				# Get this entity's ID.
 				id: (full) ->
