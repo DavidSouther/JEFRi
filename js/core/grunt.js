@@ -27,13 +27,15 @@ module.exports = function(grunt) {
 		},
 		coffee: {
 			app: {
-				src: ['src/**/*.coffee'],
-				dest: 'dist/coffee/'
+				files: {
+					"dist/coffee/Runtime.js": 'src/Runtime.coffee',
+					"dist/coffee/Stores.js": ['src/*Store.coffee']
+				}
 			}
 		},
 		concat: {
 			dist: {
-				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/coffee/Runtime.js', 'src/Transaction.js', 'src/PostStore.js', 'dist/coffee/*Store.js'],
+				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/coffee/Runtime.js', 'src/Transaction.js', 'src/PostStore.js', 'dist/coffee/Stores.js'],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
@@ -73,5 +75,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-docco');
 
-	grunt.registerTask('default', 'clean docco coffee concat min');
+	grunt.registerTask('default', 'clean  coffee concat min');
 };
