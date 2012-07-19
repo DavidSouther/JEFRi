@@ -453,21 +453,17 @@ do (_=_) =>
 
 		# Expand and intern a transaction.
 		expand: (transaction, action) ->
-			self = @
-			entities = transaction.entities
 			action = action || "persisted"
 
-			ret = []
-
-			for entity in entities
-				e = self.build(entity._type, entity)
-				e = self.intern(e, true)
+			built = []
+			for entity in transaction.entities || []
+				e = @build(entity._type, entity)
+				e = @intern(e, true)
 				#Make the entity not new...
 				_.trigger(e, action)
-				ret.push(e)
+				built.push(e)
 
-			transaction.entities = ret
-			return ret
+			transaction.entities = built
 
 		# Prepare a new transaction
 		transaction: (spec) ->
