@@ -29,7 +29,7 @@ do (_=_) =>
 	# ### Runtime Constructor
 	root.JEFRi.Runtime = (contextUri, options, protos) ->
 		# Private variables we'll be using throughout the class.
-		self = ec = @
+		ec = @
 
 		# Prepare a promise for completing context loading.
 		ready = _.Deferred()
@@ -64,19 +64,19 @@ do (_=_) =>
 			_modified:
 				# Some helper methods to manage modified entities.
 				# Add an entity to the modified set.
-				set: (entity) ->
+				set: (entity) =>
 					# Check if the type exists yet
-					if not self._modified[entity._type()]
+					if not @_modified[entity._type()]
 						# Add the type, since we didn't have it before.
-						self._modified[entity._type()] = {}
+						@_modified[entity._type()] = {}
 
 					# Add the entity to the bucket.
-					self._modified[entity._type()][entity.id()] = entity
+					@_modified[entity._type()][entity.id()] = entity
 					@_modified
 
 				# Remove an entity from the modified set.
-				remove: (entity) ->
-					delete self._modified[entity._type()][entity.id()]
+				remove: (entity) =>
+					delete @_modified[entity._type()][entity.id()]
 					@_modified
 
 		# Build the default store
@@ -277,14 +277,13 @@ do (_=_) =>
 							# The field hasn't been set, so we haven't ever gotten this relationship before.
 							# We'll need to go through and fix that.
 							# We'll need to grab everything who points to us...
-							self = @
 							@_relationships[field] = []
 							# Loop over every entity this relationship could point to
 							for type in ec._instances[relationship.to.type]
 								# If these are related
-								if (type[relationship.to.property]() is self[relationship.property]())
+								if (type[relationship.to.property]() is @[relationship.property]())
 									# Add it
-									self._relationships[field].push(@)
+									@_relationships[field].push(@)
 						return @_relationships[field]
 
 					# Add an entity to the relationship.
@@ -498,7 +497,6 @@ do (_=_) =>
 		# result array will have one entity per spec.
 		get: (spec) ->
 			spec = _.isArray(spec) && spec || [spec]
-			self = @
 			results = {}
 			transaction = @transaction()
 			deferred = _.Deferred()
