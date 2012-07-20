@@ -12,39 +12,39 @@ test("Unit Testing Environment", function () {
 	ok( !isLocal, "Unit tests shouldn't be run from file://, especially in Chrome. If you must test from file:// with Chrome, run it with the --allow-file-access-from-files flag!" );
 });
 
-asyncTest("Binding", function (){
-	ok(JEFRi.Binding, "JEFRi Binding definition.");
-	ok(JEFRi.Binding.init, "Initialize JEFRi Binding.");
-	JEFRi.Binding.init({
-		templates: ["../src/binding.html", "./testBindings.html"]
+asyncTest("Template", function (){
+	ok(JEFRi.Template, "JEFRi Template definition.");
+	ok(JEFRi.Template.init, "Initialize JEFRi Template.");
+	JEFRi.Template.init({
+		templates: ["../src/template.html", "./testTemplates.html"]
 	}).done(function(){
-		ok(JEFRi.Binding.templates, "Templates ready.");
-		ok(JEFRi.Binding.templates().find("#_default_theme").length, "Template load.");
-		ok(JEFRi.Binding.find, "Binding template finder.");
-		ok(JEFRi.Binding.find("JEFRi").length, "Find system root.");
-		ok(JEFRi.Binding.find(".").length, "Find default theme.");
-		ok(JEFRi.Binding.find(".MISSING_THEME").length, "Find default theme for missing theme.");
-		ok(JEFRi.Binding.find("..User").length, "Find default entity.");
-		ok(JEFRi.Binding.find("..User.?").length, "Find entity view.");
-		ok(JEFRi.Binding.find("..User..list").length, "Find property view.");
-		ok(JEFRi.Binding.find("..User.MISSINGPROPERTY.list").length, "Find missing property view.");
+		ok(JEFRi.Template.templates, "Templates ready.");
+		ok(JEFRi.Template.templates().find("#_default_theme").length, "Template load.");
+		ok(JEFRi.Template.find, "Template template finder.");
+		ok(JEFRi.Template.find("JEFRi").length, "Find system root.");
+		ok(JEFRi.Template.find(".").length, "Find default theme.");
+		ok(JEFRi.Template.find(".MISSING_THEME").length, "Find default theme for missing theme.");
+		ok(JEFRi.Template.find("..User").length, "Find default entity.");
+		ok(JEFRi.Template.find("..User.?").length, "Find entity view.");
+		ok(JEFRi.Template.find("..User..list").length, "Find property view.");
+		ok(JEFRi.Template.find("..User.MISSINGPROPERTY.list").length, "Find missing property view.");
 		start();
 	});
 });
 
 asyncTest("Templating", function (){
 	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
-	var init = JEFRi.Binding.init({
-		templates: ["../src/binding.html", "./testBindings.html"]
+	var init = JEFRi.Template.init({
+		templates: ["../src/template.html", "./testTemplates.html"]
 	});
 	_.when(runtime.ready, init).done(function(){
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
-		var view = JEFRi.Binding.render(user);
+		var view = JEFRi.Template.render(user);
 		ok(view.length, "Render basic view.");
 		ok(view.find("._property.name b").length === 1, "B for name in _defualt_property.");
 		ok(view.find("._property.user_id em").length === 1, "EM override in user_id property.");
 		ok(view.find(".relationships ._entity").length === 1, "User has one relationship.");
-		view.appendTo("#bindings-target");
+		view.appendTo("#templates-target");
 		start();
 	});
 });

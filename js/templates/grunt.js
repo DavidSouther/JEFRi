@@ -20,14 +20,14 @@ module.exports = function(grunt) {
 		coffee: {
 			app: {
 				files: {
-					'dist/coffee/binding.js': 'src/binding.coffee'
+					'dist/coffee/template.js': 'src/template.coffee'
 				}
 			}
 		},
 		less: {
 			app: {
 				files: {
-					'dist/less/binding.css': 'src/binding.less'
+					'dist/less/template.css': 'src/template.less'
 				}
 			}
 		},

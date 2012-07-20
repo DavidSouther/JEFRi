@@ -173,7 +173,7 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 		_.extend(true, settings, options)
 		loadTemplates(settings.templates).promise()
 
-	JEFRi.Binding =
+	JEFRi.Template =
 		init: init
 		templates: () -> template
 		loadTemplates: loadTemplates
