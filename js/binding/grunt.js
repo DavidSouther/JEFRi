@@ -9,21 +9,26 @@ module.exports = function(grunt) {
 				'// Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 				' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %>'
 		},
-		lint: {
-			files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
-		},
-		qunit: {
-			files: ['test/**/*.html']
-		},
-		coffee: {
-			app: {
-				src: ['src/**/*.coffee'],
-				dest: 'dist/coffee/'
-			}
-		},
 		clean: {
 			app: {
 				src: ["dist", "docs"]
+			}
+		},
+		lint: {
+			files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
+		},
+		coffee: {
+			app: {
+				files: {
+					'dist/coffee/binding.js': 'src/binding.coffee'
+				}
+			}
+		},
+		less: {
+			app: {
+				files: {
+					'dist/less/binding.css': 'src/binding.less'
+				}
 			}
 		},
 		docco: {
@@ -35,6 +40,10 @@ module.exports = function(grunt) {
 			dist: {
 				src: ['<banner:meta.banner>', 'src/**/*.js', 'dist/coffee/**/*.js'],
 				dest: 'dist/<%= pkg.name %>.js'
+			},
+			css: {
+				src: ['<banner:meta.banner>', 'src/**/*.css', 'dist/less/**/*.js'],
+				dest: 'dist/<%= pkg.name %>.css'
 			}
 		},
 		min: {
@@ -42,6 +51,9 @@ module.exports = function(grunt) {
 				src: ['<banner:meta.banner>', '<config:concat.dist.dest>'],
 				dest: 'dist/<%= pkg.name %>.min.js'
 			}
+		},
+		qunit: {
+			files: ['test/**/*.html']
 		},
 		jshint: {
 			options: {
@@ -66,5 +78,8 @@ module.exports = function(grunt) {
 		uglify: {}
 	});
 
-	grunt.registerTask('default', 'clean lint docco coffee concat min');
+	grunt.loadNpmTasks('grunt-contrib');
+	grunt.loadNpmTasks('grunt-docco');
+
+	grunt.registerTask('default', 'clean lint less coffee concat concat:css min');
 };
