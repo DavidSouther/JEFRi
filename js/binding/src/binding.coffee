@@ -4,40 +4,35 @@
 # For all details and documentation:
 # http://jefri.org
 
-((($) ->
+do ($ = jQuery) ->
 	$.fn.merge = (doms) ->
 		doms.filter("[id]").each (i, dom) =>
 			dom = $(dom)
 			id = dom.attr("id")
 			child = this.children("#" + id)
 			if child.length is 0
-				this.append(dom)
+				@append(dom)
 			else
 				child.merge(dom.children())
-			null
 		rest = doms.filter(":not([id])")
 		#[id]s handled, replace kids
 		if rest.length
-			this.children(":not([id])").remove()
-			this.append(rest)
-		this
-).call(this, jQuery))
+			@children(":not([id])").remove()
+			@append(rest)
+		@
 
-(((_, $, JEFRi)->
+do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 	# Need to make some different assumptions about Templating
-	_.templateSettings = {
+	_.templateSettings =
 		escape: /{{-([\s\S]+?)}}/g,
 		evaluate: /{{([\s\S]+?)}}/g,
 		interpolate: /{{=([\s\S]+?)}}/g
-	}
 
 	# Global Binding settings.
-	settings = {
-		paths : {
+	settings =
+		paths: 
 			root: "JEFRi"
 			theme: '_default_theme'
-		}
-	}
 
 	# Detached DOM node to hold templates.
 	template = $()
@@ -56,13 +51,12 @@
 		templates = if _.isArray(templates) then templates else Array.prototype.slice.call(arguments)
 		# Load each template
 		templates[i] = _.get(T) for T, i in templates
-		_.when.apply(null, templates).done(() ->
+		_.when.apply(null, templates).done () ->
 			# When behaves differently if there are 1 or 2+ args.
 			args = if templates.length is 1 then [arguments] else arguments
 			mergeTemplate(if _.isArray(tmpl) then tmpl[0] else tmpl) for tmpl in args
 			d.resolve()
-			null
-		)
+
 		d.promise()
 
 	# Finders to coalesce different templates into a single hierarchical system
@@ -77,7 +71,7 @@
 			when 4 then find.property(root, theme, entity, property)
 			when 5 then find.view(root, theme, entity, property, view)
 
-	_.extend(find, {
+	_.extend find,
 		root: (root = settings.paths.root) ->
 			_root = template.children("#" + root)
 			if _root.length isnt 1
@@ -115,7 +109,6 @@
 			if _view.length isnt 1
 				_view = _property.find("#view");
 			_view.clone()
-	})
 
 	# The renderer returns the built and bound DOM for a JEFRi renderable thing.
 	render = (thing) ->
@@ -124,7 +117,7 @@
 		else
 			render.page(thing)
 
-	_.extend(render, {
+	_.extend render,
 		page: (page) ->
 			find(".._page")
 
@@ -154,9 +147,8 @@
 				return rel
 			else
 				return render.entity(entity[rel_name]())
-	})
 
-	(()->
+	do () ->
 		key = {}
 
 		lock = (entity) ->
@@ -166,6 +158,7 @@
 
 		unlock = (entity) ->
 			delete key[entity.id(true)]
+			return
 
 		r_e = render.entity
 		render.entity = (entity, view = "view") ->
@@ -174,22 +167,16 @@
 				e = r_e(entity, view)
 				unlock(entity)
 			return e
-	)()
 
 	init = (options) ->
 		_clear()
 		_.extend(true, settings, options)
 		loadTemplates(settings.templates).promise()
 
-	JEFRi.Binding = {
+	JEFRi.Binding =
 		init: init
 		templates: () -> template
 		loadTemplates: loadTemplates
 		settings: settings
 		find: find
 		render: render
-	}
-
-	return
-
-).call(this, _, jQuery || null, JEFRi))
