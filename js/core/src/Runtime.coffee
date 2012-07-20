@@ -1,8 +1,8 @@
-#     JEFRi Runtime.js 0.1.0
-#     (c) 2011-2012 David Souther
-#     JEFRi is freely distributable under the MIT license.
-#     For all details and documentation:
-#     http://jefri.org
+#   JEFRi Runtime.js 0.1.0
+#   (c) 2011-2012 David Souther
+#   JEFRi is freely distributable under the MIT license.
+#   For all details and documentation:
+#   http://jefri.org
 
 do (_=_) =>
 	root = @
@@ -28,7 +28,7 @@ do (_=_) =>
 
 	# ### Runtime Constructor
 	root.JEFRi.Runtime = (contextUri, options, protos) ->
-		# Private variables we'll be using throughout the class.
+		# The ec reference for entity prototypes
 		ec = @
 
 		# Prepare a promise for completing context loading.
@@ -94,17 +94,17 @@ do (_=_) =>
 				else ""
 
 		# Takes a "raw" context object and orders it into the internal _context
-		# storage.  Also builds constructors and prototypes for the context.
+		# storage. Also builds constructors and prototypes for the context.
 		_set_context = (context, protos) =>
 			# Save the attributes
-			_.extend ec._context.attributes, context.attributes
+			_.extend @_context.attributes, context.attributes
 
 			# Prepare each entity. Uses _.each to put (definition, type) in a closure.
-			_.each context.entities, (definition, type) ->
+			_.each context.entities, (definition, type) => # NO SERIOUSLY, definition MUST BE IN A CLOSURE!
 				# Keep the definition locally, modifying it directly with the ctor and prototypes.
-				ec._context.entities[type] = definition
+				@_context.entities[type] = definition
 				# Ready the instances bucket
-				ec._instances[type] = {}
+				@_instances[type] = {}
 
 				# Build an entity's constructor.
 				definition.Constructor = (proto) ->
@@ -141,7 +141,7 @@ do (_=_) =>
 							_modified:
 								_count: 0
 						ec._modified.remove(@)
-					@
+					return @
 
 				#Set up the prototype for any of this entity.
 				_build_prototype(type, definition, (protos && protos[type]))
@@ -158,7 +158,7 @@ do (_=_) =>
 
 				# Get this entity's ID.
 				id: (full) ->
-					return (full && "#{@_type()}/" || "") + @[definition.key]()
+					return (if full then "#{@_type()}/" else "") + @[definition.key]()
 
 				# Find the status of an entity.
 				_status: () ->
@@ -176,7 +176,7 @@ do (_=_) =>
 				_persist: (transaction, callback) ->
 					deferred = _.Deferred().then(callback)
 					top = !transaction
-					transaction = top && new JEFRi.Transaction() || transaction
+					transaction = if top then new JEFRi.Transaction() else transaction
 					transaction.add(@)
 
 					#Call the on_persist handler
@@ -258,7 +258,7 @@ do (_=_) =>
 			definition.Constructor.prototype[field] = (entity) ->
 				# Use arguments, since we might have a few things coming.
 				if arguments.length > 0
-					set = (relationship.type is "has_many") && "add" || "set"
+					set = if relationship.type is "has_many" then "add" else "set"
 					return @[field][set].apply(@, arguments)
 				else
 					return @[field].get.call(@)
@@ -271,7 +271,7 @@ do (_=_) =>
 						# Lazy load
 						#if (longGet)
 							# This needs a bit of thought
-							#TODO
+							#TODO, leaving this comment in as a nag.
 						# Check if the field has ever been set
 						if !(field of @_relationships)
 							# The field hasn't been set, so we haven't ever gotten this relationship before.
@@ -341,7 +341,7 @@ do (_=_) =>
 								#Add or set this to the remote entity
 								#Need to find the back relationship...
 								back_rel = ec.back_rel(@_type(), field, relationship)
-								back = ("has_many" is back_rel.type) && 'add' || 'set'
+								back = if ("has_many" is back_rel.type) then 'add' else 'set'
 								entity[back_rel.name][back].call(entity, @)
 
 						# Notify observers
@@ -353,17 +353,13 @@ do (_=_) =>
 		if (options && options.debug)
 			# The context object was provided by the caller
 			_set_context(options.debug.context, protos)
-		else if (!@settings.contextUri)
-		else
-			_.get(@settings.contextUri, {
-				dataType: "application/json"
-			}).done(
-				(data) ->
-					if (!data) then throw { message: "Context loaded, but invalid." }
-					data = _.isString(data) && JSON.parse(data) || data
-					_set_context(data, protos)
-			)
-		@
+		else if @settings.contextUri?
+			_.get(@settings.contextUri, {dataType: "application/json"})
+			.done (data) ->
+				if (!data) then throw { message: "Context loaded, but invalid." }
+				data = if _.isString(data) then JSON.parse(data) else data
+				_set_context(data, protos)
+		return @
 
 	# #### Entity Array helper
 	pushResult = (entity) ->
@@ -382,8 +378,7 @@ do (_=_) =>
 
 		# Get the definition of an entity type.
 		definition: (name) ->
-			name = (typeof name is "string") && name || name._type()
-
+			name = name._type?() || name
 			return @_context.entities[name]
 
 		# Find the relationship back to this entity, if it exists
@@ -404,19 +399,15 @@ do (_=_) =>
 			if (@_context.entities[type])
 				_.extend @_context.entities[type].Constructor.prototype, extend.prototype
 		
-
 		# Return the canonical memory reference of the entity.
 		intern: (entity, updateOnIntern) ->
 			updateOnIntern = !!updateOnIntern || @settings.updateOnIntern
 
 			if (entity.length && ! entity._type)
 				#Array-like
-				q = entity.length
-				for i in [0..q]
-					entity[i] = @intern(entity[i], updateOnIntern)
-				return entity
+				entities = (@intern(ent, updateOnIntern) for ent in entity)
+				return entities
 
-			ret
 			if (updateOnIntern)
 				#Merge the given entity into the stored entity.
 				ret = @_instances[entity._type()][entity.id()] || entity
@@ -467,7 +458,6 @@ do (_=_) =>
 		# Prepare a new transaction
 		transaction: (spec) ->
 			spec = spec || []
-
 			return new JEFRi.Transaction(spec, @_store)
 
 		# Return an interned entity from the local instance matching spec.
@@ -496,7 +486,7 @@ do (_=_) =>
 		# result array will have only the matching entities. If NONE matches, the
 		# result array will have one entity per spec.
 		get: (spec) ->
-			spec = _.isArray(spec) && spec || [spec]
+			spec = if _.isArray(spec) then spec else [spec]
 			results = {}
 			transaction = @transaction()
 			deferred = _.Deferred()
@@ -505,7 +495,7 @@ do (_=_) =>
 
 			for _spec in spec
 				#Add the queries
-				_type = (_spec._type instanceof Function) && _spec._type() || _spec._type
+				_type = if (_spec._type instanceof Function) then _spec._type() else _spec._type
 				def = @definition(_type)
 				id = _spec[def.key]
 
@@ -517,23 +507,17 @@ do (_=_) =>
 					#Otherwise, add to transaction
 					transaction.add(_spec)
 
-	#/*
-	#				TODO: If there are multiple specs, this will not work!
-	#				TODO: Need to figure out what a page means for multiple specs.
-	#				Page format: {on : 1, lines : 10, sort:[{'Type.field':order},{'Type.field':order}]}
-	#*/
-
 			# If transaction is not empty
 			if (transaction.entities.length > 0)
 				# Run the transaction
-				transaction.get().done((transaction) ->
+				transaction.get().done (transaction) ->
 					# Merge the result sets, adding `gotten` things to `had` things.
 					results.push(entity) for entity in transaction.entities
 					deferred.resolve(results, transaction.attributes)
-				)
 			else
 				# just resolve...
 				deferred.resolve(results, {})
+
 			return deferred.promise()
 
 		# Pass the spec to get, and just pop the first entity.
@@ -541,10 +525,9 @@ do (_=_) =>
 			spec = (spec instanceof Array) ? spec : [spec]
 			d = _.Deferred()
 
-			@get(spec).then((data, meta) ->
-				_type = spec._type instanceof Function && spec._type() || spec._type
+			@get(spec).then (data, meta) ->
+				_type = if spec._type instanceof Function then spec._type() else spec._type
 				d.resolve(data[_type].pop(), meta)
-			)
 
 			return d.promise()
 
@@ -576,19 +559,4 @@ do (_=_) =>
 
 		_save: (transaction, store) ->
 			store = store || @_store
-			return store.execute('persist', transaction).then(
-				_.bind(@expand, @)
-			)
-
-		# Returns transaction of all entities in local cache.
-		get_transaction_dump: () ->
-			transaction = @transaction()
-
-			#Add all entities to the transaction
-			# _instances is keyed by type...
-			for t, instance in @_instances
-				# ...and each key contains an object of entity instances
-				for k, entity in instance
-					transaction.add(entity)
-
-			return transaction
+			return store.execute('persist', transaction).then( _.bind(@expand, @) )
