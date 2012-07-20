@@ -29,22 +29,22 @@ needed to make the model suitably robust. These navigation properties allow
 entities to act naturally and transparently as composite types.
 
 JEFRi provides strong type enforcement on relational document storage. With a
-serialization format described in JSON, 
-
-
-This allows
-intelligent loading of related data, without requiring an application to load an
-entire object graph.
+serialization format described in JSON, JEFRi concepts map directly to NoSQL
+document stores. Developers can use JEFRi as an entity framework for their
+application model backed with CouchDB's replication tools. Alternatively,
+JEFRi works as an object-relational mapper. Using an ORM persistence layer,
+JEFRi would allow applications to take advantage of the performance
+capabilities of MySQL.
 
 An Entity Framework provides a wealth of functionality over a pure Object /
-Relational Mapper. Straight ORMs simply translate between a database table and
-an instantiated object. A full EF includes tracking modifications of entities,
-descriptive methods to navigate entity relationships, intelligent sharing
-between framework instances, and more. JEFRi is a specification for how to
-define these entities, how to share these entities, and many other features
-enabling software projects to quickly and efficiently work with their data.
-
-
+Relational Mapper or Distributed Document Store. Straight ORMs simply
+translate between a database table and an instantiated object; Document stores
+have no type structure or relational enforcement. A full EF includes tracking
+modifications of entities, descriptive methods to navigate entity
+relationships, intelligent sharing between framework instances, and more.
+JEFRi is a specification for how to define these entities, how to share these
+entities, and many other features enabling software projects to quickly and
+efficiently work with their data.
 
 \section{Entities}
 

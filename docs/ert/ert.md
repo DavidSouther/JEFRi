@@ -2,10 +2,7 @@
 
 Entity Route Templating is a tightened approach to building MVC applications. By
 enforcing strict rules on the model, middleware and application developers can
-spend more time focusing on adding specific features to a product, and less time
-writing boilerplate code.
-
-
+spend more time focusing on adding specific features to a product.
 
 ## Entities
 
@@ -13,8 +10,12 @@ ERT applications begin by defining an entity context, the description of their
 data in a storage-agnostic way. Contexts entity-relationship models, defining
 what business entities are available to the system, the properties and
 relationships between those entities, and the methods available on entities.
-Any ERT framework that understands this context description would then be
-able to share structured data, while keeping logic and data associated.
+Any ERT framework that understands this context description would then be able
+to share structured data, while keeping logic and data associated. Narrowing
+the focus of the business model tools enforces certain constraints and
+assumptions onto data and development. This is a good thing, in that it
+reduces the number of choices developers must make that don't directly apply
+to their business' needs.
 
 ### Properties
 
@@ -48,7 +49,6 @@ levels. The application teams are then free to focus purely on providing
 valuable application features, with the knowledge that whatever changes the
 persist in the entity model, other applications in the organization will see
 a unified view of their data.
-
 
 ## Templates
 
