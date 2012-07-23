@@ -1,7 +1,7 @@
 # Entity Route Templating
 
 Entity Route Templating is a tightened approach to building MVC applications. By
-enforcing strict rules on the model, middleware and application developers can
+enforcing strict rules on the model, middle-ware and application developers can
 spend more time focusing on adding specific features to a product.
 
 ## Entities
@@ -54,7 +54,7 @@ a unified view of their data.
 
 With well-defined entities, templates can harness the focused approach to data
 definitions to streamline and simplify the developers' and designers'
-workflows. Instead of being a full programming language worth of conditionals
+work flows. Instead of being a full programming language worth of conditionals
 and iterations, templates can focus on specific, individual pieces of the
 entity context. This allows greater separation and focus on pieces of data.
 Further, ERT frameworks can provide more sensible default templates. Indeed,
@@ -74,7 +74,10 @@ pages and collections, as well.
 
 ### Thin
 
-Templates 
+Templates should map as closely to the entity model as possible. By
+encouraging developers to build a single vocabulary for their business data
+with an entity model, templates should be expressive enough to map directly to
+that 
 
 ### Replaceable
 
@@ -82,7 +85,7 @@ Templates
 
 Communication between the underlying entities and the rendered template views
 should be as decoupled as possible. A routing framework serves as a platform
-to attach code at various points in the application's lifecycle between user
+to attach code at various points in the application's life cycle between user
 interaction and data updates. This decoupling allows cross-cutting concerns
 easy access to aspect points. Libraries can focus on providing
 
