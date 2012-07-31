@@ -27,7 +27,8 @@ _jQuery(document).ready(function(){
 			runtime.save_new().then(function(transaction){
 				ok(transaction.entities && transaction.attributes, "Transaction entities and attributes.");
 				ok(transaction.entities.length == 2, "Transaction should only have 2 entities.");
-				ok(_.keys(transaction.entities[0]).length == 6, "Entity has unexpected keys.");
+				var nkeys = _.keys(transaction.entities[0]).length;
+				ok(nkeys == 7, "Entity has unexpected keys."); // 1 method, 1 event, 5 runtime private.
 				// This is a really bad assertion...
 				ok(_.symmetricDifference(_.keys(transaction.entities[0]._fields), ["user_id", "name", "address"]).length === 0, "Entity has unexpected fields.");
 				start();
