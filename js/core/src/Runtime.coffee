@@ -135,7 +135,7 @@ do (_=_) =>
 
 					# Set a few event handlers
 					# Manage accounting after an entity has been persisted
-					_.on @, 'persisted', () ->
+					@persisted :> () ->
 						_.extend @,
 							_new: false
 							_modified:
@@ -246,7 +246,8 @@ do (_=_) =>
 								ec._modified.remove(@)
 
 						# Notify observers
-						_.trigger(@, "modify", [field, value])
+						@modify <: [field, value]
+
 				get: () ->
 					# Just a getter.
 					return @_fields[field]
@@ -307,7 +308,7 @@ do (_=_) =>
 							if back_rel then entity[back_rel.name].set.call(entity, @)
 
 						# Notify observers
-						_.trigger(@, "modify", [field, entity])
+						@modify <: [field, entity]
 
 						return @
 			# Mutaccs for has_a and is_a
@@ -345,7 +346,7 @@ do (_=_) =>
 								entity[back_rel.name][back].call(entity, @)
 
 						# Notify observers
-						_.trigger(@, "modify", [field, entity])
+						@modify <: [field, entity]
 
 						return @
 
@@ -450,7 +451,7 @@ do (_=_) =>
 				e = @build(entity._type, entity)
 				e = @intern(e, true)
 				#Make the entity not new...
-				_.trigger(e, action)
+				e[action] <: {}
 				built.push(e)
 
 			transaction.entities = built
@@ -534,7 +535,7 @@ do (_=_) =>
 		# Save all the new entities.
 		save_new: (store) ->
 			transaction = @transaction()
-			_.trigger(@, 'saving')
+			@saving <: {}
 
 			#Add all new entities to the transaction
 			transaction.add(@_new)
@@ -544,7 +545,7 @@ do (_=_) =>
 		# Save all entities with changes, including new entities.
 		save_all: (store) ->
 			transaction = @transaction()
-			_.trigger(@, 'saving')
+			@saving <: {}
 
 			#Add all new entities to the transaction
 			# Modified is keyed by type...
