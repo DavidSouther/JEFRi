@@ -131,7 +131,7 @@ do (_=_) =>
 					@_id = @id(true)
 
 					# Add runtime methods
-					_.extend @prototype, proto.prototype
+					_.extend @prototype, proto::
 
 					# Set a few event handlers
 					# Manage accounting after an entity has been persisted
@@ -150,7 +150,7 @@ do (_=_) =>
 
 		# Set up all the required methods - id(), _type(), and the mutaccs.
 		_build_prototype = (type, definition, proto) =>
-			_.extend definition.Constructor.prototype,
+			_.extend definition.Constructor::,
 				# Get this entity's type. Use the closure'd reference.
 				_type: (full) ->
 					full = full || false
@@ -198,7 +198,7 @@ do (_=_) =>
 					return min
 
 			# Alias _encode as toJSON for ES5 JSON.stringify()
-			definition.Constructor.prototype.toJSON = definition.Constructor.prototype._encode
+			definition.Constructor::toJSON = definition.Constructor::_encode
 
 			# Prepare property mutators and accsessors.
 			_build_mutacc(definition, field, property) for field, property of definition.properties
@@ -207,13 +207,13 @@ do (_=_) =>
 			_build_relationship(definition, rel_name, relationship) for rel_name, relationship of definition.relationships
 
 			# Add any additional prototypes functions
-			if (proto) then _.extend definition.Constructor.prototype, proto.prototype
+			if (proto) then _.extend definition.Constructor::, proto::
 
 		# Prepare a mutacc for a specific property.
 		# The property mutacc must handle entity accounting details.
 		_build_mutacc = (definition, field, property) =>
 			# Each field name is its own function combining getters and setters, depending on arguments.
-			definition.Constructor.prototype[field] = (value) ->
+			definition.Constructor::[field] = (value) ->
 				# Overloaded getter and setter.
 				if (undefined isnt value)
 					# Value is defined, so this is a setter
@@ -223,7 +223,7 @@ do (_=_) =>
 					return @[field].get.call(@)
 
 			# Add the actual getters and setters to the new field
-			_.extend definition.Constructor.prototype[field],
+			_.extend definition.Constructor::[field],
 				# The setter has some accounting details to handle
 				set: (value) ->
 					# Only actually update it if it is a new value.
@@ -255,7 +255,7 @@ do (_=_) =>
 		#/* TODO Thoroughly debug these functions... */
 		_build_relationship = (definition, field, relationship) =>
 			# The relationship is the name of a function that acts as getter/setter
-			definition.Constructor.prototype[field] = (entity) ->
+			definition.Constructor::[field] = (entity) ->
 				# Use arguments, since we might have a few things coming.
 				if arguments.length > 0
 					set = if relationship.type is "has_many" then "add" else "set"
@@ -265,7 +265,7 @@ do (_=_) =>
 
 			# The multiple relations functions.
 			if "has_many" is relationship.type
-				_.extend definition.Constructor.prototype[field],
+				_.extend definition.Constructor::[field],
 					# Return the set of entities in the relationship.
 					get: (longGet) ->
 						# Lazy load
@@ -312,7 +312,7 @@ do (_=_) =>
 						return @
 			# Mutaccs for has_a and is_a
 			else
-				_.extend definition.Constructor.prototype[field],
+				_.extend definition.Constructor::[field],
 					get: (longGet) ->
 						#if(longGet) {
 						#	// Lazy load
@@ -368,7 +368,7 @@ do (_=_) =>
 		@[type].push(entity)
 
 	# #### Runtime Prototype
-	root.JEFRi.Runtime.prototype = _.extend {}, JEFRi.Runtime.prototype,
+	root.JEFRi.Runtime:: = _.extend {}, JEFRi.Runtime::,
 		# Reset the runtime's data, maintains context definitions.
 		clear: () ->
 			@_modified = {}
@@ -397,7 +397,7 @@ do (_=_) =>
 		# affecting _ALL_ instances, both current and future, of type.
 		extend: (type, extend) ->
 			if (@_context.entities[type])
-				_.extend @_context.entities[type].Constructor.prototype, extend.prototype
+				_.extend @_context.entities[type].Constructor::, extend::
 		
 		# Return the canonical memory reference of the entity.
 		intern: (entity, updateOnIntern) ->
