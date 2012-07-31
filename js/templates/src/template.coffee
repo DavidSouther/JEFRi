@@ -51,12 +51,11 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 		templates = if _.isArray(templates) then templates else Array.prototype.slice.call(arguments)
 		# Load each template
 		templates[i] = _.get(T) for T, i in templates
-		_.when.apply(null, templates).done () ->
+		_.when.apply(null, templates).done ->
 			# When behaves differently if there are 1 or 2+ args.
 			args = if templates.length is 1 then [arguments] else arguments
 			mergeTemplate(if _.isArray(tmpl) then tmpl[0] else tmpl) for tmpl in args
 			d.resolve()
-
 		d.promise()
 
 	# Finders to coalesce different templates into a single hierarchical system
