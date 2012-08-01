@@ -1,0 +1,24 @@
+{
+  "name": "jefri-binding",
+  "title": "JEFRi entity binding",
+  "homepage": "http://www.jefri.org/binding",
+  "version": "0.1.0",
+  "author": {
+    "name": "David Souther",
+    "email": "<davidsouther@gmail.com>"
+  },
+  "description": "Advisor driven template behavior library.",
+  "contributors": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidSouther/JEFRi.git"
+  },
+  "keywords": [
+    "ef",
+    "entity",
+    "entity framework",
+    "binding",
+    "advisor"
+  ],
+  "licenses": [{"type": "MIT"}]
+}
