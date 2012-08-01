@@ -54,7 +54,8 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 		_.when.apply(null, templates).done ->
 			# When behaves differently if there are 1 or 2+ args.
 			args = if templates.length is 1 then [arguments] else arguments
-			mergeTemplate(if _.isArray(tmpl) then tmpl[0] else tmpl) for tmpl in args
+			mergeTemplate(if tmpl.length? then tmpl[0] else tmpl) for tmpl in args
+			JEFRi.Template.loaded <: {}
 			d.resolve()
 		d.promise()
 
@@ -127,6 +128,7 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 			entity_view.children(".properties").append(render.property(entity._type(), property, entity[property](), view)) for own property, property_def of definition.properties
 			entity_view.children(".relationships").append(render.relationship(entity, rel_name, relationship, view)) for own rel_name, relationship of definition.relationships
 			if entity_view.find(".relationships ._entity").length == 0 then entity_view.children('.relationships').remove()
+			JEFRi.Template.rendered.entity <: [entity, entity_view]
 			entity_view
 
 		property: (type, name, property, view = "view") ->
@@ -179,3 +181,4 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 		settings: settings
 		find: find
 		render: render
+		rendered: {}
