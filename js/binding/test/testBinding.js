@@ -30,7 +30,8 @@ asyncTest("Binding", function (){
 		//ok(view.find(".User._property.name input:focus").length, "Name field has focus");
 		input.val("david.souther");
 		input.blur();
-		equal(view.find('.User._property.name').text(), "david.souther", "New text in field propagates on blur.");
+		// In the name test, .text() includes the label in the <b>
+		equal(view.find('.User._property.name').text(), "name: david.souther", "New text in field propagates on blur.");
 		start();
 	});
 });
