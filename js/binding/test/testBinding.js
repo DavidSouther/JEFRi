@@ -28,6 +28,9 @@ asyncTest("Binding", function (){
 		equal(input.val(), "southerd", "Edit field has default value.");
 		// This is really hard to test.
 		//ok(view.find(".User._property.name input:focus").length, "Name field has focus");
+		input.val("david.souther");
+		input.blur();
+		equal(view.find('.User._property.name').text(), "david.souther", "New text in field propagates on blur.");
 		start();
 	});
 });
