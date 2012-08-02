@@ -10,6 +10,9 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 			$edit = JEFRi.Template.render.property(entity._type(), field, entity[field](), 'edit')
 
 			$edit.find('input').blur blur = (e) ->
+				newValue = $edit.find('input').val();
+				$view = JEFRi.Template.render.property(entity._type(), field, newValue, 'view')
+				entity[field](newValue)
 				$edit.replaceWith $view
 				$view.click click
 				null
