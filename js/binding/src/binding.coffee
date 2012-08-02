@@ -12,12 +12,15 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 			$edit.find('input').blur blur = (e) ->
 				$edit.replaceWith $view
 				$view.click click
+				null
 
 			$view.click click = (e) ->
 				$view.replaceWith $edit
-				$edit.find('input').blur blur
+				$input = $edit.find('input')
+				$input.blur blur
+				$input.focus()
+				null
 
 
 			null
-
 	null
