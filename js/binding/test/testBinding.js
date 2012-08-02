@@ -25,6 +25,7 @@ asyncTest("Binding", function (){
 		ok(input.length, 'Click replaced with input');
 		input = input.first();
 		equal(input.val(), "southerd", "Edit field has default value.");
+		ok(view.find(".User._property.name input:focus").length, "Name field has focus");
 		view.appendTo("#templates-target");
 		start();
 	});
