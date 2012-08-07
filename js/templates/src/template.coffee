@@ -142,9 +142,9 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 
 		relationship: (entity, rel_name, relationship, view = "view") ->
 			if relationship.type is "has_many"
-				rel = $()
+				rel = find("..#{entity._type()}.#{rel_name}.#{view}");
 				rels = entity[rel_name]()
-				rel.append(render.entity(ent)) for ent in rels
+				rel.append(render.entity(ent, 'list')) for ent in rels
 				return rel
 			else
 				return render.entity(entity[rel_name]())
