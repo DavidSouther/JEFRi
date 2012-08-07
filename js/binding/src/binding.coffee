@@ -15,15 +15,15 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 				entity[field](newValue)
 				$edit.replaceWith $view
 				$view.click click
-				null
+				return
 
 			$view.click click = (e) ->
 				$view.replaceWith $edit
 				$input = $edit.find('input')
 				$input.blur blur
 				$input.focus()
-				null
+				return
 
 
-			null
-	null
+			return
+	return
