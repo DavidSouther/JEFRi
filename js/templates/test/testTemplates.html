@@ -10,7 +10,13 @@
 		</div>
 		<div id="User">
 			<div id="user_id">
-				<li id="view"><em>User ID:</em> {{=_value}}</li>
+				<li id="view"><em>User ID:</em> <span data-stamp-text="_value" /></li>
+				<li id="edit"><em>User ID:</em> <span data-stamp-text="_value" /> <span class="invalid">You can't edit the ID.</span></li>
+			</div>
+		</div>
+		<div id="Authinfo">
+			<div id="banned">
+				<li id="edit"><b>Banned:</b> <input type="checkbox" data-stemp-checked="_value" /></li>
 			</div>
 		</div>
 	</div>
