@@ -21,6 +21,21 @@ do ($ = jQuery) ->
 			@append(rest)
 		@
 
+	$.fn.stamp = (data) ->
+		return if not @length
+		# Stamp the children
+		@children().stamp(data)
+		# Replace data-stamp-*
+		@each ->
+			mold = $(@).data()
+			for key, value of mold
+				if /^stamp/.test(key)
+					attr = key.substring(5).toLowerCase()
+					switch attr
+						when "text" then $(@).text(data[value])
+						else $(@).attr(attr, data[value])
+		@
+
 do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 	# Need to make some different assumptions about Templating
 	_.templateSettings =
@@ -138,7 +153,7 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 			data[name] = data._value = property
 			property_view.addClass("#{type} _property #{name} _#{view}").
 			    removeAttr('id').
-				html(_.template(property_view.html(), data))
+				stamp(data)
 
 		relationship: (entity, rel_name, relationship, view = "view") ->
 			if relationship.type is "has_many"
