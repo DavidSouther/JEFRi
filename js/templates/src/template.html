@@ -1,24 +1,43 @@
 <div id="JEFRi">
-	<div id="_default_theme" class="theme">
+<!-- The root of our templates. -->
+	<div id="_default_theme">
+	<!-- Different themes allow for different markup, eg mobile vs desktop -->
 		<div id="_default_entity">
+		<!-- If any particular entity can't be found, use templates from here. -->
 			<div id="_default_property">
-				<li id="view"><b>{{=_name}}:</b> {{=_value}}</li>
+				<li id="view">
+				<!-- Within a specific property view, several render techniques are used. -->
+				<!-- During render, and object is available with signature
+					{ _name: "propertyName", _value: "Property Value}
+				-->
+				<!-- The entire view is cloned. The id is stripped, and several classes get applied. -->
+					<b data-stamp-text="_name" />
+					<!-- The DOM is walked looking for data-stamp- properties. -->
+					<!-- d-s-text is special, and will replace the text() of the node with data from the property object -->
+					<span data-stamp-text="_value" />
+				</li>
 				<span id="list">prop_list</span>
-				<li id="edit"><b>{{=_name}}:</b> <input type="text" placeholder="{{=_name}}" value="{{=_value}}" /></li>
-				<span id="bulk_edit">prop_bulk_edit</span>
+				<li id="edit">
+					<b data-stamp-text="_name" />
+					<input type="text" data-stamp-placeholder="_name" data-stamp-value="_value" />
+					<!-- Other d-s- attributes are used to apply values to standard DOM attributes. -->
+				</li>
 			</div>
 			<div id="_views">
+			<!-- The different views are for laying out the entity as a whole. -->
 				<div id="view">
-					<ul class="properties"></ul>
+					<ul class="properties" />
+					<!-- Properties will be iterated over and appended inside '.properties' -->
+					<!-- Individual properties can be called out using markup with an id of the property name -->
+					<!-- Those properties will be rendered and replace the token markup, and not appended. -->
 					<div class="relationships">
+					<!-- Relationships will be rendered the same way as properties. -->
 						<h2>Relationships</h2>
 					</div>
 				</div>
-				<span id="list">_views_list</span>
-				<span id="edit">_views_edit</span>
-				<span id="bulk_edit">_views_bulk_edit</span>
 			</div>
 		</div>
-		<div id="_page">_default_page_entity</div>
+		<!-- <div id="_page">_default_page_entity</div> -->
+		<!-- _page is a special entity to control layout of the entire page. -->
 	</div>
 </div>
