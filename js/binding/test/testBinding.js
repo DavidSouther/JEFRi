@@ -31,7 +31,7 @@ asyncTest("Binding", function (){
 		input.val("david.souther");
 		input.blur();
 		// In the name test, .text() includes the label in the <b>
-		equal(view.find('.User._property.name').text(), "name: david.souther", "New text in field propagates on blur.");
+		equal(view.find('.User._property.name span').text(), "david.souther", "New text in field propagates on blur.");
 		equal(user.name(), "david.souther", "Entity got property update.");
 		start();
 	});
