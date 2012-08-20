@@ -7,23 +7,23 @@ do (_=_, $ = jQuery || null, JEFRi = JEFRi) ->
 	behaviors =
 		editField: (entity, field, property, $parent) ->
 			$view = $parent.find(".#{entity._type()}._property.#{field}:first")
-			$edit = JEFRi.Template.render.property(entity._type(), field, entity[field](), 'edit')
+			$edit = $();
 
 			$edit.find('input').blur blur = (e) ->
 				newValue = $edit.find('input').val();
-				$view = JEFRi.Template.render.property(entity._type(), field, newValue, 'view')
 				entity[field](newValue)
+				$view = JEFRi.Template.render.property(entity._type(), field, newValue, 'view')
 				$edit.replaceWith $view
 				$view.click click
 				return
 
 			$view.click click = (e) ->
+				$edit = JEFRi.Template.render.property(entity._type(), field, entity[field](), 'edit')
 				$view.replaceWith $edit
 				$input = $edit.find('input')
 				$input.blur blur
 				$input.focus()
 				return
-
 
 			return
 	return
