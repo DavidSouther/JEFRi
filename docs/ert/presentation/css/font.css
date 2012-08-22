@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'Junction';
+  font-style: bold;
+  font-weight: 400;
+  src: local('__nofont__'),
+  	url('../fonts/Junction-webfont.woff') format('woff'),
+  	url('../fonts/Junction-webfont.eot') format('eot'),
+  	url('../fonts/Junction-webfont.svg#webfont') format('svg'),
+  	url('../fonts/Junction-webfont.ttf') format('ttf');
+}

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+
+<!--
+	jQuery: The Best Parts
+	
+	David Souther (C) 2012
+-->
+
+<html>
+<head>
+	<meta charset='utf-8' />
+	<title>jQuery: The Best Parts</title>
+	<link rel="stylesheet" href="css/font.css" />
+	<link rel="stylesheet" href="css/default.css" />
+</head>
+
+<body>
+
+<div id="impress" class="impress-not-supported">
+<div id="fm1" class="fallback-message hidden">
+	<p>Your browser <b>doesn't support the features required</b> by impress.js,
+		so you are presented with a simplified version of this presentation.</p>
+	<p>For the best experience please use the latest <b>Chrome</b> or
+		<b>Safari</b> browser. Firefox 10 (to be released soon)
+		will also handle it.</p>
+</div>
+<div id="fm2" class="fallback-message">
+	<p>If you have fast machine and recent Google Chrome or Safari installed,
+		please check <a href="3d/index.html">a bit more "moving" version of that presentation</a></p>
+	<p style="text-align:center"><big>Otherwise, scroll down to see the slides</big></p>
+</div>
+
+<div id="title" class="step">
+	<h1><img src="http://upload.wikimedia.org/wikipedia/en/9/9e/JQuery_logo.svg" alt="jQuery" width="300" />
+		<span class="right">Best Parts</span></h1>
+	<h3 class="right">David Souther</h3>
+	<div class="notes">
+		<p>Hello, and thank you for attending this presentation.</p>
+		<p>We've seen a couple presentations in the past couple months about some of the various javascript frameworks.
+		<p>I'd like to take the time to present some of the outstanding features of jQuery, a library I've come to love for its ease of use and expressiveness.
+		<p>I would like to make clear now that I am not advocating jQuery as superior or better than any other particular library- I know both Ext and Dojo well enough to say they are also excellent toolkits, but they take a very different approach to web development than jQuery.
+		<p>Instead, I'd simply like to describe some of jQuery's philosophy, and show how it handles some of the common aspects of Javascript development.
+	</div>
+</div>
+
+<!-- Contents -->
+	<div id="features_link" class="step">
+		<h3><a href="#features">Language Features</a></h3>
+		<div class="notes">
+			<p>I like to think of jQuery as the API developers need to work quickly and efficiently with the DOM.
+			<p>Where Dojo and Ext have layouts and provide a sometimes very AWT or Swing feel to handling components and layout, jQuery is focused entirely on harnessing the DOM itself to build rich internet applications.
+			<p>I'd like to walk through three areas jQuery helps you the developer make these applications.
+			<p>There are some excellent utilities that feel like language features and are the core to the increased expressiveness jQuery enables.
+		</div>
+	</div>
+	<div id="dom_link" class="step">
+		<h3><a href="#dom">DOM Manipulation</a></h3>
+		<div class="notes">
+			<p>With those covered, we'll look at the DOM tools themselves, and how jQuery makes it very simple to find elements on a page, tweak how they look and behave, and add new elements as needed.
+		</div>
+	</div>
+	<div id="3rd_party_link" class="step">
+		<h3><a href="#3rd_party">UI &amp; Plugins</a></h3>
+		<div class="notes">
+			<p>For our finale, we'll look at jQuery's plugin and UI tools, which provide a vast ecosystem of components for many common tasks, and great hooks to add your own features.
+			<p>Before that, let's spend a moment with the jQuery philosophy:
+		</div>
+	</div>
+
+<!-- Philosophy -->
+	<div id="philosophy" class="step">
+		<h2><em>Write Less, Do More</em></h2>
+		<div class="notes">
+			<p>WRITE LESS, DO MORE
+			<p>We are all aware that more lines of code means more things that can go wrong.
+		</div>
+	</div>
+	<div id="philosophy_expressive" class="step">
+		<h3>Expressive</h3>
+		<span class="right">Fewer lines do more, concisely</span>
+		<div class="notes">
+			<p>The jQuery approach seeks to reduce the number of lines of code you need to write, so that each expression does as much as it can correctly.
+		</div>
+	</div>
+	<div id="philosophy_functional" class="step">
+		<h3>Functional</h3>
+		<span class="right">Closures for data hiding</span><br />
+		<span class="right">Method Chaining</span>
+		<div class="notes">
+			<p>jQuery embraces the functional aspect of javascript- the API encourages data hiding through functional closures, with low-level features to mitigate and eliminate memory leak issues between DOM and the Javascript garbage collectors.
+			<p>jQuery strongly encourages and utilizes method chaining to make statements both more concise and more expressive.
+		</div>
+	</div>
+	<div id="philosophy_semantic" class="step">
+		<h3>Semantic</h3>
+		<span class="right">MVC is DOM, CSS, jQuery</span>
+		<div class="notes">
+			<p>The most important part of the jQuery philosophy, though, is the semantics of the MVC model jQuery uses.
+			<p>The DOM is the model, CSS is the view, and jQuery is the controller- one language for each of the domains.
+			<p>As I grasped this approach, I became enamoured with jQuery.
+		</div>
+	</div>
+
+<!-- Language features -->
+	<div id="each_object" class="step">
+		<h3>$.each (object)</h3>
+		<iframe
+			style="width: 100%; height: 400px"
+			src="http://jsfiddle.net/southerd/pnybn/embedded/js,result/presentation/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/pnybn/">http://jsfiddle.net/southerd/pnybn/</a></p>
+		<div class="notes">
+			<p>Let's move on to actual code that uses jQuery. I've pulled four useful features you'll see over and over again both in jQuery code, and other javascript libraries.
+			<p>We'll start with a couple specific examples of jQuery's each iterator.
+			<p>The method is considered static as {dollar}{dot}{each}, and it takes something to iterate over and a function to apply on each iteration.
+			<p>It can iterate both objects and arrays- here, we're looking at an object first.
+			<p>For an object, the iterator function function can take two parameters.
+			<p>The first parameter is the key; the second is the value.
+			<p>Also, by default, inside the iterator function the {this} context is set to the value.
+			<p>In this example we have an object storing our officers on board the Enterprise D, keyed by the position they serve.
+			<p>Our iterator function uses {this} for the value, and so only specifies the name of the first parameter, the key.
+			<p>Any questions about this code?
+		</div>
+	</div>
+
+	<div id="each_array" class="step">
+		<h3>$.each (array)</h3>
+		<iframe
+			style="width: 100%; height: 400px"
+			src="http://jsfiddle.net/southerd/88hC6/embedded/js,result/presentation/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/88hC6/">http://jsfiddle.net/southerd/88hC6/</a></p>
+		<div class="notes">
+			<p>In this second example, we have an array of crewmembers.
+			<p>Since cremembers are a bit more fluid in where they serve, I've just given them a department rather than an actual position.
+			<p>In this example, I use both parameters for the key and value.
+			<p>Notice when iterating over an array, the {key} parameter contains the numerical index in the array.
+			<p>Any questions on this code?
+		</div>
+	</div>
+
+	<div id="proxy" class="step">
+		<h3>$.proxy</h3>
+		<iframe
+			style="width: 100%; height: 300px"
+			src="http://jsfiddle.net/southerd/mXGjf/embedded/js,result/presentation/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/mXGjf/">http://jsfiddle.net/southerd/mXGjf/</a></p>
+		<div class="notes">
+			<p>Something Javascript has a little problem with is getting the {this} context correct in asynchronous callbacks and returned functions.
+			<p>This is a problem because the {this} context is set when calling a function, not when creating the function.
+			<p>To get around this, Javascript itself has {Function}{dot}{apply}.
+			<p>Scope can also be handled by a {self} variable within a closure that points to the correct context.
+			<p>Functional languages have a more robust (and in my opinion readable) concept of functional currying- that is, a function that takes a function while returning a function which controls how the input function is called.
+			<p>In Dojo this is {hitch}; here in jQuery, we call it {proxy}.
+			<p>Notice the differences in the code here- we're setting up a jQuery plugin, so when these functions get called {this} will refer to the array of elements matched by the jQuery selector.
+			<p>We then use {window}{dot}{setInterval} to prepare a function to call at each timeout.
+			<p>When this function gets called, it will be at the top of a new call stack and {this} will be bound to the window.
+			<p>In the first example, we use {dollar}{dot}{proxy} to wrap our function with jQuery magic to handle the context correctly.
+			<p>In the second example, we handle the situation using a variable bound in the closure.
+			<p>These are both patterns I've seen over and over in javascript libraries- neither is necessarily better, but I find the {proxy} example to be more readable.
+			<p>Any questions on this example?
+		</div>
+	</div>
+
+	<div id="extend" class="step">
+		<h3>$.extend (mixin)</h3>
+		<iframe
+			style="width: 100%; height: 500px"
+			src="http://jsfiddle.net/southerd/563Dc/embedded/js,result/presentation/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/563Dc/">http://jsfiddle.net/southerd/563Dc/</a></p>
+		<div class="notes">
+			<p>One common complaint developers often have with jQuery is a difficulty in code reuse.
+			<p>I think this is more a problem in developers not understanding how to correctly use javascript extension patterns, and instead try and shoehorn incompatible pieces of Java into their class hierarchies.
+			<p>While javascript prototypes can be difficult to manage, jQuery provides an excellent tool with {dollar}{dot}{extend}.
+			<p>In this first example, we're going to use {extend} as a mixin; that is, we're going to add all the features of an abstract object to an instantiated object.
+			<p>In this case, we have a constructor for a starship which just assigns a registry so we can find it in the fleet.
+			<p>That's pretty useless without a warp core to get around, so we define WarpCore as an object with our methods we need.
+			<p>On line 20 we build the Enterprise, using {dollar}{dot}{extend} to give it an appropriate warp core. We then test it, getting up to warp 8 for a bit before settling down to a good cruising speed of warp 5.
+			<p>The mixin pattern of extension is very similar to using an abstract base implementation of an interface in Java, except that here we can have several interfaces, each with their own abstract interface, and include them as needed.
+			<p>An alternative in java is having one abstract base class that implements every interface possible.
+			<p>Any questions here?
+		</div>
+	</div>
+
+	<div id="widget" class="step">
+		<h3>$.widget (inheritance)</h3>
+		<iframe
+			style="width: 100%; height: 500px"
+			src="http://jsfiddle.net/southerd/-/embedded/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/-/">http://jsfiddle.net/southerd/-/</a></p>
+		<div class="notes">
+			<p>Extend as a function is fairly simple, it just merges several objects together.
+			<p>To get inheritance, we want to use {dollar}{dot}{widget} from jquery ui.
+			<p>The name is a bit of a misnomer at first blush- widgets and plugins in jQuery are not necessarily for wider consumption, but just overloaded words to describe modular pieces of code here.
+			<p>This will require pulling in the jQuery UI project in addition to the jQuery project, but there are quite a few components in UI that we'll cover in a bit and you may want anyway.
+<!-- TODO -->
+
+		</div>
+	</div>
+
+	<div id="callback_chaining" class="step">
+		<h3>$.deferred</h3>
+		<div class="notes">
+			<p>The {deferred} concept is something that's come up quite a few times in Javascript.
+			<p>In short, a {deferred} gives the developer an asynchronous thread of execution in their Javascript program.
+		</div>
+	</div>
+	<div id="callback_chaining_multiple" class="step">
+		<p>Chain multiple callbacks</p>
+		<div class="notes">
+			<p>Without {deferred}s, APIs that wanted to do something asynchronously would take a callback function, which would get executed at some point after an event had finished.
+			<p>This is very brittle, since only a single function can get executed at a time.
+			<p>With {deferred}s, we return an object that handles adding several callbacks, which will get executed in order at the appropriate time.
+		</div>
+	</div>
+	<div id="callback_chaining_consistent" class="step">
+		<p>Treats synchronous and asynchronous events consistently</p>
+		<div class="notes">
+			<p>jQuery provides an incredibly powerful extension on top of this called {when} which allows a developer to treat both synchronous and asynchronous events consistently, which we'll see in a moment.
+		</div>
+	</div>
+	<div id="callback_chaining_expressive" class="step">
+		<p>Most expressive Deferred implementation</p>
+		<p class="right smaller">Google Closure: Poor API naming</p>
+		<p class="right smaller">Dojo: when takes single event</p>
+		<p class="right smaller">Ext: Doesn't exist </p>
+		<div class="notes">
+			<p>First, a side-trip through why jQuery has the best deferred implementation today.
+			<p>Google Closure's deferred API has a very awkward naming system compared to jQuery's.
+			<p>Dojo has the same problem with API naming (though they've improved it quite a bit), but still doesn't have the expressivity of jQuery's {when} syntax.
+			<p>Finally, I haven't seen anything like this in Ext.
+		</div>
+	</div>
+
+	<div id="deferred" class="step">
+		<h3>$.deferred</h3>
+		<iframe
+			style="width: 100%; height: 400px"
+			src="http://jsfiddle.net/southerd/ZWxzA/embedded/js,result/presentation/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/ZWxzA/">http://jsfiddle.net/southerd/ZWxzA/</a></p>
+		<div class="notes">
+			<p>So, that was a lot of theoretical and historical talk.
+			<p>A code example here will show off some of these things I'm talking about.
+			<p>What we've got here is an API to cache AJAX requests.
+			<p>What we're going to do is write a function that takes a URL, and returns a deferred that will get executed when the URL's data is available.
+			<p>To reduce network traffic, it's going to only look up any URL a single time.
+			<p>There is a lot that gets done in a very few lines of code, so I'm going to go through line by line.
+			<p>First, lines 1 and 13 are our functional closure to keep our data private; notice the use of the module pattern .
+			<p>Inside this closure, we declare the cache, and for example's sake give it some default data.
+			<p>Jumping ahead, lines 10 through 12 should be pretty clear- just a utility function to show us what's in the cache at that time.
+			<p>The really interesting code here is the xhrCache function, lines 3  through 9.
+			<p>The body is a single statement, using the short-circuit {or} operator. 
+			<p>If the URL is in the cache, that value gets returned immediately.
+			<p>Otherwise, it calls jQuery's {get} function, which does an ajax get to the given URL and returns a {deferred} object.
+			<p>The {deferred} object has a function {then} which does all the magic of this callback chaining.
+			<p>{then} takes a function, registers it to get called when the deferred action resolves, and then returns a reference to the deferred.
+			<p>In this case, the callback is just going to put the data in the cache.
+			<p>So, we either return the cached result, or we return an object that executes a callback when it has a value.
+			<p>We get around the issue of having two drastically different return types by using {jquery}{dot}{when}.
+			<p>{when} takes any number of arguments, and returns a deferred that will execute when all those arguments have data.
+			<p>That data can either be a value in the argument, or if the argument is a deferred, the value of the deferred finishing execution.
+			<p>We wrap that operation in some logging messages to see what happens here.
+			<p>Any questions on this code?
+		</div>
+	</div>
+
+<!-- DOM -->
+	<div id="dom" class="step">
+		<h2>DOM Manipulation</h2>
+		<div class="notes">
+			<p>Let's turn now to the meat of what jQuery is designed for: working with the DOM.
+		</div>
+	</div>
+	<div id="dom_selectors" class="step">
+		<h3>Selectors</h3>
+		<div class="notes">
+			<p>jQuery works by providing a function, often namespaced as {dollar} that takes a CSS selector.
+			<p>It returns an object that streamlines access to everything in your DOM matched by that selector.
+		</div>
+	</div>
+	<div id="dom_manipulation" class="step">
+		<h3>Manipulation</h3>
+		<div class="notes">
+			<p>You can then use this object to apply a variety of manipulations to the matched elements.
+			<p>You can also call traversal methods on this object to move around the DOM tree.
+		</div>
+	</div>
+
+	<div id="selectors_sizzle" class="step">
+		<h2>Sizzle Engine</h3>
+		<span class="right">Full CSS3.1 Compliance</span>
+		<div class="notes">
+			<p>jQuery uses a custom engine to select DOM elements called Sizzle.
+			<p>Sizzle provides full CSS 3.1 compliance, so anything you would do in a stylesheet you can do here.		
+		</div>
+	</div>
+	<div id="selectors_sizzle_custom" class="step">
+		<h3>Custom Selectors</h3>
+		<br /><span class="right">
+				  <code>[name!="value"]</code>
+			<br /><code>:contains("text")</code>
+			<br /><code>next ~ siblings</code>
+			<br /><code>:odd, :selected</code>
+		</span>
+		<div class="notes">
+			<p>Further, there are quite a few custom selectors that Sizzle provides.
+			<p>There are a variety of extensions to attribute selection, including attribute not equal, attribute has prefix, attribute contains string, and more.
+			<p>The contains selector here represents a class of selectors that apply a function to the currently matched DOM nodes and culls them from the list.
+			<p>Here, this requires the text inside the node has some value.
+			<p>Sizzle has some hierarchical selectors
+			<p>{Greater-than} is the familiar CSS child selector.
+			<p>{tilde} here is the next-siblings selector; that is, every child of a node's parent that comes AFTER that node.
+			<p>Beyond that are a few more custom selectors; odd here returns every other child which is good for, say, table rows, and the selected selector, which returns all selected options in a select dropdown.
+			<p>There are quite a few more to use and play with, but let's look at a couple.
+		</div>
+	</div>
+
+	<div id="selectors" class="step">
+		<h3>Selectors</h3>
+		<iframe
+			style="width: 100%; height: 650px"
+			src="http://jsfiddle.net/southerd/XpsYv/embedded/html,css,result/presentation/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/XpsYv/">http://jsfiddle.net/southerd/XpsYv/</a></p>
+		<div class="notes">
+			<p>To show how the DOM manipulation works, we need some HTML.
+			<p>We'll be using this HTML for the next few examples.
+			<p>This is a representation of a red-black tree in HTML, which will give us a lot of structure to work with for some of these examples. 
+			<p>Don't worry, we're not actually building a red-black algorithm, just using it to show off some jQuery features.
+			<p>[[Click to CSS tab]]
+			<p>We need a little bit of CSS, as well.
+			<p>[[Click to Result tab]] 
+			<p>Finally, here is the rendered page. You can see the empty black leaves, the red interior nodes, and the data.
+			<p>Enough background, let's get to the jQuery goodies.
+			<p>Let's take a look at what some of those selectors return.
+			<p>I have a couple selectors ready here.
+			<p>This first selector is going to add highlights to all the leaf nodes of the tree, which in this red black tree are just placeholders.
+			<p>[[Click first link]]
+			<p>The selector here is a compound selector, looking for all elements with class black and the pseudoattribute of being completely empty.
+			<p>[[Click clear link]]
+			<p>The second selector here is going to find all nodes with data.
+			<p>In our red black tree, every internal node has data of some sort.
+			<p>In selectors, this means we want any red node, and every black node that is not a leaf, or, every black node that is not empty.
+			<p>[[Click clear link]]
+			<p>The last selector is an unfortunately complicated selector to choose sibling nodes that are both red.
+			<p>This operation is important in rebalancing our tree later, but for now shows some of the more powerful selection tools.
+			<p>CSS doesn't give us a way to select multiple things at the same level of a DOM tree.
+			<p>Instead, we use the sibling selector to find pairs of red nodes, then use jQuery's add method to put more things in our list of matched elements.
+			<p>In this case, we add a node whose previous sibling is red, and all of that node's siblings (the previous red node, in this case).
+			<p>Any questions on these selectors?
+		</div>
+	</div>
+
+	<div id="manipulation" class="step">
+		<h3>Manipulation</h3>
+		<iframe
+			style="width: 100%; height: 650px"
+			src="http://jsfiddle.net/southerd/-/embedded/html,css,result/presentation/"
+			allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+		<p><a href="http://jsfiddle.net/southerd/-/">http://jsfiddle.net/southerd/-/</a></p>
+		<div class="notes"><pre>
+			<p>Now that we've seen a bit of how selectors work, we'll go through an example of using selectors to add a node to our red black tree and rebalance the tree.
+			<p>We start off by making a couple helpers.
+			<p>These are jQuery plugins, that will add new behaviors to use in our jQuery selectors.
+			<p>Next, we have our data to insert into the tree.
+			<p>We start out by finding the node we want to insert at, this is a flattened binary find operation.
+			<p>
+		</div>
+	</div>
+
+<!-- 3rd party -->
+	<div id="3rd_party" class="step">
+		<h2>Plugins, UI, Projects</h2>
+		<div class="notes">
+			<p>Now that we've covered some of the more expressive features of jQuery, I'd like to take some time to talk about the 3rd party ecosystem around jQuery.
+			<p>There's just too much here to do code examples for all of this, so instead I'm going to talk about what is available and include links for you to follow up with later, as needed.
+			<p>Let's take a look at some of this.
+			<p>jQuery provides a very powerful mechanism for extending the base functionality, and this has let a vast number of people write plugins for jQuery.
+			<p>There is a project separate from jQuery core called jQuery UI, which  provides a handful of very useful interface utilities and a few interface components, as well as a powerful theming library.
+			<p>Finally, I'll close with a discussion of how to start using jQuery in your projects today.
+		</div>
+	</div>
+
+	<div id="plugins" class="step">
+		<h3>Plugins</h3>
+		<div class="notes">
+			<p>As I mentioned, there is a tremendous ecosystem of jQuery plugins and developers.
+			<p>This is both a boon and a curse.
+		</div>
+	</div>
+	<div id="plugins_ecosystem" class="step">
+		<h4>Diverse 3rd party ecosystem</h4>
+		<div class="notes">
+			<p>Often, there are already excellent 3rd party libraries that will solve some of the common problems you'll face.
+			<p>That said, there are also a lot of terrible code that gets put out because someone else wanted to write the same thing differently.
+			<p>There are a few plugins I'd like to highlight, since the do cover tasks that nearly every web application needs, and I also have some guidelines for finding other plugins.
+		</div>
+	</div>
+	<div id="plugins_good" class="step">
+		<h4>Excellent Plugins</h4>
+		<ul><li>DataTables (<a href="http://datatables.net">http://datatables.net</a>)</li>
+			<li>Validation (<a href="http://docs.jquery.com/Plugins/Validation">http://docs.jquery.com/Plugins/Validation</a>)</li>
+			<li>JMTT (<a href="http://davidsouther.com/tag/jmtt">http://davidsouther.com/tag/jmtt</a>)</li></ul>
+		<div class="notes">
+			<p>The most versatile extension to jQuery for handling data is the Datatables plugin. It provides numerous table features, including paging, column sorting, and really nearly any tabular data constraint you might need.
+			<p>When dealing with user input, HTML forms can require significant validation.
+			<p>The jQuery validation plugin handles an absurd variety of validation cases, and in basic usage is almost trivial to add to a page.
+			<p>JMTT is the jQuery Minimal Tree-Table, a plugin designed to add combined tree and table functionality to websites.
+			<p>It is implemented as a jQuery Widget, and uses the eventing model as its primary API.
+			<p>These are some of the better plugins I've come across and continue to use in jQuery.
+			<p>When I need to evaluate plugins for some other feature, I usually spend about 10 minutes googling to see what others have found.
+		</div>
+	</div>
+	<div id="plugins_bad" class="step">
+		<h4>Terrible plugins</h4>
+		<ul><li>Google 10 minutes, read source for 20, decide.</li></ul>
+		<div class="notes">
+			<p>If I do find something, I take about 20 minutes to read through their documentation and source code, to get a feel for whether it will be worth trying to use that plugin.
+			<p>Once I've spent that much time with a plugin, It's pretty easy to decide if it will save time, or if the feature should be implemented fresh.
+		</div>
+	</div>
+
+
+	<div id="ui" class="step">
+		<h3>jQuery UI</h3>
+		<div class="notes">
+			<p>Aside jQuery core is a project called jQuery UI.
+			<p>jQuery UI is more of a toolkit, in that it provides a variety of abstract base features, and components that interoperate well with one another.
+		</div>
+	</div>
+	<div id="ui_helpers" class="step">
+		<h4>UI Helpers</h4>
+		<ul><li>Position (<a href="http://jqueryui.com/demos/position/default.html">http://jqueryui.com/demos/position/default.html</a>)</li>
+			<li>Drag and Drop (<a href="http://jqueryui.com/demos/droppable/photo-manager.html">http://jqueryui.com/demos/droppable/photo-manager.html</a>)</li>
+			<li>Resizable (<a href="http://jqueryui.com/demos/resizable/default.html">http://jqueryui.com/demos/resizable/default.html</a>)</li></ul>
+		<div class="notes">
+			<p>At its base level, jQuery UI has a variety of helper classes that streamline many issues in HTML/CSS layouts.
+			<p>The Position class provides a myriad of ways to position DOM elements around eachother.
+			<p>The draggable and droppable helpers provide a wealth of Dragn & Drop features for new widgets to grab on to.
+			<p>Resizable, selectable, and sortable are just some of the other helpers UI exposes.
+		</div>
+	</div>
+	<div id="ui_components" class="step">
+		<h4>UI Components</h4>
+		<ul><li>Tabs (<a href="http://jqueryui.com/demos/tabs/#mouseover">http://jqueryui.com/demos/tabs/#mouseover</a>)</li>
+			<li>Accordion (<a href="http://jqueryui.com/demos/accordion/#fillspace">http://jqueryui.com/demos/accordion/#fillspace</a>)</li>
+			<li>Datepicker (<a href="http://jqueryui.com/demos/datepicker/#default">http://jqueryui.com/demos/datepicker/#default</a>)</li></ul></li>
+		<div class="notes">
+			<p>The components are smaller in scope than some Dojo or Ext components.
+			<p>These are all meant to be used as pieces in an HTML page, rather than full layout managers like in Ext or Dojo.
+			<p>I've highlighted here some demos that show off some of the features of jQuery UI.
+		</div>
+	</div>
+	<div id="ui_themes" class="step">
+		<h4>Themes</h4>
+		<ul><li>Themeroller (<a href="http://jqueryui.com/themeroller/">http://jqueryui.com/themeroller/</a>)</li></ul>
+		<div class="notes">
+			<p>So far, jQuery UI is a little lackluster compared to its competitors.
+			<p>That's where jQuery UI themes and Themeroller comes in.
+			<p>While Ext and Dojo have some theming capabilities, the consistency jQuery UI has in its Themeroller framework continually impress me over the other libraries.
+		</div>
+	</div>
+
+	<div id="projects" class="step">
+		<h3>In Your Project</h3>
+		<div class="notes">
+			<p>One of the questions I've gotten a couple times while preparing this presentation is how can we start using jQuery today.
+		</div>
+	</div>
+
+	<div id="projects_small" class="step">
+		<p>Small</p>
+		<div class="notes">
+			<p>First, jQuery is very small- the current production release is 31 K, smaller than a jpeg image.
+			<p>You can include it with a project at no significant cost to network latency, page size, or much else.
+		</div>
+	</div>
+	
+	<div id="projects_efficient" class="step">
+		<p>Efficient</p>
+		<div class="notes">
+			<p>jQuery is very efficient.
+			<p>It's got some really smart people doing a lot of work to make sure jQuery does what it does as fast as possible
+		</div>
+	</div>
+
+	<div id="projects_interop" class="step">
+		<p>Interoperable</p>
+		<div class="notes">
+			<p>jQuery plays very well with other libraries, and plays very well across browsers.
+			<p>Whether used piecemeal to augment other libraries, or as an extension on Dojo or Ext layouts, jQuery can make some simple tasks trivial to do.
+			<p>jQuery also takes the headache out from working across browsers.
+			<p>While different browsers may have implemented some features slightly differently (say, html5 datasets), jQuery makes them all just work the same way.
+		</div>
+	</div>
+	
+	<div id="projects_plugin" class="step">
+		<p>Make Plugins</p>
+		<div class="notes">
+			<p>Once you get started using jQuery to add features here and there, you'll see things in a project you need over and over.
+			<p>Learning the jQuery plugin architecture will vault your Javascript development to the next level.
+			<p>To make plugins right requires you to embrace the MVC semantics of DOM, CSS, and javascript, but once you get that paradigm, your sites can really start to pop.
+		</div>
+	</div>
+
+<!-- Outro -->
+	<div id="outro" class="step">
+		<h2><em>Write Less, Do More</em></h2>
+		<div class="notes">
+			<p>I know we've covered a lot in a very short amount of time.
+			<p>I presented this not in the hopes of making you all jQuery experts today, but rather to highlight what jQuery excels at and perhaps dispel some myths about this tool.
+			<p>At very least, I hope you will recognize there is a very powerful tool available for use in your javascript toolkit, and maybe you'll start talking about it on your projects.
+		</div>
+	</div>
+
+	<div id="thanks" class="step">
+		<h3>Thanks</h3>
+		<p>Drew Tayman, Justin Grant</p>
+		<p>jQuery</p>
+		<p>impress.js (Bartek Szopka @bartaz)</p>
+		<div class="notes">
+			<p>[[Click through]]
+		</div>
+	</div>
+
+	<div id="bibliography" class="step">
+		<h3>Bibliography</h3>
+		<p>jQuery Documentation - <a href="http://docs.jquery.com/Main_Page">http://docs.jquery.com/Main_Page</a></p>
+		<p>jQuery Novice to Ninja - <a href="http://www.sitepoint.com/books/jquery1/">http://www.sitepoint.com/books/jquery1/</a></p>
+		<p>Hacking at 0301: Understanding jQuery UI widgets - <a href="http://bililite.nfshost.com/blog/understanding-jquery-ui-widgets-a-tutorial/">http://bililite.nfshost.com/blog/understanding-jquery-ui-widgets-a-tutorial/</a></p>
+		<div class="notes">
+			<p>[[Click through]]
+		</div>
+	</div>
+
+  <div id="overview" class="step">
+		<div class="notes">
+			<p>If you have any questions, feel free to email or IM me.
+			<p>Thank you for your time :)
+			<p>Are there any final questions?
+		</div>
+  </div>
+  <div class="hint"><p>Use spacebar, arrow keys, or click to navigate. Press 'n' for speaker notes.</p></div>
+</div>
+
+<script src="js/slide_layout.js"></script>
+<script src="js/impress.js"></script>
+<script>
+	impress.notesOnStartup = true;
+	impress('impress', steps);
+</script>
+<script src="js/default.js"></script>
+<script src="js/notes.js"></script>
+
+</body>
+</html>
