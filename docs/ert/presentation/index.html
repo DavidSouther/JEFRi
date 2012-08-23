@@ -31,7 +31,7 @@
 </div>
 
 <div id="title" class="step">
-	<h1><img src="https://github.com/DavidSouther/JEFRi/raw/master/assets/jefri_logo.png" alt="JEFRi" /></h1>
+	<h1><img src="images/jefri_logo.png" alt="JEFRi" /></h1>
 	<h3 class="right">David Souther</h3>
 	<div class="notes">
 		<p>Hello, and thank you for attending this presentation.</p>
@@ -67,7 +67,7 @@
 	</div>
 	<div id="erds" class="step">
 		<h3>Entity-Relation Models</h3>
-		<p><img src="http://upload.wikimedia.org/wikipedia/commons/thumb/7/72/ER_Diagram_MMORPG.png/673px-ER_Diagram_MMORPG.png" /></p>
+		<p><img src="images/673px-ER_Diagram_MMORPG.png" /></p>
 		<div class="notes">
 			<p>An application using an entity framework starts by building a Entity Relationship Diagram.
 			<p>While many application lifecycles will have some documentation of the entity model at some point, possibly driving database design around an ERD, JEFRi applications use the description of the entity model at its core.
@@ -224,6 +224,10 @@
 			<li>Invert control flow</li>
 			<li>Events, publish/subscribe</li>
 		</ul>
+		<div class="notes">
+			<p>The benefits and use of the observer pattern is well known, and has several implementations.</p>
+			<p>However, one common complaint is how often event observers accidentally mix view logic and business logic.</p>
+		</div>
 	</div>
 
 	<div id="advisors_about" class="step">
@@ -238,11 +242,36 @@
 				</ul>
 			</li>
 		</ul>
+		<div class="notes">
+			<p>Advisors extend the observer pattern, putting a layer between the initial event trigger and any listeners.</p>
+			<p>The aim here is to provide a pipeline to apply business logic in an application.</p>
+			<p>These advisors let us move a lot of logic out of the view listeners, and provide a very clean fusion of eventing and aspect-oriented concepts.</p>
+		</div>
+	</div>
+
+	<div id="advisors_syntax" class="step">
+		<h4>Advisor Operators</h4>
+		<pre>
+			event :&gt; (data) -&gt; <em>Observe</em>
+			event ?&gt; (data) -&gt; <em>Advise</em>
+			event &lt;: data <em>Trigger</em>
+		</pre>
+	</div>
+	<div id="advisors_syntax" class="step">
+		<h4>Advisor Operators</h4>
+		<pre>
+			event :&gt; (data) -&gt; <em>Observe</em>
+			event ?&gt; (data) -&gt; <em>Advise</em>
+			event &lt;: data <em>Trigger</em>
+		</pre>
 	</div>
 
 	<div id="advised_passwords" class="step">
 		<p><img src="images/advised_passwords.png" /></p>
 		<div class="notes">
+			<p>In this example, we have an object that maintains a password.</p>
+			<p>The normal code path is calling the set method on the password, triggering the listeners, and updating the value.</p>
+			<p>As our business matures, we want to add some rules for what constitutes a 
 		</div>
 	</div>
 
@@ -252,7 +281,8 @@
 		<div class="notes">
 			<p>This is a behavior to add in-line editing functionality to any property.</p>
 			<p>By including this on our page, it watches for any properties that get rendered.</p>
-			<p>As they get rendered, the appropriate events are watched, and 
+			<p>As they get rendered, </p>
+			<p>[Switch to Bindings demo]</p>
 		</div>
 	</div>		
 

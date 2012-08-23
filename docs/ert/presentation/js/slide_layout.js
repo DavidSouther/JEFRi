@@ -14,7 +14,6 @@ steps = {
 	entity_parallels_orm: { x: 4500, y: -3000, scale: 4, rotate: -90 },
 	entity_parallels_docs: { x: 5000, y: -3000, scale: 4, rotate: -90 },
 
-
 	templating: {x: 5400, y: -3500, scale: 3, rotate: -180 },
 	template_html: {x: 5400, y: -4600, scale: 3, rotate: -180 },
 	template_render: {x: 5400, y: -6000, scale: 3, rotate: -180 },
@@ -27,6 +26,7 @@ steps = {
 	advisors: {x: -3500, y: -3500, scale: 3, rotate: -270 },
 	observers: {x: -4200, y: -3500, scale: 3, rotate: -270 },
 	advisors_about: {x: -5400, y: -3500, scale: 3, rotate: -270 },
+	advisors_syntax: {x: -6500, y: -3500, scale: 3, rotate: -270 },
 	advised_passwords: {x: -3500, y: -800, scale: 3, rotate: -270 },
 	bindings: {x: -5000, y: -800, scale: 3, rotate: -270 },
 
