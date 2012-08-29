@@ -41,26 +41,21 @@ class Jefri_Entity_Context_Core {
 	protected $context = NULL;
 
 	public function __construct($settings) {
+		// Maybe abstract this to a context loader?
 		$this->context = json_decode(file_get_contents($settings['uri']));
 
-		$q = count($this->context->entities);
-		for($i=0; $i<$q; $i++)
+		foreach($this->context->entities as $name, $element)
 		{	//Visit every element once
-			$element = array_shift($this->context->entities);
-			$this->context->entities[$element->name] = $element;
+			$this->context->entities[$name] = $element;
 
-			$p = count($element->properties);
-			for($j=0; $j<$p; $j++)
+			foreach($element->properties as $prop => $property)
 			{	//Visit every property once...
-				$property = array_shift($element->properties);
-				$element->properties[$property->name] = $property;
+				$element->properties[$prop] = $property;
 			}
 
-			$p = count($element->relationships);
-			for($j=0; $j<$p; $j++)
+			foreach($element->relationships as $rel => $relationship)
 			{	//Visit every property once...
-				$relationship = array_shift($element->relationships);
-				$element->relationships[$relationship->name] = $relationship;
+				$element->relationships[$rel] = $relationship;
 			}
 		}
 	}
