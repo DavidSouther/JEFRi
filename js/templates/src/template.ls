@@ -62,7 +62,7 @@ let $=jQuery
 	loadTemplates = (templates) ->
 		d = _.Deferred()
 		templates := if _.isArray(templates) then templates else Array.prototype.slice.call(arguments)
-		# Load each template
+		# Store the deferred of each get request.
 		for T, i in templates
 			templates[i] = _.get(T)
 
@@ -70,10 +70,11 @@ let $=jQuery
 			# When behaves differently if there are 1 or 2+ args.
 			args = if templates.length is 1 then [arguments] else arguments
 			for tmpl in args
+				# The actual HTML is at position 0 for most requests.
 				mergeTemplate(if tmpl.length? then tmpl[0] else tmpl)
 			JEFRi.Template.loaded <: {}
-			d.resolve()
-		d.promise()
+			d.resolve!
+		d.promise!
 
 	# Finders to coalesce different templates into a single hierarchical system
 	find = (path) ->
@@ -82,50 +83,51 @@ let $=jQuery
 			path[i] = null if path[i] is ""
 		[root, theme, entity, property, view] = path
 		switch path.length
-			when 1 then find.root(root)
-			when 2 then find.theme(root, theme)
-			when 3 then find.entity(root, theme, entity)
-			when 4 then find.property(root, theme, entity, property)
-			when 5 then find.view(root, theme, entity, property, view)
+			| 1 => find.root(root)
+			| 2 => find.theme(root, theme)
+			| 3 => find.entity(root, theme, entity)
+			| 4 => find.property(root, theme, entity, property)
+			| 5 => find.view(root, theme, entity, property, view)
 
 	$.extend find,
 		root: (root = settings.paths.root) ->
-			_root = template.children(\# + root)
-			if _root.length is 0
+			$root = template.children(\# + root)
+			if $root.length is 0
 				throw "Template root not loaded."
-			_root.clone()
+			$root.clone()
 
 		theme: (root = settings.paths.root, theme = settings.paths.theme) ->
-			_root = find.root(root);
-			_theme = _root.children(\# + theme);
-			if _theme.length isnt 1
-				_theme = _root.children(\# + settings.paths.theme)
-			_theme.clone()
+			$root = find.root(root);
+			$theme = $root.children(\# + theme);
+			if $theme.length isnt 1
+				$theme = $root.children(\# + settings.paths.theme)
+			$theme.clone()
 
 		entity: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity") ->
-			_theme = find.theme(root, theme)
-			_entity = _theme.find(\# + entity)
-			if _entity.length isnt 1
-				_entity = _theme.children(\#_default_entity)
-			_entity.clone()
+			$theme = find.theme(root, theme)
+			$entity = $theme.find(\# + entity)
+			if $entity.length isnt 1
+				$entity = $theme.children(\#_default_entity)
+			$entity.clone()
 
 		property: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "_default_property") ->
-			property = if property is \? then \_view else property
-			_entity = find.entity(root, theme, entity)
-			_property = _entity.find(\# + property)
-			if _property.length isnt 1
-				_property = _entity.children(\#_default_property)
+			# User ? as shorthand for the _view special property.
+			property = if property is \? then \_views else property
+			$entity = find.entity(root, theme, entity)
+			$property = $entity.find(\# + property)
+			if $property.length isnt 1
+				$property = $entity.children(\#_default_property)
 				#If there STILL isn't a property, fall back to using `_default_entity`
-				if _property.length isnt 1
-					_property = find.property(root, theme, \_default_entity, property)
-			_property.clone()
+				if $property.length isnt 1
+					$property = find.property(root, theme, \_default_entity, property)
+			$property.clone()
 
 		view: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "?", view = "view") ->
-			_property = find.property(root, theme, entity, property)
-			_view = _property.find("#{view}")
-			if _view.length isnt 1
-				_view = _property.find(\#view);
-			_view.clone()
+			$property = find.property(root, theme, entity, property)
+			$view = $property.find("#{view}")
+			if $view.length isnt 1
+				$view = $property.find(\#view);
+			$view.clone()
 
 	# The renderer returns the built and bound DOM for a JEFRi renderable thing.
 	render = (thing) ->
