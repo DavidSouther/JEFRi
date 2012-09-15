@@ -4,8 +4,8 @@
 	<!-- Different themes allow for different markup, eg mobile vs desktop -->
 		<div id="_default_entity">
 		<!-- If any particular entity can't be found, use templates from here. -->
-			<div id="_default_property">
-				<li id="view">
+			<div class="_default_property">
+				<li class="view">
 				<!-- Within a specific property view, several render techniques are used. -->
 				<!-- During render, and object is available with signature
 					{ _name: "propertyName", _value: "Property Value}
@@ -16,16 +16,16 @@
 					<!-- d-s-text is special, and will replace the text() of the node with data from the property object -->
 					<span data-stamp-text="_value" />
 				</li>
-				<span id="list">prop_list</span>
-				<li id="edit">
+				<span class="list">prop_list</span>
+				<li class="edit">
 					<b data-stamp-text="_name" />
 					<input type="text" data-stamp-placeholder="_name" data-stamp-value="_value" />
 					<!-- Other d-s- attributes are used to apply values to standard DOM attributes. -->
 				</li>
 			</div>
-			<div id="_views">
+			<div class="_views">
 			<!-- The different views are for laying out the entity as a whole. -->
-				<div id="view">
+				<div class="view">
 					<ul class="properties" />
 					<!-- Properties will be iterated over and appended inside '.properties' -->
 					<!-- Individual properties can be called out using markup with an id of the property name -->

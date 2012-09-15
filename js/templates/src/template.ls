@@ -114,9 +114,9 @@ let $=jQuery
 			# User ? as shorthand for the _view special property.
 			property = if property is \? then \_views else property
 			$entity = find.entity(root, theme, entity)
-			$property = $entity.find(\# + property)
+			$property = $entity.find(\. + property)
 			if $property.length isnt 1
-				$property = $entity.children(\#_default_property)
+				$property = $entity.children(\._default_property)
 				#If there STILL isn't a property, fall back to using `_default_entity`
 				if $property.length isnt 1
 					$property = find.property(root, theme, \_default_entity, property)
@@ -124,9 +124,9 @@ let $=jQuery
 
 		view: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "?", view = "view") ->
 			$property = find.property(root, theme, entity, property)
-			$view = $property.find("#{view}")
+			$view = $property.find(".#{view}")
 			if $view.length isnt 1
-				$view = $property.find(\#view);
+				$view = $property.find(\.view);
 			$view.clone()
 
 	# The renderer returns the built and bound DOM for a JEFRi renderable thing.
@@ -141,26 +141,26 @@ let $=jQuery
 			find(".._page")
 
 		entity: (entity, view = "view") ->
-			entity_view = find("..#{entity._type()}.?.#{view}")
-			entity_view.addClass("_entity #{entity._type()} #{view}").removeAttr("id")
+			$entity_view = find("..#{entity._type()}.?.#{view}")
+			$entity_view.addClass("_entity #{entity._type()} #{view}").removeAttr("id")
 			definition = entity._definition()
 			for own property, property_def of definition.properties
-				entity_view.children(".properties").append(render.property(entity._type(), property, entity[property](), view)) 
+				$entity_view.children(".properties").append(render.property(entity._type(), property, entity[property](), view)) 
 			for own rel_name, relationship of definition.relationships
-				entity_view.children(".relationships").append(render.relationship(entity, rel_name, relationship, view)) 
-			if entity_view.find(".relationships ._entity").length == 0
-				entity_view.children('.relationships').remove()
-			JEFRi.Template.rendered.entity <: [entity, entity_view]
-			entity_view
+				$entity_view.children(".relationships").append(render.relationship(entity, rel_name, relationship, view)) 
+			if $entity_view.find(".relationships ._entity").length == 0
+				$entity_view.children('.relationships').remove()
+			JEFRi.Template.rendered.entity <: [entity, $entity_view]
+			$entity_view
 
 		property: (type, name, property, view = "view") ->
-			property_view = find("..#{type}.#{name}.#{view}")
-			data = {}
-			data._name = name
-			data[name] = data._value = property
-			property_view.addClass("#{type} _property #{name} _#{view}").
-				removeAttr('id').
-				stamp(data)
+			$property_view = find("..#{type}.#{name}.#{view}")
+			data =
+				_name: name
+				_value: property
+			data[name] = data._value
+			$property_view .addClass "#{type} _property #{name} _#{view}"
+				.removeAttr \id .stamp data
 
 		relationship: (entity, rel_name, relationship, view = "view") ->
 			if relationship.type is \has_many
