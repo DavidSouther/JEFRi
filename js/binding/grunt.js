@@ -17,10 +17,10 @@ module.exports = function(grunt) {
 		lint: {
 			files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
 		},
-		coffee: {
+		livescript: {
 			app: {
 				files: {
-					'dist/coffee/binding.js': 'src/binding.coffee'
+					'dist/compiled/binding.js': 'src/binding.ls'
 				}
 			}
 		},
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
 		},
 		concat: {
 			dist: {
-				src: ['<banner:meta.banner>', 'src/**/*.js', 'dist/coffee/**/*.js'],
+				src: ['<banner:meta.banner>', 'src/**/*.js', 'dist/compiled/**/*.js'],
 				dest: 'dist/<%= pkg.name %>.js'
 			},
 			css: {
@@ -81,5 +81,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-docco');
 
-	grunt.registerTask('default', 'clean lint less coffee concat concat:css min');
+	grunt.registerTask('default', 'clean less livescript concat concat:css min');
 };
