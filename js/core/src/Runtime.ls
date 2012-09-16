@@ -65,7 +65,7 @@
 			_modified:
 				# Some helper methods to manage modified entities.
 				# Add an entity to the modified set.
-				set: (entity) ~>
+				set: !(entity) ~>
 					# Check if the type exists yet
 					if not @_modified[entity._type!]
 						# Add the type, since we didn't have it before.
@@ -73,12 +73,13 @@
 
 					# Add the entity to the bucket.
 					@_modified[entity._type!][entity.id!] = entity
-					@_modified
 
 				# Remove an entity from the modified set.
-				remove: (entity) ~>
-					delete @_modified[entity._type!][entity.id!]
-					@_modified
+				remove: !(entity) ~>
+					id = entity.id!
+					type = @_modified[entity._type!]
+					type[id] = null
+					delete type[id]
 
 		# Build the default store
 		@_store = new @settings.store {runtime: @}
@@ -101,53 +102,57 @@
 			@_context.attributes <<< context.attributes
 
 			# Prepare each entity. Uses _.each to put (definition, type) in a closure.
-			_.each context.entities, (definition, type) ~> # NO SERIOUSLY, definition MUST BE IN A CLOSURE!
-				# Keep the definition locally, modifying it directly with the ctor and prototypes.
-				@_context.entities[type] = definition
-				# Ready the instances bucket
-				@_instances[type] = {}
-
-				# Build an entity's constructor.
-				definition.Constructor = (proto) ->
-					# Set the privileged accounting and property data.
-					@ <<<
-						_new: true
-						_modified: {_count: 0}
-						_fields: {}
-						_relationships: {}
-
-					# Check for runtime prototype override.
-					proto = proto || {}
-
-					# Set the key generate if not set by proto.
-					proto[definition.key] = proto[definition.key] || _.UUID.v4!
-
-					# Set a bunch of default values, so they're all available.
-					for name, property of definition.properties
-						# Use the value provided to the constructor, or the default.
-						def = proto[name] || _default(property.type)
-						@[name](def)
-
-					# Attach a privileged copy of the full id, more for debugging than use.
-					@_id = @id(true)
-
-					# Add runtime methods
-					@:: <<< proto::
-
-					# Set a few event handlers
-					# Manage accounting after an entity has been persisted
-					@persisted :> ->
-						@ <<<
-							_new: false
-							_modified:
-								_count: 0
-						ec._modified.remove(@)
-					return @
-
-				#Set up the prototype for any of this entity.
-				_build_prototype(type, definition, (protos && protos[type]))
+			# _.each context.entities, (definition, type) ~> # NO SERIOUSLY, definition MUST BE IN A CLOSURE!
+			for type, definition of context.entities
+				_build_constructor definition, type
 
 			ready.resolve!
+
+		_build_constructor = (definition, type) ~>
+			# Keep the definition locally, modifying it directly with the ctor and prototypes.
+			@_context.entities[type] = definition
+			# Ready the instances bucket
+			@_instances[type] = {}
+
+			# Build an entity's constructor.
+			definition.Constructor = (proto) ->
+				# Set the privileged accounting and property data.
+				@ <<<
+					_new: true
+					_modified: {_count: 0}
+					_fields: {}
+					_relationships: {}
+
+				# Check for runtime prototype override.
+				proto = proto || {}
+
+				# Set the key generate if not set by proto.
+				proto[definition.key] = proto[definition.key] || _.UUID.v4!
+
+				# Set a bunch of default values, so they're all available.
+				for name, property of definition.properties
+					# Use the value provided to the constructor, or the default.
+					def = proto[name] || _default(property.type)
+					@[name](def)
+
+				# Attach a privileged copy of the full id, more for debugging than use.
+				@_id = @id(true)
+
+				# Add runtime methods
+				@:: <<< proto::
+
+				# Set a few event handlers
+				# Manage accounting after an entity has been persisted
+				@persisted :> ->
+					@ <<<
+						_new: false
+						_modified:
+							_count: 0
+					ec._modified.remove(@)
+				return @
+
+			#Set up the prototype for any of this entity.
+			_build_prototype(type, definition, (protos && protos[type]))
 
 		# Set up all the required methods - id!, _type!, and the mutaccs.
 		_build_prototype = !(type, definition, proto) ~>
