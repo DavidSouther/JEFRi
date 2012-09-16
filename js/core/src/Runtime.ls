@@ -342,7 +342,7 @@
 						@_relationships[field] = entity
 						if( id isnt entity[relationship.to.property]!)
 							# Changing
-							entity[relationship.to.property](id)
+							@[relationship.property] entity[relationship.to.property]!
 							if( "is_a" isnt relationship.type)
 								#Add or set this to the remote entity
 								#Need to find the back relationship...
