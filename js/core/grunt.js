@@ -19,23 +19,23 @@ module.exports = function(grunt) {
 		},
 		docco: {
 			app: {
-				src: ['**/*.coffee', '**/*.js']
+				src: ['**/*.ls', '**/*.js']
 			}
 		},
 		qunit: {
 			files: ['test/**/*.html']
 		},
-		coffee: {
+		livescript: {
 			app: {
 				files: {
-					"dist/coffee/Runtime.js": 'src/Runtime.coffee',
-					"dist/coffee/Stores.js": ['src/*Store.coffee']
+					"dist/compiled/Runtime.js": 'src/Runtime.ls',
+					"dist/compiled/Stores.js": ['src/*Store.ls']
 				}
 			}
 		},
 		concat: {
 			dist: {
-				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/coffee/Runtime.js', 'src/Transaction.js', 'src/PostStore.js', 'dist/coffee/Stores.js'],
+				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/compiled/Runtime.js', 'src/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js'],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
@@ -46,8 +46,6 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
-			files: '<config.coffee.app.src>',
-			tasks: 'coffee:app'
 		},
 		jshint: {
 			options: {
@@ -75,5 +73,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-docco');
 
-	grunt.registerTask('default', 'clean  coffee concat min');
+	grunt.registerTask('default', 'clean livescript concat min');
 };
