@@ -30,8 +30,9 @@ do ->
 		# ### persist*(transction)*
 		# Treat the transaction as a persistence call. Save the data.
 		persist: (transaction) ->
-			transaction.entities = for entity in transaction.entities
-				@_save entity
+			transaction.entities =
+				for entity in transaction.entities
+					@_save entity
 
 		# #### _save*(entity)*
 		# Save the data in the browser's localStorage.
