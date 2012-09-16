@@ -4,10 +4,10 @@
 #     For full details and documentation:
 #     http://jefri.org
 
-( ->
+
 	root = @
 
-	`root.JEFRi = root.JEFRi ? root.JEFRi : {}`
+	root.JEFRi = if root.JEFRi then root.JEFRi else {}
 
 	class CouchStore
 		constructor: (options) ->
@@ -40,4 +40,3 @@
 
 
 	root.JEFRi.CouchStore = CouchStore
-)();
