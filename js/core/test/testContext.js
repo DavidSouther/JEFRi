@@ -18,11 +18,13 @@ asyncTest("Context", function() {
 		ok(runtime._context.entities, "Has entities.");
 
 		var context = runtime.build("Context", {});
+		var id = context.id();
 		var hostsEntity = runtime.build("Entity", {"name": "Host", "key": "host_id"});
 		context.entities(hostsEntity);
+		equal(context.id(), id, "ID not overwritten on entity set.");
 
 		var ct = runtime.find("Context")[0];
-		ok(ct.entities()[0].context().id() === ct.id(), "Navigating relationships succeeded.");
+		equal(ct.entities()[0].context().id(), ct.id(), "Navigating relationships succeeded.");
 
 		var properties = [];
 		properties.push(runtime.build("Property", {"name": "host_id", "type": "string"}));
