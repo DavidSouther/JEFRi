@@ -29,13 +29,14 @@ module.exports = function(grunt) {
 			app: {
 				files: {
 					"dist/compiled/Runtime.js": 'src/Runtime.ls',
+					"dist/compiled/Transaction.js": 'src/Transaction.ls',
 					"dist/compiled/Stores.js": ['src/*Store.ls']
 				}
 			}
 		},
 		concat: {
 			dist: {
-				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/compiled/Runtime.js', 'src/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js'],
+				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js'],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
