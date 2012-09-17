@@ -262,13 +262,13 @@
 
 		# Attach the mutators and accessors (mutaccs) to the prototype.
 		#/* TODO Thoroughly debug these functions... */
-		_build_relationship = !(definition, field, relationship) ~>
+		_build_relationship = !(definition, field, relationship) ->
 			# The relationship is the name of a function that acts as getter/setter
 			definition.Constructor::[field] = (entity) ->
 				# Use arguments, since we might have a few things coming.
-				if arguments.length > 0
+				if &.length > 0
 					set = if relationship.type is "has_many" then "add" else "set"
-					return @[field][set].apply(@, arguments)
+					return @[field][set].apply(@, &)
 				else
 					return @[field].get.call(@)
 
@@ -276,11 +276,7 @@
 			if "has_many" is relationship.type
 				definition.Constructor::[field] <<<
 					# Return the set of entities in the relationship.
-					get: (longGet) ->
-						# Lazy load
-						#if (longGet)
-							# This needs a bit of thought
-							#TODO, leaving this comment in as a nag.
+					get: ->
 						# Check if the field has ever been set
 						if !(field of @_relationships)
 							# The field hasn't been set, so we haven't ever gotten this relationship before.
@@ -292,7 +288,7 @@
 								# If these are related
 								if (type[relationship.to.property]! is @[relationship.property]!)
 									# Add it
-									@_relationships[field].push(@)
+									@_relationships[field].push type
 						return @_relationships[field]
 
 					# Add an entity to the relationship.
@@ -300,7 +296,7 @@
 						if (_.isArray(entity))
 							for e in entity
 								@[field].add.call(@, e)
-							return @
+							return @ # Explicitly return early
 
 						if !(field of @_relationships)
 							#Lazy load
@@ -318,18 +314,12 @@
 
 						# Notify observers
 						@modify <: [field, entity]
-
 						@
 
 			# Mutaccs for has_a and is_a
 			else
 				definition.Constructor::[field] <<<
-					get: (longGet) ->
-						#if(longGet) {
-						#	// Lazy load
-						#	// This needs a bit of thought
-						#	//TODO
-						#}
+					get: ->
 						if(@_relationships[field] is undefined)
 							# Just need the one...
 							@_relationships[field] = ec._instances[relationship.to.type][@[relationship.property]!]
