@@ -267,10 +267,12 @@
 			definition.Constructor::[field] = (entity) ->
 				# Use arguments, since we might have a few things coming.
 				if &.length > 0
-					set = if relationship.type is "has_many" then "add" else "set"
-					return @[field][set].apply(@, &)
+					if relationship.type is "has_many"
+						return @[field].add.apply(@, _.flatten &)
+					else
+						return @[field].set.call @, &0
 				else
-					return @[field].get.call(@)
+					return @[field].get.call @
 
 			# The multiple relations functions.
 			if "has_many" is relationship.type
@@ -292,28 +294,24 @@
 						return @_relationships[field]
 
 					# Add an entity to the relationship.
-					add: (entity) ->
-						if (_.isArray(entity))
-							for e in entity
-								@[field].add.call(@, e)
-							return @ # Explicitly return early
-
+					add: (...) ->
 						if !(field of @_relationships)
 							#Lazy load
-							@[field].get.call(@)
+							@[field].get.call @
 
-						if (_.indexBy(@_relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0)
-							#There is not a local reference to the found entity.
-							@_relationships[field].push(entity)
+						for entity in &
+							if (_.indexBy(@_relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0)
+								#There is not a local reference to the found entity.
+								@_relationships[field].push(entity)
 
-							#Call the reverse setter
-							#	Need to find the back relationship...
-							back_rel = ec.back_rel(@_type!, field, relationship)
-							#	Make sure it exists
-							if back_rel then entity[back_rel.name].set.call(entity, @)
+								#Call the reverse setter
+								#	Need to find the back relationship...
+								back_rel = ec.back_rel(@_type!, field, relationship)
+								#	Make sure it exists
+								if back_rel then entity[back_rel.name].set.call(entity, @)
 
 						# Notify observers
-						@modify <: [field, entity]
+						@modify <: [field, &]
 						@
 
 			# Mutaccs for has_a and is_a
@@ -326,27 +324,26 @@
 							# Make sure we found one
 							if(@_relationships[field] is undefined)
 								# If not, create it.
-								key = {}
-								key[ec.definition(relationship.to.type).key] = @[relationship.to.property]!
+								key = "#{relationship.to.property}": @[relationship.property]!
 								@[field](ec.build(relationship.to.type, key))
 
 						return @_relationships[field]
 
-					set: (entity) ->
+					set: (related) ->
 						id = @[relationship.property]!
-						@_relationships[field] = entity
-						if( id isnt entity[relationship.to.property]!)
+						@_relationships[field] = related # Always reI'assign it, catches if they were created with the same ID but not yest associated.
+						if( id isnt related[relationship.to.property]!)
 							# Changing
-							@[relationship.property] entity[relationship.to.property]!
+							related[relationship.to.property] @[relationship.property]!
 							if( "is_a" isnt relationship.type)
-								#Add or set this to the remote entity
+								#Add or set `this` to the related entity
 								#Need to find the back relationship...
 								back_rel = ec.back_rel(@_type!, field, relationship)
 								back = if ("has_many" is back_rel.type) then 'add' else 'set'
-								entity[back_rel.name][back].call(entity, @)
+								related[back_rel.name][back].call(related, @)
 
 						# Notify observers
-						@modify <: [field, entity]
+						@modify <: [field, related]
 
 						return @
 
@@ -401,7 +398,7 @@
 		extend: (type, extend) ->
 			if (@_context.entities[type])
 				@_context.entities[type].Constructor:: <<< extend::
-		
+
 		# Return the canonical memory reference of the entity.
 		intern: (entity, updateOnIntern) ->
 			updateOnIntern = !!updateOnIntern || @settings.updateOnIntern
@@ -567,4 +564,3 @@
 		_save: (transaction, store) ->
 			store = store || @_store
 			return store.execute('persist', transaction).then _.bind(@expand, @)
-
