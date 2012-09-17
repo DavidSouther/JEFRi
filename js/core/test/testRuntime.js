@@ -49,6 +49,7 @@ asyncTest("Instantiate Runtime", function() {
 		ok(!!runtime.definition('Authinfo') && !!runtime.definition('User'), "Runtime has the correct entities.");
 
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
+		var id = user.id();
 		equal(user._status(), "NEW", "Built user should be New");
 		ok(user.id().match(/[a-f0-9\-]{36}/i), "User should have a valid id.");
 		equal(user.id(), user.user_id(), "User id() and user_id properties must match.");
@@ -58,6 +59,7 @@ asyncTest("Instantiate Runtime", function() {
 		ok(authinfo.id().match(/[a-f0-9\-]{36}/i), "Authinfo should have a valid id.");
 		ok(authinfo.id(true).match(/[a-zA-Z_\-]+\/[a-f0-9\-]{36}/i), "id(true) returns full path.");
 		equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
+		equal(id, user.id(), "ID not overwritten on entity set.");
 
 		var user2 = runtime.build("User", {name: "portaj", address: "rurd4me@example.com"});
 		var authinfo2 = user2.authinfo();
