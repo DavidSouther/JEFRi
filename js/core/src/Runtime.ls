@@ -99,7 +99,7 @@
 		# storage. Also builds constructors and prototypes for the context.
 		_set_context = (context, protos) ~>
 			# Save the attributes
-			@_context.attributes <<< context.attributes
+			@_context.attributes <<< (context.attributes || {})
 
 			# Prepare each entity. Uses _.each to put (definition, type) in a closure.
 			# _.each context.entities, (definition, type) ~> # NO SERIOUSLY, definition MUST BE IN A CLOSURE!
@@ -317,6 +317,16 @@
 			# Mutaccs for has_a and is_a
 			else
 				definition.Constructor::[field] <<<
+					set: _.lock (related) ->
+						@_relationships[field] = related
+						@[relationship.property] related[relationship.to.property]!
+						if \is_a isnt relationship.type
+							back_rel = ec.back_rel @_type!, field, relationship
+							related[back_rel.name] @
+						# Notify observers
+						@modify <: [field, related]	
+						@
+
 					get: ->
 						if(@_relationships[field] is undefined)
 							# Just need the one...
@@ -328,24 +338,6 @@
 								@[field](ec.build(relationship.to.type, key))
 
 						return @_relationships[field]
-
-					set: (related) ->
-						id = @[relationship.property]!
-						@_relationships[field] = related # Always reI'assign it, catches if they were created with the same ID but not yest associated.
-						if( id isnt related[relationship.to.property]!)
-							# Changing
-							related[relationship.to.property] @[relationship.property]!
-							if( "is_a" isnt relationship.type)
-								#Add or set `this` to the related entity
-								#Need to find the back relationship...
-								back_rel = ec.back_rel(@_type!, field, relationship)
-								back = if ("has_many" is back_rel.type) then 'add' else 'set'
-								related[back_rel.name][back].call(related, @)
-
-						# Notify observers
-						@modify <: [field, related]
-
-						return @
 
 		# Prepare the runtime with the given contexts.
 		if (options && options.debug)
