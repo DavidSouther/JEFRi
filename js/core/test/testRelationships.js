@@ -54,9 +54,9 @@
 		runtime.ready.done(function(){
 			ok(runtime._instances.Foo, "Runtime instantiated.");
 
-			var foo = runtime.build("Foo");
+			foo = runtime.build("Foo");
 			fid = foo.id(true);
-			var bar = runtime.build("Bar");
+			bar = runtime.build("Bar");
 			bid = bar.id(true);
 
 			foo.bar(bar);
@@ -64,8 +64,7 @@
 			equal(fid, foo.id(true), "Anchor kept id.");
 			equal(bid, bar.id(true), "Related kept id.");
 
-			equal(foo.bar_id(), bar.bar_id(), "Anchor rel prop is Related rel prop.");
-			equal(bar.foo_id(), foo.foo_id(), "Related rel prop is Anchor rel prop.");
+			equal(foo.bar_id(), bar.foo_id(), "Anchor rel prop is Related rel prop.");
 
 			ok(foo._relationships.bar === bar, "Anchor points to correct related.");
 			ok(bar._relationships.foo === foo, "Related points to correct anchor.");
@@ -130,7 +129,6 @@
 			equal(bid, bar.id(true), "Related kept id.");
 
 			equal(foo.foo_id(), bar.foo_id(), "Anchor rel prop is Related rel prop.");
-			equal(bar.foo_id(), foo.foo_id(), "Related rel prop is Anchor rel prop.");
 
 			ok(foo._relationships.bar === bar, "Anchor points to correct related.");
 			ok(bar._relationships.foo === foo, "Related points to correct anchor.");

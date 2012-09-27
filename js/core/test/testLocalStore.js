@@ -22,7 +22,8 @@ _jQuery(document).ready(function(){
 	asyncTest("LocalStore minimal save", function(){
 		runtime.ready.done( function(){
 			user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
-			authinfo = user.authinfo(runtime.build('Authinfo', {})).authinfo();
+			user.authinfo(runtime.build('Authinfo', {}));
+			authinfo = user.authinfo();
 
 			runtime.save_new().then(function(transaction){
 				ok(transaction.entities && transaction.attributes, "Transaction entities and attributes.");
