@@ -319,7 +319,7 @@
 				definition.Constructor::[field] <<<
 					set: _.lock (related) ->
 						@_relationships[field] = related
-						@[relationship.property] related[relationship.to.property]!
+						resolve_ids.call @, related
 						if \is_a isnt relationship.type
 							back_rel = ec.back_rel @_type!, field, relationship
 							related[back_rel.name] @
@@ -338,6 +338,23 @@
 								@[field](ec.build(relationship.to.type, key))
 
 						return @_relationships[field]
+
+			# Helper for has_a::set
+			resolve_ids = !(related) ->
+				# If @'s key is relprop, use it for related
+				if definition.key is relationship.property # Always use this' ID if we can
+					related[relationship.to.property] @[relationship.property]!
+				else if related._definition!key is relationship.to.property # Back-up ID
+					@[relationship.property] related[relationship.to.property]!
+				else # No IDs. If one is set, set the other to that
+					if @[relationship.property]!match _.UUID.rvalid
+						related[relationship.to.property] @[relationship.property]!
+					else if related[relationship.to.property]!match _.UUID.rvalid
+						@[relationship.property] related[relationship.to.property]!
+					else #Nothing is set, use this' id
+						id = _.UUID.v4!
+						@[relationship.property] id
+						related[relationship.to.property] id
 
 		# Prepare the runtime with the given contexts.
 		if (options && options.debug)
