@@ -44,7 +44,7 @@
 		settings <<<< options
 
 		@ <<<<
-			settings: settings	
+			settings: settings
 
 			ready: ready.promise!
 
@@ -90,9 +90,9 @@
 		# A few default property values.
 		_default = (type) ->
 			switch type
-				when "boolean" then false
-				when "int" or "float" then 0
-				when "string" then ""
+				when \boolean then false
+				when \int or \float then 0
+				when \string then ""
 				else ""
 
 		# Takes a "raw" context object and orders it into the internal _context
@@ -136,7 +136,7 @@
 					@[name](def)
 
 				# Attach a privileged copy of the full id, more for debugging than use.
-				@_id = @id(true)
+				@_id = @id true
 
 				# Add runtime methods
 				@:: <<< proto::
@@ -160,20 +160,20 @@
 				# Get this entity's type. Use the closure'd reference.
 				_type: (full) ->
 					full = full || false
-					return type
+					type
 
 				# Get this entity's ID.
 				id: (full) ->
-					return (if full then "#{@_type!}/" else "") + @[definition.key]!
+					(if full then "#{@_type!}/" else "") + @[definition.key]!
 
 				# Find the status of an entity.
 				_status: ->
-					state = "MODIFIED"
-					if (@_new)
-						state = "NEW"
-					else if (_.isEmpty(@_modified))
-						state = "PERSISTED"
-					return state
+					state = \MODIFIED
+					if @_new
+						state = \NEW
+					else if _.isEmpty @_modified
+						state = \PERSISTED
+					state
 
 				_definition: -> definition
 
@@ -185,10 +185,10 @@
 					transaction.add(@)
 
 					#Call the on_persist handler
-					@trigger('persisting', @, transaction)
+					@persisting <: transaction
 
 					#If we're on top, run the transaction...
-					if ( top ) then transaction.persist(callback)
+					if top then transaction.persist(callback)
 
 					deferred.promise!
 
@@ -267,7 +267,7 @@
 			definition.Constructor::[field] = (entity) ->
 				# Use arguments, since we might have a few things coming.
 				if &.length > 0
-					if relationship.type is "has_many"
+					if relationship.type is \has_many
 						return @[field].add.apply(@, _.flatten &)
 					else
 						return @[field].set.call @, &0
@@ -275,7 +275,7 @@
 					return @[field].get.call @
 
 			# The multiple relations functions.
-			if "has_many" is relationship.type
+			if \has_many is relationship.type
 				definition.Constructor::[field] <<<
 					# Return the set of entities in the relationship.
 					get: ->
@@ -324,7 +324,7 @@
 							back_rel = ec.back_rel @_type!, field, relationship
 							related[back_rel.name] @
 						# Notify observers
-						@modify <: [field, related]	
+						@modify <: [field, related]
 						@
 
 					get: ->
@@ -344,7 +344,7 @@
 			# The context object was provided by the caller
 			_set_context(options.debug.context, protos)
 		else if @settings.contextUri?
-			_.get(@settings.contextUri, {dataType: "application/json"})
+			_.get(@settings.contextUri, {dataType: \application/json})
 			.done (data) ->
 				if (!data) then throw { message: "Context loaded, but invalid." }
 				data = if _.isString(data) then JSON.parse(data) else data
