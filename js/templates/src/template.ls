@@ -6,8 +6,8 @@
 
 let $ = jQuery
 	'use strict'
-	$.fn.merge = (doms) ->
-		doms.filter("[id]").each !(i, dom) ~>
+	$.fn.merge = ($doms) ->
+		$doms.filter("[id]").each !(i, dom) ~>
 			$dom = $(dom)
 			id = $dom.attr "id"
 			$child = this.children(\# + id)
