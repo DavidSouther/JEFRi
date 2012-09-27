@@ -291,7 +291,7 @@
 								if (type[relationship.to.property]! is @[relationship.property]!)
 									# Add it
 									@_relationships[field].push type
-						return @_relationships[field]
+						@_relationships[field]
 
 					# Add an entity to the relationship.
 					add: (...) ->
@@ -300,9 +300,9 @@
 							@[field].get.call @
 
 						for entity in &
-							if (_.indexBy(@_relationships[field], _.bind(JEFRi.EntityComparator, null, entity)) < 0)
+							if _(@_relationships[field]).indexBy(_.bind(JEFRi.EntityComparator, null, entity)) < 0
 								#There is not a local reference to the found entity.
-								@_relationships[field].push(entity)
+								@_relationships[field].push entity
 
 								#Call the reverse setter
 								#	Need to find the back relationship...
@@ -328,11 +328,11 @@
 						@
 
 					get: ->
-						if(@_relationships[field] is undefined)
+						if @_relationships[field] is undefined
 							# Just need the one...
 							@_relationships[field] = ec._instances[relationship.to.type][@[relationship.property]!]
 							# Make sure we found one
-							if(@_relationships[field] is undefined)
+							if @_relationships[field] is undefined
 								# If not, create it.
 								key = "#{relationship.to.property}": @[relationship.property]!
 								@[field](ec.build(relationship.to.type, key))
