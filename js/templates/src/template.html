@@ -6,7 +6,6 @@
 		<!-- If any particular entity can't be found, use templates from here. -->
 			<div class="_default_property">
 				<li class="view">
-				<!-- Within a specific property view, several render techniques are used. -->
 				<!-- During render, and object is available with signature
 					{ _name: "propertyName", _value: "Property Value}
 				-->
@@ -16,7 +15,7 @@
 					<!-- d-s-text is special, and will replace the text() of the node with data from the property object -->
 					<span data-stamp-text="_value" />
 				</li>
-				<span class="list">prop_list</span>
+				<span class="list"><span data-stamp-text="_value" /></span>
 				<li class="edit">
 					<b data-stamp-text="_name" />
 					<input type="text" data-stamp-placeholder="_name" data-stamp-value="_value" />
@@ -26,6 +25,10 @@
 			<div class="_views">
 			<!-- The different views are for laying out the entity as a whole. -->
 				<div class="view">
+					<!-- During entity render, an object is available with signature
+						{ _name: "EntityType", _value: EntityRef}
+					-->
+					<b data-stamp-text="_name" />
 					<ul class="properties" />
 					<!-- Properties will be iterated over and appended inside '.properties' -->
 					<!-- Individual properties can be called out using markup with an id of the property name -->

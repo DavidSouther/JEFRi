@@ -37,6 +37,13 @@ let $ = jQuery
 						else $(@).attr attribute, data[value]
 		@
 
+	# Need a new clone that doesn't copy comments.
+	$.fn.clonec = ->
+		$nodes = @clone!
+		$nodes.find!.filter(-> @nodeType == 8).remove!
+		$nodes
+
+
 let $=jQuery
 	'use strict'
 
@@ -93,21 +100,21 @@ let $=jQuery
 			$root = template.children \# + root
 			if $root.length is 0
 				throw "Template root not loaded."
-			$root.clone!
+			$root.clonec!
 
 		theme: (root = settings.paths.root, theme = settings.paths.theme) ->
 			$root = find.root root
 			$theme = $root.children \# + theme
 			if $theme.length isnt 1
 				$theme = $root.children \# + settings.paths.theme
-			$theme.clone!
+			$theme.clonec!
 
 		entity: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity") ->
 			$theme = find.theme root, theme
 			$entity = $theme.find \# + entity
 			if $entity.length isnt 1
 				$entity = $theme.children \#_default_entity
-			$entity.clone!
+			$entity.clonec!
 
 		property: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "_default_property") ->
 			# User ? as shorthand for the _view special property.
@@ -119,14 +126,14 @@ let $=jQuery
 				#If there STILL isn't a property, fall back to using `_default_entity`
 				if $property.length isnt 1
 					$property = find.property root, theme, \_default_entity, property
-			$property.clone!
+			$property.clonec!
 
 		view: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "?", view = "view") ->
 			$property = find.property root, theme, entity, property
 			$view = $property.find ".#{view}"
 			if $view.length isnt 1
 				$view = $property.find \.view
-			$view.clone!
+			$view.clonec!
 
 	# The renderer returns the built and bound DOM for a JEFRi renderable thing.
 	render = (thing) ->
@@ -141,9 +148,13 @@ let $=jQuery
 
 		entity: (entity, view = "view") ->
 			$entity_view = find "..#{entity._type!}.?.#{view}"
+			stamp =
+				_name: entity._type!
+				_value: entity
 			$entity_view
 				.addClass "_entity #{entity._type!} #{view}"
 				.removeAttr \id
+				.stamp stamp
 			definition = entity._definition!
 			for own property, property_def of definition.properties
 				$entity_view

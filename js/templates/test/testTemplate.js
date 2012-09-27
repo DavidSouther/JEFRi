@@ -28,6 +28,14 @@ asyncTest("Template", function (){
 		ok(JEFRi.Template.find("..User.?").length, "Find entity view.");
 		ok(JEFRi.Template.find("..User..list").length, "Find property view.");
 		ok(JEFRi.Template.find("..User.MISSINGPROPERTY.list").length, "Find missing property view.");
+		equal(
+			JEFRi.Template.find("..User..list").filter(
+				function(e){
+					return e.nodeType === 8;
+				}).length,
+			0,
+			"No comments in render."
+		);
 		start();
 	});
 });
@@ -42,10 +50,10 @@ asyncTest("Templating", function (){
 		var view = JEFRi.Template.render(user);
 		view.appendTo("#templates-target");
 		ok(view.length, "Render basic view.");
-		ok(view.find("._property.name b").length === 1, "B for name in _defualt_property.");
+		equal(view.find("._property.name b").length, 1, "B for name in _defualt_property.");
 		equal(view.find("._property.name b").text(), "name", "Name in _defualt_property has right value.");
-		ok(view.find("._property.user_id em").length === 1, "EM override in user_id property.");
-		ok(view.find(".relationships ._entity").length === 1, "User has one relationship.");
+		equal(view.find("._property.user_id em").length, 1, "EM override in user_id property.");
+		equal(view.find(".relationships ._entity").length, 1, "User has one relationship.");
 		start();
 	});
 });
