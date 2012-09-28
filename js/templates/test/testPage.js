@@ -29,8 +29,8 @@ asyncTest("Render page", function (){
 		properties.push(runtime.build("Property", {"name": "mac", "type": "string"}));
 		hostsEntity.properties(properties);
 		
-		var view = JEFRi.Template.render(context);
-		$("#templates-target").append(view);
+		var $view = JEFRi.Template.render(context);
+		$("#templates-target").append($view);
 
 		ok(1);
 		start();
