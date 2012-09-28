@@ -15,7 +15,9 @@
 					<!-- d-s-text is special, and will replace the text() of the node with data from the property object -->
 					<span data-stamp-text="_value" />
 				</li>
-				<span class="list"><span data-stamp-text="_value" /></span>
+				<span class="list">
+					<li><span data-stamp-text="_value" /></li>
+				</span>
 				<li class="edit">
 					<b data-stamp-text="_name" />
 					<input type="text" data-stamp-placeholder="_name" data-stamp-value="_value" />
@@ -29,11 +31,11 @@
 						{ _name: "EntityType", _value: EntityRef}
 					-->
 					<b data-stamp-text="_name" />
-					<ul class="properties" />
+					<ul data-stamp-properties />
 					<!-- Properties will be iterated over and appended inside '.properties' -->
 					<!-- Individual properties can be called out using markup with an id of the property name -->
 					<!-- Those properties will be rendered and replace the token markup, and not appended. -->
-					<div class="relationships">
+					<div data-stamp-relationships>
 					<!-- Relationships will be rendered the same way as properties. -->
 						<h2>Relationships</h2>
 					</div>

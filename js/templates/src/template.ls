@@ -109,15 +109,15 @@ let $=jQuery
 				$theme = $root.children \# + settings.paths.theme
 			$theme.clonec!
 
-		entity: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity") ->
+		entity: (root = settings.paths.root, theme = settings.paths.theme, entity = \_default_entity) ->
 			$theme = find.theme root, theme
 			$entity = $theme.find \# + entity
 			if $entity.length isnt 1
 				$entity = $theme.children \#_default_entity
 			$entity.clonec!
 
-		property: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "_default_property") ->
-			# User ? as shorthand for the _view special property.
+		property: (root = settings.paths.root, theme = settings.paths.theme, entity = \_default_entity, property = \_default_property) ->
+			# Use ? as shorthand for the _views special property.
 			property = if property is \? then \_views else property
 			$entity = find.entity root, theme, entity
 			$property = $entity.find \. + property
@@ -128,7 +128,7 @@ let $=jQuery
 					$property = find.property root, theme, \_default_entity, property
 			$property.clonec!
 
-		view: (root = settings.paths.root, theme = settings.paths.theme, entity = "_default_entity", property = "?", view = "view") ->
+		view: (root = settings.paths.root, theme = settings.paths.theme, entity = \_default_entity, property = \?, view = \view) ->
 			$property = find.property root, theme, entity, property
 			$view = $property.find ".#{view}"
 			if $view.length isnt 1
@@ -146,7 +146,7 @@ let $=jQuery
 		page: (page) ->
 			find \.._page
 
-		entity: (entity, view = "view") ->
+		entity: (entity, view = \view) ->
 			$entity_view = find "..#{entity._type!}.?.#{view}"
 			stamp =
 				_name: entity._type!
@@ -155,22 +155,13 @@ let $=jQuery
 				.addClass "_entity #{entity._type!} #{view}"
 				.removeAttr \id
 				.stamp stamp
-			definition = entity._definition!
-			for own property, property_def of definition.properties
-				$entity_view
-					.children \.properties
-						.append render.property entity._type!, property, entity[property]!, view
-			for own rel_name, relationship of definition.relationships
-				$entity_view
-					.children \.relationships
-						.append render.relationship entity, rel_name, relationship, view
-			if $entity_view.find(".relationships ._entity").length == 0
-				$entity_view
-					.children \.relationships .remove!
+			$entity_view <<< {entity, view}
+			render.entity.properties $entity_view
+			render.entity.relationships $entity_view
 			JEFRi.Template.rendered.entity <: [entity, $entity_view]
 			$entity_view
 
-		property: (type, name, property, view = "view") ->
+		property: (type, name, property, view = \view) ->
 			$property_view = find "..#{type}.#{name}.#{view}"
 			data =
 				_name: name
@@ -181,7 +172,7 @@ let $=jQuery
 				.removeAttr \id
 				.stamp data
 
-		relationship: (entity, rel_name, relationship, view = "view") ->
+		relationship: (entity, rel_name, relationship, view = \view) ->
 			if relationship.type is \has_many
 				rel = find "..#{entity._type!}.#{rel_name}.list"
 				rels = entity[rel_name]!
@@ -190,6 +181,31 @@ let $=jQuery
 				return rel
 			else
 				return render.entity entity[rel_name]!
+
+	render.entity <<<
+		properties: !($entity_view) ->
+			definition = $entity_view.entity._definition!
+			$entity_view
+				.children "[data-stamp-properties]"
+					.addClass \properties
+			for own property, property_def of definition.properties
+				$entity_view
+					.children "[data-stamp-properties]"
+						.append render.property $entity_view.entity._type!, property, $entity_view.entity[property]!, $entity_view.view
+
+		relationships: !($entity_view) ->
+			definition = $entity_view.entity._definition!
+			$entity_view
+				.children "[data-stamp-relationships]"
+					.addClass \relationships
+			for own rel_name, relationship of definition.relationships
+				$related_view = render.relationship $entity_view.entity, rel_name, relationship, $entity_view.view
+				$entity_view
+					.children "[data-stamp-relationships]"
+						.append $related_view
+			if $entity_view.find("[data-stamp-relationships] ._entity").length == 0
+				$entity_view
+					.children "[data-stamp-relationships]" .remove!
 
 	do ->
 		key = {}
@@ -210,6 +226,7 @@ let $=jQuery
 				e = r_e entity, view
 				unlock entity
 			e
+		render.entity <<<< r_e
 
 	init = (options) ->
 		_clear!
