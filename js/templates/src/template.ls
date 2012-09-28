@@ -7,10 +7,11 @@
 let $ = jQuery
 	'use strict'
 	$.fn.merge = ($doms) ->
+		# Remove all comments
 		$doms.filter("[id]").each !(i, dom) ~>
 			$dom = $(dom)
 			id = $dom.attr "id"
-			$child = this.children(\# + id)
+			$child = this.children \# + id
 			if $child.length is 0
 				@append($dom)
 			else
@@ -36,13 +37,6 @@ let $ = jQuery
 						when "text" then $(@).text data[value]
 						else $(@).attr attribute, data[value]
 		@
-
-	# Need a new clone that doesn't copy comments.
-	$.fn.clonec = ->
-		$nodes = @clone!
-		$nodes.find!.filter(-> @nodeType == 8).remove!
-		$nodes
-
 
 let $=jQuery
 	'use strict'
@@ -100,21 +94,21 @@ let $=jQuery
 			$root = template.children \# + root
 			if $root.length is 0
 				throw "Template root not loaded."
-			$root.clonec!
+			$root.clone!
 
 		theme: (root = settings.paths.root, theme = settings.paths.theme) ->
 			$root = find.root root
 			$theme = $root.children \# + theme
 			if $theme.length isnt 1
 				$theme = $root.children \# + settings.paths.theme
-			$theme.clonec!
+			$theme.clone!
 
 		entity: (root = settings.paths.root, theme = settings.paths.theme, entity = \_default_entity) ->
 			$theme = find.theme root, theme
 			$entity = $theme.find \# + entity
 			if $entity.length isnt 1
 				$entity = $theme.children \#_default_entity
-			$entity.clonec!
+			$entity.clone!
 
 		property: (root = settings.paths.root, theme = settings.paths.theme, entity = \_default_entity, property = \_default_property) ->
 			# Use ? as shorthand for the _views special property.
@@ -126,14 +120,14 @@ let $=jQuery
 				#If there STILL isn't a property, fall back to using `_default_entity`
 				if $property.length isnt 1
 					$property = find.property root, theme, \_default_entity, property
-			$property.clonec!
+			$property.clone!
 
 		view: (root = settings.paths.root, theme = settings.paths.theme, entity = \_default_entity, property = \?, view = \view) ->
 			$property = find.property root, theme, entity, property
 			$view = $property.find ".#{view}"
 			if $view.length isnt 1
 				$view = $property.find \.view
-			$view.clonec!
+			$view.clone!
 
 	# The renderer returns the built and bound DOM for a JEFRi renderable thing.
 	render = (thing) ->
