@@ -8,6 +8,7 @@ let $ = jQuery
 	'use strict'
 	$.fn.merge = ($doms) ->
 		# Remove all comments
+		$doms.clean!
 		$doms.filter("[id]").each !(i, dom) ~>
 			$dom = $(dom)
 			id = $dom.attr "id"
@@ -36,6 +37,17 @@ let $ = jQuery
 					switch attribute
 						when "text" then $(@).text data[value]
 						else $(@).attr attribute, data[value]
+		@
+
+	cleanComments = !(node) ->
+		len$ = (ref$ = node.childNodes).length
+		for i$ from len$ - 1 to 0 by -1
+			cleanComments ref$[i$]
+		if node.nodeType is 8
+			node.parentNode.removeChild node
+
+	$.fn.clean = ->
+		@each -> cleanComments &1
 		@
 
 let $=jQuery
