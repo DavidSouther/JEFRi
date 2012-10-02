@@ -369,17 +369,20 @@
 				fn = _.noop
 			definition.Constructor::[method] = fn
 
+		@load = (contextUri) ->
+			_.get contextUri, {dataType: \application/json}
+			.done (data) ->
+				if (!data) then throw { message: "Context loaded, but invalid." }
+				data = if _.isString(data) then JSON.parse(data) else data
+				_set_context(data, protos)
+
 		# Prepare the runtime with the given contexts.
 		if (options && options.debug)
 			# The context object was provided by the caller
 			_set_context(options.debug.context, protos)
 		else if @settings.contextUri?
-			_.get(@settings.contextUri, {dataType: \application/json})
-			.done (data) ->
-				if (!data) then throw { message: "Context loaded, but invalid." }
-				data = if _.isString(data) then JSON.parse(data) else data
-				_set_context(data, protos)
-		return @
+			@load @settings.contextUri
+		@
 
 	# #### Entity Array helper
 	pushResult = (entity) ->
