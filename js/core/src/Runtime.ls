@@ -446,6 +446,8 @@
 		# Return a new instance of an object described in the context.
 		build: (type, obj) ->
 			def = @definition(type)
+			if !def
+				throw "JEFRi::Runtime::build '#{type}' is not a defined type in this context."
 			obj = obj || {}
 			# We are going to build the new entity first, then, if there is a local
 			# instance, we will extend the local instance with the new instance.
