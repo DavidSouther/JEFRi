@@ -399,12 +399,12 @@
 			@_modified = {}
 			@_new = []
 			@_instances = {}
-			return @
+			@
 
 		# Get the definition of an entity type.
 		definition: (name) ->
 			name = name._type?! || name
-			return @_context.entities[name]
+			@_context.entities[name]
 
 		# Find the relationship back to this entity, if it exists
 		back_rel: (type, field, relationship) ->
@@ -416,7 +416,7 @@
 					#Found it
 					back = rel
 					back.name = srel_name
-			return back
+			back
 
 		# Add the methods in the extend prototype to the prototype of type specified
 		# affecting _ALL_ instances, both current and future, of type.
@@ -444,7 +444,7 @@
 
 			#Update the saved entity
 			@_instances[entity._type!][entity.id!] = ret
-			return ret
+			ret
 
 		# Return a new instance of an object described in the context.
 		build: (type, obj) ->
@@ -454,7 +454,7 @@
 			obj = obj || {}
 			# We are going to build the new entity first, then, if there is a local
 			# instance, we will extend the local instance with the new instance.
-			r = new def.Constructor(obj)
+			r = new def.Constructor obj
 			if def.key of obj
 				# If the entity key is specified in obj, check the local storage.
 				demi = {_type : type}
