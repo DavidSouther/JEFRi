@@ -83,4 +83,26 @@ test("Transaction Prototype", function(){
 	ok(t.persist, "JEFRi.Transaction::persist");
 });
 
+
+asyncTest("Exceptional cases", function(){
+	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+	runtime.ready.done(function(){
+		ok(runtime, "Could not load runtime.");
+
+		function badType(){
+			var foo = runtime.build("foo");
+		}
+		checkBadTypeException = function(ex){
+			if (ex.match && ex.match(/JEFRi::Runtime::build 'foo' is not a defined type in this context./)) {
+				return true;
+			}
+			return false;
+		}
+		// checkBadTypeException = "JEFRi::runtime::build 'foo' is not a defined type in the context.";
+		raises(badType, checkBadTypeException, "Create bad type generates exception.");
+
+		start();
+	});
+});
+
 }(_jQuery));
