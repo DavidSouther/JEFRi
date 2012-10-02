@@ -214,6 +214,9 @@
 			for rel_name, relationship of definition.relationships
 				_build_relationship definition, rel_name, relationship
 
+			for method, func of definition.methods
+				_build_method definition, method, func
+
 			# Add any additional prototypes functions
 			if (proto) then definition.Constructor:: <<< proto::
 
@@ -355,6 +358,16 @@
 						id = _.UUID.v4!
 						@[relationship.property] id
 						related[relationship.to.property] id
+
+		_build_method = ! (definition, method, func) ->
+			body = func.@definitions.javascript || ""
+			params = func.@@order
+			if body && ! body.match /window/
+				params.push body
+				fn = Function.apply null, params
+			else
+				fn = _.noop
+			definition.Constructor::[method] = fn
 
 		# Prepare the runtime with the given contexts.
 		if (options && options.debug)
