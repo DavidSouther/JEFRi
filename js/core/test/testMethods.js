@@ -2,11 +2,6 @@
 	
 	module("JEFRi Methods");
 
-	test("Unit Testing Environment", function(){
-		expect(1);
-		ok(!isLocal, "Unit tests shouldn't be run from file://, especially in Chrome");
-	});
-
 	asyncTest("Basic methods", function(){
 		runtime = new JEFRi.Runtime("",
 			{debug: {

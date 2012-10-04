@@ -47,6 +47,10 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
+			app: {
+				files: ["src/*ls", "test/*html", "test/*js"],
+				tasks: ["default"]
+			}
 		},
 		jshint: {
 			options: {
@@ -74,5 +78,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-docco');
 
-	grunt.registerTask('default', 'clean livescript concat min');
+	grunt.registerTask('default', 'clean livescript concat min qunit');
 };

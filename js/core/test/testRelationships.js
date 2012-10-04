@@ -2,11 +2,6 @@
 	
 	module("JEFRi Relationships");
 
-	test("Unit Testing Environment", function(){
-		expect(1);
-		ok(!isLocal, "Unit tests shouldn't be run from file://, especially in Chrome");
-	});
-
 	asyncTest("has_a/has_a set", function(){
 		runtime = new JEFRi.Runtime("",
 			{debug: {
