@@ -1,0 +1,23 @@
+{
+  "name": "jefri-modeler",
+  "title": "JEFRi Modeler",
+  "homepage": "http://www.jefri.org",
+  "version": "0.1.0",
+  "author": {
+    "name": "David Souther",
+    "email": "<davidsouther@gmail.com>"
+  },
+  "description": "Context E-R modeler for JEFRi.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidSouther/JEFRi.git"
+  },
+  "keywords": [
+    "ef",
+    "entity",
+    "entity framework",
+    "erdf",
+    "entity-relationship"
+  ],
+  "licenses": [{"type": "MIT"}]
+}
