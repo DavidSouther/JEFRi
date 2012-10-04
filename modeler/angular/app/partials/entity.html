@@ -1,8 +1,14 @@
-<div class="entity">
-	<b>{{entity.name()}}</b>
-	<ul>
-		<li ng-repeat="property in entity.properties()">
+<div class="entity ui-widget ui-corner-all">
+	<h3 class="ui-widget-header ui-corner-top">
+		<span class="name">{{entity.name()}}</span>
+	</h3>
+	<ul class="ui-widget-content field-list">
+		<li ng-repeat="property in entity.properties()" class="ui-widget-content">
 			{{property.name()}}: {{property.type()}}
 		</li>
+		<li class="ui-widget-content"><a href='#'>+ Field</a></li>
+	</ul>
+	<ul class="ui-widget-content relationship-list">
+		<li class="ui-widget-content"><a href='#'>+ Relationship</a></li>
 	</ul>
 </div>

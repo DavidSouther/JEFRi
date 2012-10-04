@@ -37,6 +37,7 @@ module.exports = function(grunt) {
 					'app/js/controllers/entity.js': 'app/ls/controllers/entity.ls',
 					'app/js/controllers/context.js': 'app/ls/controllers/context.ls',
 
+					'app/js/directives/controls.js': 'app/ls/directives/controls.ls',
 					'app/js/directives/entity.js': 'app/ls/directives/entity.ls',
 					'app/js/directives/context.js': 'app/ls/directives/context.ls',
 				},
