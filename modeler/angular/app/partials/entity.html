@@ -1,8 +1,8 @@
-<div id="entity">
-	<b>{{entity.name}}</b>
+<div class="entity">
+	<b>{{entity.name()}}</b>
 	<ul>
-		<li ng-repeat="property in entity.properties">
-			{{property.name}}
+		<li ng-repeat="property in entity.properties()">
+			{{property.name()}}: {{property.type()}}
 		</li>
 	</ul>
 </div>

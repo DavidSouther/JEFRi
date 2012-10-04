@@ -12,5 +12,5 @@ jefri = ! (JEFRi) ->
 	JEFRi.load \entityContext.json
 
 angular.module \modeler
-	.config [\$routeProvider, routes]
+#	.config [\$routeProvider, routes]
 	.run [\JEFRi, jefri]

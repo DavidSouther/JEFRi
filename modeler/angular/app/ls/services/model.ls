@@ -10,32 +10,39 @@ model = (JEFRi) ->
 			@load
 
 		reset: !->
+			<~! JEFRi.ready.then
 			@context = JEFRi.build \Context
-	
-		load: ->
-			hostsEntity = runtime.build "Entity", 
-				"name": "Host"
-				"key": "host_id"
-			context.entities hostsEntity
+			@ready <: {}
 
-			properties = [
-				runtime.build "Property",
-					name: "host_id",
-					type: "string"
-				runtime.build "Property",
-					name: "hostname",
-					type: "string"
-				runtime.build "Property",
-					name: "ip",
-					type: "string"
-				runtime.build "Property",
-					name: "mac",
-					type: "string"
-			]
+		load: !->
+			load = !~>
+				@ready -:> load
+				hostsEntity = JEFRi.build "Entity", 
+					"name": "Host"
+					"key": "host_id"
+				@context.entities hostsEntity
 
-			hostsEntity.properties properties
+				properties = [
+					JEFRi.build "Property",
+						name: "host_id",
+						type: "string"
+					JEFRi.build "Property",
+						name: "hostname",
+						type: "string"
+					JEFRi.build "Property",
+						name: "ip",
+						type: "string"
+					JEFRi.build "Property",
+						name: "mac",
+						type: "string"
+				]
+				hostsEntity.properties properties
+
+			@ready :> load
+
 
 	new Model!
 
 angular.module \modeler
 	.factory \Model, [\JEFRi, model]
+	.run [\Model, -> it.load!]
