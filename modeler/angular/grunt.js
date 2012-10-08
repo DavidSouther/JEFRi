@@ -1,5 +1,6 @@
 /*global module:false*/
 module.exports = function(grunt) {
+	'use strict';
 	grunt.initConfig({
 		pkg: '<json:package.json>',
 		meta: {
@@ -9,12 +10,9 @@ module.exports = function(grunt) {
 				'// Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 				' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %>'
 		},
-		lint: {
-			files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
-		},
 		clean: {
 			app: {
-				src: ["app/dist", "docs", "app/js"]
+				src: ["app/dist", "docs", "app/js", 'test/unit/js']
 			}
 		},
 		docco: {
@@ -29,17 +27,10 @@ module.exports = function(grunt) {
 			app: {
 				files: {
 					'app/js/app.js': 'app/ls/app.ls',
-
-					'app/js/services/jquery.js': 'app/ls/services/jquery.ls',
-					'app/js/services/jefri.js': 'app/ls/services/jefri.ls',
-					'app/js/services/model.js': 'app/ls/services/model.ls',
-
-					'app/js/controllers/entity.js': 'app/ls/controllers/entity.ls',
-					'app/js/controllers/context.js': 'app/ls/controllers/context.ls',
-
-					'app/js/directives/controls.js': 'app/ls/directives/controls.ls',
-					'app/js/directives/entity.js': 'app/ls/directives/entity.ls',
-					'app/js/directives/context.js': 'app/ls/directives/context.ls',
+					'app/js/filters.js': 'app/ls/filters/*ls',
+					'app/js/services.js': 'app/ls/services/*ls',
+					'app/js/directives.js': 'app/ls/directives/*ls',
+					'app/js/controllers.js': 'app/ls/controllers/*ls'
 				},
 				options: {
 					bare: false
@@ -49,17 +40,33 @@ module.exports = function(grunt) {
 				files: {
 					'app/dist/modeler.js': 'app/dist/modeler.ls'
 				}
+			},
+			test: {
+				files: {
+					'test/unit/js/unit.js': 'test/unit/**/*.ls',
+
+					'test/e2e/js/spec.js': 'test/e2e/ls/*.ls'
+				},
+				options: {
+					bare: true
+				}
 			}
 		},
 		concat: {
-			dist: {
+			app: {
 				src: [
 					'app/ls/app.ls',
-					'app/ls/services/*ls',
-					'app/ls/controllers/*ls',
-					'app/ls/directives/*ls',
+					'app/ls/**/*ls',
 				],
 				dest: 'app/dist/modeler.ls'
+			},
+			unit: {
+				src: ['test/unit/js/*'],
+				dest: 'test/unit.js'
+			},
+			e2e: {
+				src: ['test/e2e/js/*'],
+				dest: 'test/e2e.js'	
 			}
 		},
 		min: {
@@ -69,6 +76,10 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
+			app: {
+				files: ["app/ls/**", "app/partials/**", "app/index.html", "test/**"],
+				tasks: ["default"]
+			}
 		},
 		jshint: {
 			options: {
@@ -96,5 +107,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-docco');
 
-	grunt.registerTask('default', 'clean livescript:app concat:dist livescript:dist min');
+	grunt.registerTask('app', 'livescript:app concat:app livescript:dist min');
+	grunt.registerTask('tests', 'livescript:test concat:unit concat:e2e');
+	grunt.registerTask('default', 'clean app tests');
 };
