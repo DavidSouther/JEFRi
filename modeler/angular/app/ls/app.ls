@@ -1,4 +1,4 @@
-angular.module \modeler, <[ jefri jquery ]>
+angular.module \modeler, <[ jefri jquery ui ]>
 
 jefri = ! (JEFRi) ->
 	JEFRi.load \entityContext.json
