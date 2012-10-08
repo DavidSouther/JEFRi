@@ -45,14 +45,14 @@ ul {
 	left: 0;
 	z-index: 0;	}
 
-#entities {
+#context {
 	width: 100%;
 	height: 100%;
 	position: absolute;
 	top: 0;
 	left: 0;
 	z-index: 100;
-	background: #DDD url(img/starBg.jpg) 50% 50% repeat;	}
+	background: #DDD url(../img/starBg.jpg) 50% 50% repeat;	}
 
 #controls {
 /*	width: 250px;*/
