@@ -17,7 +17,7 @@ model = (JEFRi) ->
 		load: !->
 			load = !~>
 				@ready -:> load
-				hostsEntity = JEFRi.build "Entity", 
+				hostsEntity = JEFRi.build \Entity,
 					"name": "Host"
 					"key": "host_id"
 				@context.entities hostsEntity
@@ -39,6 +39,9 @@ model = (JEFRi) ->
 				hostsEntity.properties properties
 
 			@ready :> load
+
+		addEntity: !->
+			@context.entities JEFRi.build \Entity
 
 
 	new Model!

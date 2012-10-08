@@ -1,7 +1,11 @@
-Controls = ($) ->
+Controls = ($, Model) ->
 	restrict: \E
 	templateUrl: 'partials/controls.html'
-	replace: true
+	replace: true,
+	link: !(scope, element, attrs)->
+		$el = $(element)
+		$el .find \#new_entity .click !->
+			Model.addEntity!
 
 angular.module \modeler
-	.directive \controls, [\jQuery, Controls]
+	.directive \controls, [\jQuery, \Model, Controls]
