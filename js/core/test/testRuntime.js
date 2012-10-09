@@ -57,12 +57,25 @@ asyncTest("Instantiate Runtime", function() {
 		equal(authinfo.user_id(), user.id(), "Authinfo refers to correct user.");
 		equal(id, user.id(), "ID not overwritten on entity set.");
 
+		ok(authinfo._destroy, "Entity can be destroyed.");
+		var aid = authinfo.id();
+		authinfo._destroy();
+		equal(authinfo.id(), 0, "ID zeroed.");
+		equal(authinfo._relationships.user, null, "Relationship cleared.");
+		equal(user._relationships.authinfo, null, "Remote relationship cleared.");
+		equal(runtime._instances.Authinfo[aid], undefined, "Removed from runtime instances.");
+		equal(runtime._new.length, 1, "Seemingly removed from runtime._new");
+
+
 		var user2 = runtime.build("User", {name: "portaj", address: "rurd4me@example.com"});
 		var authinfo2 = user2.authinfo();
 		ok(authinfo2, "Default relationship created.");
 		ok(authinfo2.id().match(/[a-f0-9\-]{36}/i), "Authinfo2 should have a valid id.");
 		equal(authinfo2.user_id(), user2.id(), "Authinfo2 refers to correct user.");
 		equal(authinfo2.user().id(), user2.id(), "Authinfo2 returns correct user.");
+		user2.authinfo(null);
+		ok(user2._relationships.authinfo, null, "User2 removed authinfo.");
+		ok(authinfo2._relationships.user, null, "Authinfo2 removed user.");
 
 		start();
 	});

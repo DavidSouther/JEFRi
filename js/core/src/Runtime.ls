@@ -10,7 +10,7 @@
 	root.JEFRi =
 		# Compare two entities for equality. Entities are equal if they
 		# are of the same type and have equivalent IDs.
-		EntityComparator: (a, b) ->
+		EntityComparator: (a, b) -->
 			cmp =
 				a && b &&
 				a._type! is b._type! &&
@@ -203,6 +203,17 @@
 					# Don't add relationships. Any walker will be responsible for adding only the entities they need.
 					min
 
+				# Delete this entity.
+				# Remove it from all relationships, invalidate the ID.
+				_destroy: _.lock !->
+					for rel_name, relationship of definition.relationships
+						if relationship.type is \has_many
+							@[rel_name].remove
+						@[rel_name] null
+					ec.destroy @
+					@[definition.key] 0
+
+
 			# Alias _encode as toJSON for ES5 JSON.stringify!
 			definition.Constructor::toJSON = definition.Constructor::_encode
 
@@ -270,6 +281,8 @@
 			definition.Constructor::[field] = (entity) ->
 				# Use arguments, since we might have a few things coming.
 				if &.length > 0
+					if &0 is null
+						return @[field].remove.call @, &0
 					if relationship.type is \has_many
 						return @[field].add.apply(@, _.flatten &)
 					else
@@ -317,6 +330,9 @@
 						@modify <: [field, &]
 						@
 
+					remove: ->
+						@
+
 			# Mutaccs for has_a and is_a
 			else
 				definition.Constructor::[field] <<<
@@ -328,6 +344,13 @@
 							related[back_rel.name] @
 						# Notify observers
 						@modify <: [field, related]
+						@
+
+					remove: _.lock ->
+						if \is_a isnt relationship.type
+							back_rel = ec.back_rel @_type!, field, relationship
+							@_relationships[field][back_rel.name] null
+						@_relationships[field] = null
 						@
 
 					get: ->
@@ -482,6 +505,14 @@
 				built.push(e)
 
 			transaction.entities = built
+
+		# Completely remove an entity from this runtime
+		destroy: (entity)->
+			@_modified.remove entity
+			delete @_instances[entity._type!][entity.id!]
+			t = _ @_new .indexBy JEFRi.EntityComparator entity
+			if (t > -1) then @_new[t to t] = []
+			@
 
 		# Prepare a new transaction
 		transaction: (spec) ->
