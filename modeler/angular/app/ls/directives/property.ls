@@ -10,4 +10,4 @@ Property = ($, Model) ->
 			set \type
 
 angular.module \modeler
-	.directive \property, [\jQuery, Property]
+	.directive \property, [\jQuery, \Model, Property]
