@@ -10,7 +10,8 @@ files = [
 
 autoWatch = true;
 
-browsers = ['Chrome', 'Firefox'];
+//browsers = ['Chrome', 'Firefox'];
+browsers = ['Chrome'];
 
 proxies = {
   '/': 'http://model.localhost/'
