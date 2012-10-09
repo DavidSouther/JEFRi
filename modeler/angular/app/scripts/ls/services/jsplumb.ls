@@ -4,5 +4,5 @@ JSPlumb = ->
 	connect: !(a, b)->
 		jsPlumb.connect a, b
 
-angular.module \modeler
+angular.module \jsPlumb, [\jQuery]
 	.factory \JSPlumb, JSPlumb
