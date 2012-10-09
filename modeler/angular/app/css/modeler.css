@@ -75,7 +75,8 @@ ul {
 		width: 99%; }
 
 .entity {
-	width: 225px;	}
+	width: 225px;
+	border: thin solid;	}
 
 	.entity span.type {
 		font-style: italic;	}
