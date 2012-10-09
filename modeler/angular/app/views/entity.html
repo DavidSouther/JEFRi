@@ -1,17 +1,16 @@
 <div class="entity ui-widget ui-corner-all {{entity.name()}}">
 	<h3 class="ui-widget-header ui-corner-top">
-		<inline property="name" />
+		<inline property="name" default="Name" />
+		<button class="delete" ng:click="delete()">X</button>
 	</h3>
-	<ul class="ui-widget-content field-list">
-		<li ng-repeat="property in entity.properties()" class="ui-widget-content">
+	<div class="ui-widget-content field-list">
+		<div ng-repeat="property in entity.properties()" class="ui-widget-content">
 			<property />
-		</li>
-		<li class="ui-widget-content"><a href='#' ng:click="addField()">+ Field</a></li>
-	</ul>
-	<ul class="ui-widget-content relationship-list">
-		<li ng-repeat="relationship in entity.relationship()" class="ui-widget-content">
-			<relationship />
-		</li>
-		<li class="ui-widget-content"><a href='#' ng:click="addRelationship()">+ Relationship</a></li>
-	</ul>
+		</div>
+		<div class="ui-widget-content"><a href='#' ng:click="addField()">+ Field</a></div>
+	</div>
+	<div class="ui-widget-content relationship-list">
+		<relationship ng-repeat="relationship in entity.relationship()" class="ui-widget-content" />
+		<div class="ui-widget-content"><a href='#' ng:click="addRelationship()">+ Relationship</a></div>
+	</div>
 </div>
