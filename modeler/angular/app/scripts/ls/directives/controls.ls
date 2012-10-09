@@ -1,6 +1,6 @@
 Controls = ($, Model) ->
 	restrict: \E
-	templateUrl: 'partials/controls.html'
+	templateUrl: 'views/controls.html'
 	replace: true,
 	controller: !($scope)->
 		$scope.add = !->

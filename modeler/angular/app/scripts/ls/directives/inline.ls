@@ -1,6 +1,6 @@
 Inline = ($) ->
 	restrict: \E
-	templateUrl: 'partials/inline.html'
+	templateUrl: 'views/inline.html'
 	replace: true,
 	scope: true,
 	controller: !($scope)->

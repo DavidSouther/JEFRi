@@ -1,6 +1,6 @@
 Entity = ($) ->
 	restrict: \E
-	templateUrl: 'partials/entity.html'
+	templateUrl: 'views/entity.html'
 	replace: true
 	controller: \Entity
 	link: !(scope, element) ->

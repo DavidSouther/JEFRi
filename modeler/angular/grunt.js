@@ -26,11 +26,11 @@ module.exports = function(grunt) {
 		livescript: {
 			app: {
 				files: {
-					'app/js/app.js': 'app/ls/app.ls',
-					'app/js/filters.js': 'app/ls/filters/*ls',
-					'app/js/services.js': 'app/ls/services/*ls',
-					'app/js/directives.js': 'app/ls/directives/*ls',
-					'app/js/controllers.js': 'app/ls/controllers/*ls'
+					'app/scripts/js/app.js': 'app/scripts/ls/app.ls',
+					'app/scripts/js/filters.js': 'app/scripts/ls/filters/*ls',
+					'app/scripts/js/services.js': 'app/scripts/ls/services/*ls',
+					'app/scripts/js/directives.js': 'app/scripts/ls/directives/*ls',
+					'app/scripts/js/controllers.js': 'app/scripts/ls/controllers/*ls'
 				},
 				options: {
 					bare: false
@@ -55,8 +55,8 @@ module.exports = function(grunt) {
 		concat: {
 			app: {
 				src: [
-					'app/ls/app.ls',
-					'app/ls/**/*ls',
+					'app/scripts/ls/app.ls',
+					'app/scripts/ls/**/*ls',
 				],
 				dest: 'app/dist/modeler.ls'
 			},
@@ -77,7 +77,7 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			app: {
-				files: ["app/ls/**", "app/partials/**", "app/index.html", "test/**"],
+				files: ["app/scripts/ls/**", "app/partials/**", "app/index.html", "test/**"],
 				tasks: ["default"]
 			}
 		},

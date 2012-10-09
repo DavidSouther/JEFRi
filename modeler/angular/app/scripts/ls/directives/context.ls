@@ -1,6 +1,6 @@
 Context = ($, Model) ->
 	restrict: \E
-	templateUrl: 'partials/context.html'
+	templateUrl: 'views/context.html'
 	replace: true
 	controller: \Context
 

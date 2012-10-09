@@ -1,6 +1,6 @@
 Property = ($, Model) ->
 	restrict: \E
-	templateUrl: 'partials/property.html'
+	templateUrl: 'views/property.html'
 	replace: true,
 	link: !(scope, element, attributes)->
 		set = !(prop)->

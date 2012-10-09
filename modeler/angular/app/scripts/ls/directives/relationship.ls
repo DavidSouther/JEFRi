@@ -1,6 +1,6 @@
 Relationship = ($, jsp) ->
 	restrict: \E
-	templateUrl: 'partials/relationship.html'
+	templateUrl: 'views/relationship.html'
 	replace: true,
 	controller: !($scope)->
 		console.log $scope.relationship
