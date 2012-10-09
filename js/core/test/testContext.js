@@ -29,7 +29,15 @@ asyncTest("Context", function() {
 
 		hostsEntity.properties(properties);
 
-		ok(hostsEntity.properties().length === 4, "4 properties added.");
+		equal(hostsEntity.properties().length, 4, "4 properties added.");
+
+		var note = runtime.build("Property", {"name": "notes", "type": "string"});
+		hostsEntity.properties(note);
+		equal(hostsEntity.properties().length, 5, "5th property added.");
+		note.entity(null);
+		equal(hostsEntity.properties().length, 4, "5th property removed.");
+		equal(note._relationships.entity, null, "Relationship removed.");
+		equal(note.entity_id(), undefined, "Relationship key zeroed.");
 
 		start();
 	});

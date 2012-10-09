@@ -237,7 +237,7 @@
 			# Each field name is its own function combining getters and setters, depending on arguments.
 			definition.Constructor::[field] = (value) ->
 				# Overloaded getter and setter.
-				if (undefined isnt value)
+				if &.length > 0
 					# Value is defined, so this is a setter
 					@[field].set.call(@, value)
 				else
@@ -330,7 +330,9 @@
 						@modify <: [field, &]
 						@
 
-					remove: ->
+					remove: (related)->
+						t = _ @_relationships[field] .indexBy JEFRi.EntityComparator related
+						if (t > -1) then @_relationships[field][t to t] = []
 						@
 
 			# Mutaccs for has_a and is_a
@@ -349,8 +351,12 @@
 					remove: _.lock ->
 						if \is_a isnt relationship.type
 							back_rel = ec.back_rel @_type!, field, relationship
-							@_relationships[field][back_rel.name] null
+							if \has_a is relationship.type
+								@_relationships[field][back_rel.name].remove.call @_relationships[field], @
+							else
+								@_relationships[field][back_rel.name] null
 						@_relationships[field] = null
+						@[relationship.property] undefined
 						@
 
 					get: ->
