@@ -12,7 +12,7 @@ module.exports = function(grunt) {
 		},
 		clean: {
 			app: {
-				src: ["app/dist", "docs", "app/js", 'test/unit/js']
+				src: ["build", "docs", "app/js", 'test/unit/js']
 			}
 		},
 		docco: {
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
 			},
 			dist: {
 				files: {
-					'app/dist/modeler.js': 'app/dist/modeler.ls'
+					'build/modeler.js': 'build/modeler.ls'
 				}
 			},
 			test: {
@@ -58,7 +58,7 @@ module.exports = function(grunt) {
 					'app/scripts/ls/app.ls',
 					'app/scripts/ls/**/*ls',
 				],
-				dest: 'app/dist/modeler.ls'
+				dest: 'build/modeler.ls'
 			},
 			unit: {
 				src: ['test/unit/js/*'],
@@ -71,13 +71,13 @@ module.exports = function(grunt) {
 		},
 		min: {
 			dist: {
-				src: ['<banner:meta.banner>', 'app/dist/modeler.js'],
-				dest: 'app/dist/modeler.min.js'
+				src: ['<banner:meta.banner>', 'build/modeler.js'],
+				dest: 'build/modeler.min.js'
 			}
 		},
 		watch: {
 			app: {
-				files: ["app/scripts/ls/**", "app/partials/**", "app/index.html", "test/**"],
+				files: ["app/scripts/ls/**", "app/views/**", "app/index.html", "test/**"],
 				tasks: ["default"]
 			}
 		},

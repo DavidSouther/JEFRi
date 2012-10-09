@@ -4,15 +4,17 @@ files = [
   JASMINE,
   JASMINE_ADAPTER,
 
-  'app/lib/$/jquery-latest.js',
-  'app/lib/_/underscore.js',
-  'app/lib/_/superscore.js',
-  'app/lib/jefri/jefri.js',
-  'app/lib/angular/angular.js',
-  'app/lib/angular/angular-*.js',
+  'app/scripts/lib/$/min.js',
+  'app/scripts/lib/$/ui/min.js',
+  'app/scripts/lib/_/underscore.js',
+  'app/scripts/lib/_/superscore.js',
+  'app/scripts/lib/jefri/min.js',
+  'app/scripts/lib/angular/min.js',
+  'app/scripts/lib/angular/ui/min.js',
+
   'test/lib/angular/angular-mocks.js',
 
-  'app/dist/modeler.js',
+  'build/modeler.js',
   'test/unit.js'
 ];
 
