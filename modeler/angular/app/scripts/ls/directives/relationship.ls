@@ -1,9 +1,7 @@
-Relationship = ($, jsp) ->
+Relationship = ($) ->
 	restrict: \E
 	templateUrl: 'views/relationship.html'
-	replace: true,
-	controller: !($scope)->
-		console.log $scope.relationship
+	replace: true
 
 angular.module \modeler
-	.directive \relationship, [\jQuery, \JSPlumb, Relationship]
+	.directive \relationship, [\jQuery, Relationship]
