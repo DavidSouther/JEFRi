@@ -1,0 +1,26 @@
+<span class="property">
+	<span ng:hide="editing" ng:click="editing=true">
+		{{property.name()}}: {{property.type()}}
+	</span>
+	<span ng:show="editing" class="edit">
+		<input class="name" value="{{property.name()}}" /><br />
+		<select class="type">
+			<option value="key">Key</option>
+			<option value="string">String</option>
+			<option value="int">Integer</option>
+			<option value="float">Float</option>
+			<option>&nbsp;</option>
+			<option>Real</option>
+			<option>Complex</option>
+			<option>Ordinal</option>
+			<option>Cardinal</option>
+			<option>Prime</option>
+			<option>Singular</option>
+			<option>Blob</option>
+		</select>
+		<textarea class="attributes" rows="3" cols="10" >{{property.attributes()}}</textarea>
+		<br />
+		<button class="done" ng:click="editing=false;save()">Done</button>
+		<br style="clear:both;" />
+	</span>
+</span>
