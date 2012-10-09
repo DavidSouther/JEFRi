@@ -8,6 +8,7 @@ model = (JEFRi) ->
 		->
 			@reset!
 			@load
+			@runtime = JEFRi
 
 		reset: !->
 			<~! JEFRi.ready.then

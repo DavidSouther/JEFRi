@@ -7,7 +7,7 @@ Property = ($, Model) ->
 			scope.property[prop]($(element).find ".edit .#prop" .val!)
 		scope.save = !->
 			set \name
-			set \attributes
+			set \type
 
 angular.module \modeler
 	.directive \property, [\jQuery, Property]
