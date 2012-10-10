@@ -6,7 +6,7 @@ files = [
 
   'app/scripts/lib/$/min.js',
   'app/scripts/lib/$/ui/min.js',
-  'app/scripts/lib/_/underscore.js',
+  'app/scripts/lib/_/dev.js',
   'app/scripts/lib/_/superscore.js',
   'app/scripts/lib/jefri/min.js',
   'app/scripts/lib/angular/min.js',
