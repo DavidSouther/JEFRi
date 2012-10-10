@@ -12,7 +12,7 @@ module.exports = function(grunt) {
 		},
 		clean: {
 			app: {
-				src: ["build", "docs", "app/js", 'test/unit/js']
+				src: ["dist", "docs", "app/js", 'test/unit/js']
 			}
 		},
 		docco: {
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
 			},
 			dist: {
 				files: {
-					'build/modeler.js': 'build/modeler.ls'
+					'app/dist/modeler.js': 'app/dist/modeler.ls'
 				}
 			},
 			test: {
@@ -55,7 +55,7 @@ module.exports = function(grunt) {
 		stylus: {
 			app: {
 				files: {
-					'app/styles/css/styles.css': 'app/styles/styl/*styl'
+					'app/styles/css/modeler.css': 'app/styles/styl/*styl'
 				}
 			}
 		},
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
 					'app/scripts/ls/app.ls',
 					'app/scripts/ls/**/*ls',
 				],
-				dest: 'build/modeler.ls'
+				dest: 'app/dist/modeler.ls'
 			},
 			unit: {
 				src: ['test/unit/js/*'],
@@ -78,8 +78,15 @@ module.exports = function(grunt) {
 		},
 		min: {
 			dist: {
-				src: ['<banner:meta.banner>', 'build/modeler.js'],
-				dest: 'build/modeler.min.js'
+				src: ['<banner:meta.banner>', 'app/dist/modeler.js'],
+				dest: 'app/dist/modeler.min.js'
+			}
+		},
+		mincss: {
+			dist: {
+				files: {
+					'app/dist/modeler.min.css': ['app/styles/css/modeler.css']
+				}
 			}
 		},
 		watch: {
@@ -87,34 +94,14 @@ module.exports = function(grunt) {
 				files: ["app/scripts/ls/**/*ls", "app/views/**", "app/index.html", "test/**/*ls", "app/styles/styl/**/*styl"],
 				tasks: ["default"]
 			}
-		},
-		jshint: {
-			options: {
-				curly: true,
-				eqeqeq: true,
-				immed: true,
-				latedef: true,
-				newcap: true,
-				noarg: true,
-				sub: true,
-				undef: true,
-				boss: true,
-				eqnull: true
-			},
-			globals: {
-				jQuery:false,
-				JEFRi:false,
-				UUID: false,
-				_:false
-			}
-		},
-		uglify: {}
+		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-docco');
+	grunt.loadNpmTasks('grunt-contrib-livescript');
 
-	grunt.registerTask('styles', 'stylus:app')
+	grunt.registerTask('styles', 'stylus:app mincss:dist');
 	grunt.registerTask('app', 'livescript:app concat:app livescript:dist styles min');
 	grunt.registerTask('tests', 'livescript:test concat:unit concat:e2e');
 	grunt.registerTask('default', 'clean app tests');
