@@ -1,0 +1,96 @@
+body
+	margin: 0
+	padding: 0
+
+h1, h2, h3, h4, h5, h6
+	margin: 0
+	padding: 0
+
+ul
+	list-style: none
+	margin: 0
+	padding: 0
+
+.draggable
+	display: block
+	float: left
+	z-index: 100
+	margin: 1em
+
+	h3
+		padding: 0
+		margin: 0
+		cursor: move
+		font-size: 1em
+
+	ul
+		list-style: none
+		padding: 0
+		margin: 0
+
+		li
+			font-size: .8em
+
+			li a
+				text-decoration: none
+
+.key
+	font-weight: bold
+
+#relationships
+	width: 100%
+	height: 100%
+	position: absolute
+	top: 0
+	left: 0
+	z-index: 0
+
+.context
+	width: 100%
+	height: 100%
+	position: absolute
+	top: 0
+	left: 0
+	z-index: 100
+	background: #DDD url(/img/starBg.jpg) 50% 50% repeat
+
+#controls
+	height: 75%
+	position: absolute
+	top: 1%
+	right: 1%
+	z-index: 200
+	overflow: auto
+	border: thin solid black
+	background: white
+
+#templates, #dialogs
+	display: none
+
+#loadSave
+	textarea
+		width: 99%
+
+.entity
+	width: 225px
+	border: thin solid
+
+	.type
+		font-style: italic
+
+	.delete
+		float: right
+		font-size: 1rem
+		margin: 0
+
+.edit_field
+	padding: 0.25em
+	clear: both
+
+	input, select, textarea
+		width: 200px
+
+	button.done
+		float: right
+		clear: both
+

@@ -52,6 +52,13 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		stylus: {
+			app: {
+				files: {
+					'app/styles/css/styles.css': 'app/styles/styl/*styl'
+				}
+			}
+		},
 		concat: {
 			app: {
 				src: [
@@ -77,7 +84,7 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			app: {
-				files: ["app/scripts/ls/**/*ls", "app/views/**", "app/index.html", "test/**/*ls"],
+				files: ["app/scripts/ls/**/*ls", "app/views/**", "app/index.html", "test/**/*ls", "app/styles/styl/**/*styl"],
 				tasks: ["default"]
 			}
 		},
@@ -107,7 +114,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-docco');
 
-	grunt.registerTask('app', 'livescript:app concat:app livescript:dist min');
+	grunt.registerTask('styles', 'stylus:app')
+	grunt.registerTask('app', 'livescript:app concat:app livescript:dist styles min');
 	grunt.registerTask('tests', 'livescript:test concat:unit concat:e2e');
 	grunt.registerTask('default', 'clean app tests');
 };
