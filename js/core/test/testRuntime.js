@@ -81,6 +81,24 @@ asyncTest("Instantiate Runtime", function() {
 	});
 });
 
+asyncTest("Runtime Features", function() {
+	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+	runtime.ready.done(function(){
+		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
+		ok(user._runtime, "Entity has reference to creating runtime.");
+
+		d1 = _.Deferred();
+		runtime.get_first({_type: 'User', user_id: user.id()}).then(function(first){
+			equal(first.id(), user.id(), "Got user by id using get_first.");
+			d1.resolve();
+		});
+
+		_.when(d1).then(function(){
+			start();
+		});
+	});
+});
+
 test("Transaction Prototype", function(){
 	ok(JEFRi.Transaction, "JEFRi Transaction is available.");
 	var t = new JEFRi.Transaction();

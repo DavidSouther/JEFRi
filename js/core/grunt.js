@@ -32,6 +32,11 @@ module.exports = function(grunt) {
 					"dist/compiled/Transaction.js": 'src/Transaction.ls',
 					"dist/compiled/Stores.js": ['src/*Store.ls']
 				}
+			},
+			tests: {
+				files: {
+					"test/livescripttests.js": ["test/livescript/*ls"]
+				}
 			}
 		},
 		concat: {
@@ -48,7 +53,7 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			app: {
-				files: ["src/*ls", "test/*html", "test/*js"],
+				files: ["src/*ls", "test/*html", "test/*js", "test/livescript/*ls"],
 				tasks: ["default"]
 			}
 		},
@@ -76,7 +81,9 @@ module.exports = function(grunt) {
 	});
 
 	grunt.loadNpmTasks('grunt-contrib');
+	grunt.loadNpmTasks('grunt-contrib-livescript');
 	grunt.loadNpmTasks('grunt-docco');
 
-	grunt.registerTask('default', 'clean livescript concat min qunit');
+	grunt.registerTask('tests', 'livescript:tests qunit');
+	grunt.registerTask('default', 'clean livescript concat min tests');
 };
