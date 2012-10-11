@@ -1,10 +1,10 @@
 <div class="property">
 	<span ng:hide="editing" ng:click="editing=true">
-		{{property.name()}}: <span class="type">{{property.type()}}</span>
+		{{property.name()}}: <span class="type" jefri:property="property.type" />
 	</span>
 	<span ng:show="editing" class="edit">
-		<input class="name" value="{{property.name()}}" /><br />
-		<select ng:selected="property.type()" class="type">
+		<input jefri:property="property.name" /><br />
+		<select jefri:property="property.type">
 			<option value="string">String</option>
 			<option value="int">Integer</option>
 			<option value="float">Float</option>
@@ -18,7 +18,7 @@
 			<option>Blob</option>
 		</select>
 		<button class="done" ng:click="editing=false;save()">Done</button>
-		<button class="done" ng:click="editing=false;delete()">X</button>
+		<button class="done" ng:click="editing=false;property._destroy()">X</button>
 		<br style="clear:both;" />
 	</span>
 </div>
