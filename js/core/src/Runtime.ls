@@ -122,6 +122,7 @@
 					_modified: {_count: 0}
 					_fields: {}
 					_relationships: {}
+					_runtime: ec
 
 				# Check for runtime prototype override.
 				proto = proto || {}
@@ -589,7 +590,7 @@
 
 		# Pass the spec to get, and just pop the first entity.
 		get_first: (spec) ->
-			spec = (spec instanceof Array) ? spec : [spec]
+			spec = if spec instanceof Array then spec[0] else spec # get_first only makes sense with one spec.
 			d = _.Deferred!
 
 			@get(spec).then (data, meta) ->
