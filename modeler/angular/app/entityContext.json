@@ -51,23 +51,13 @@
 						"property": "entity_id"
 					}
 				},
-				"to_relationships": {
+				"relationships": {
 					"type": "has_many",
 					"property": "entity_id",
 					"to": {
 						"type": "Relationship",
-						"property": "to_entity_id"
-					},
-					"comment": "to_relationships is the set of Relationship entities with Entity.name() as their `to.type`"
-				},
-				"from_relationships": {
-					"type": "has_many",
-					"property": "entity_id",
-					"to": {
-						"type": "Relationship",
-						"property": "from_entity_id"
-					},
-					"comment": "from_relationships is the set of Relationship entities with Entity.name() as their `type`"
+						"property": "to_id"
+					}
 				}
 			}
 		},
@@ -104,10 +94,16 @@
 				"relationship_id": {
 					"type": "string"
 				},
-				"to_entity_id": {
+				"to_id": {
 					"type": "string"
 				},
-				"from_entity_id": {
+				"to_property": {
+					"type": "string"
+				},
+				"from_id": {
+					"type": "string"
+				},
+				"from_property": {
 					"type": "string"
 				},
 				"name": {
@@ -115,58 +111,30 @@
 				},
 				"type": {
 					"type": "string"
-				},
-				"property": {
-					"type": "string"
 				}
 			},
 			"relationships": {
-				"to_entity": {
-					"type": "has_a",
-					"property": "to_entity_id",
-					"to": {
-						"type": "Entity",
-						"property": "entity_id"
-					}
-				},
-				"from_entity": {
-					"type": "has_a",
-					"property": "from_entity_id",
-					"to": {
-						"type": "Entity",
-						"property": "entity_id"
-					}
-				},
 				"to": {
 					"type": "has_a",
-					"property": "relationship_id",
+					"property": "to_id",
 					"to": {
-						"type": "RelationshipTo",
-						"property": "relationship_id"
+						"type": "Entity",
+						"property": "entity_id"
+					}
+				},
+				"from": {
+					"type": "has_a",
+					"property": "from_id",
+					"to": {
+						"type": "Entity",
+						"property": "entity_id"
 					}
 				}
-			}
-		},
-		"RelationshipTo": {
-			"key": "relationship_id",
-			"properties": {
-				"relationship_id": {
-					"type": "string"
-				},
-				"type": {
-					"type": "string"
-				},
-				"property": {
-					"type": "string"
-				}
 			},
-			"relationships": {
-				"Relationship": {
-					"type": "has_a",
-					"property": "relationship_id",
-					"to": {
-						"type": "Relationship",
-						"property": "relationship_id"
+			"methods": {
+				"normalize": {
+					"definitions": {
+						"javascript": "var this$=this;\nthis._runtime.get_first({'_type': 'Entity', 'entity_id': this.to_id()}).then(\n\tfunction(found){\n\t\tthis$.to(found);\n\t}\n);"
 					}
 				}
 			}
