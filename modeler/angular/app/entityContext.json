@@ -57,7 +57,8 @@
 					"to": {
 						"type": "Relationship",
 						"property": "to_entity_id"
-					}
+					},
+					"comment": "to_relationships is the set of Relationship entities with Entity.name() as their `to.type`"
 				},
 				"from_relationships": {
 					"type": "has_many",
@@ -65,7 +66,8 @@
 					"to": {
 						"type": "Relationship",
 						"property": "from_entity_id"
-					}
+					},
+					"comment": "from_relationships is the set of Relationship entities with Entity.name() as their `type`"
 				}
 			}
 		},
