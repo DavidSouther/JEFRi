@@ -1,4 +1,4 @@
-Relationship = ($) ->
+Relationship = ($)->
 	restrict: \E
 	templateUrl: 'views/relationship.html'
 	replace: true
