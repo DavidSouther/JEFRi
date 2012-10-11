@@ -1,13 +1,19 @@
 <div class="relationship">
-	<div ng:hide="editing" ng:click="editing=true">{{relationship.name()}}</div>
+	<div ng:hide="editing" ng:click="editing=true">
+		{{relationship.name()}}: <span class="type">{{relationship.type()}} {{relationship.to().name()}}</span>
+	</div>
 	<div ng:show="editing" class="edit">
 		<input class="name" jefri:property="relationship.name" /><br />
-		<select jefri:property="relationship.to_entity_id">
-			<option ng:repeat="entity in context.entities()">
-				{{entity.name()}}
-			</option>
+		<select jefri:property="relationship.type">
+			<option value="is_a">Is a</option>
+			<option value="has_a">Has a</option>
+			<option value="has_many">Has many</option>
+		</select>
+		<select jefri:property="relationship.to_id">
+			<option></option>
+			<option ng:repeat="entity in context.entities()" value="{{entity.id()}}">{{entity.name()}}</option>
 		</select><br />
-		<button ng:click="editing=false;">Done</button>
-		<button ng:click="editing=false;relationship._destroy()">X</button>
+		<button class="done" ng:click="editing=false;relationship.normalize();">Done</button>
+		<button class="done delete" ng:click="editing=false;relationship._destroy()">X</button>
 	</div>
 </div>
