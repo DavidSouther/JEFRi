@@ -1,3 +1,8 @@
 <div class="relationship">
-{{relationship.name()}}
+	<div ng:hide="editing" ng:click="editing=true">{{relationship.name()}}</div>
+	<div ng:show="editing" class="edit">
+		<input class="name" jefri:property="relationship.name" /><br />
+		<button ng:click="editing=false;">Done</button>
+		<button ng:click="editing=false;relationship._destroy()">X</button>
+	</div>
 </div>
