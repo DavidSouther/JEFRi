@@ -4,7 +4,7 @@
 	</span>
 	<span ng:show="editing" class="edit">
 		<input class="name" value="{{property.name()}}" /><br />
-		<select ng:selected="property.type()">
+		<select ng:selected="property.type()" class="type">
 			<option value="string">String</option>
 			<option value="int">Integer</option>
 			<option value="float">Float</option>
