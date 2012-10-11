@@ -2,6 +2,11 @@
 	<div ng:hide="editing" ng:click="editing=true">{{relationship.name()}}</div>
 	<div ng:show="editing" class="edit">
 		<input class="name" jefri:property="relationship.name" /><br />
+		<select jefri:property="relationship.to_entity_id">
+			<option ng:repeat="entity in context.entities()">
+				{{entity.name()}}
+			</option>
+		</select><br />
 		<button ng:click="editing=false;">Done</button>
 		<button ng:click="editing=false;relationship._destroy()">X</button>
 	</div>
