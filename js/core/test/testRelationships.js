@@ -20,7 +20,8 @@
 									to: {
 										type: "Bar",
 										property: "foo_id"
-									}
+									},
+									back: "foo"
 								}
 							}
 						},
@@ -37,7 +38,8 @@
 									to: {
 										type: "Foo",
 										property: "bar_id"
-									}
+									},
+									back: 'bar'
 								}
 							}
 						}
@@ -85,7 +87,8 @@
 									to: {
 										type: "Bar",
 										property: "foo_id"
-									}
+									},
+									back: 'foo'
 								}
 							}
 						},
@@ -101,7 +104,8 @@
 									to: {
 										type: "Foo",
 										property: "foo_id"
-									}
+									},
+									back: 'bar'
 								}
 							}
 						}

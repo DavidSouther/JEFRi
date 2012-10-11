@@ -14,7 +14,8 @@
 					"to": {
 						"type": "Entity",
 						"property": "context_id"
-					}
+					},
+					"back": "context"
 				}
 			}
 		},
@@ -41,7 +42,8 @@
 					"to": {
 						"type": "Context",
 						"property": "context_id"
-					}
+					},
+					"back": "entities"
 				},
 				"properties": {
 					"type": "has_many",
@@ -49,7 +51,8 @@
 					"to": {
 						"type": "Property",
 						"property": "entity_id"
-					}
+					},
+					"back": "entity"
 				},
 				"relationships": {
 					"type": "has_many",
@@ -57,7 +60,8 @@
 					"to": {
 						"type": "Relationship",
 						"property": "to_id"
-					}
+					},
+					"back": "from"
 				}
 			}
 		},
@@ -84,7 +88,8 @@
 					"to": {
 						"type": "Entity",
 						"property": "entity_id"
-					}
+					},
+					"back": "properties"
 				}
 			}
 		},
@@ -128,7 +133,8 @@
 					"to": {
 						"type": "Entity",
 						"property": "entity_id"
-					}
+					},
+					"back": "relationships"
 				}
 			},
 			"methods": {

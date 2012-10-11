@@ -322,10 +322,7 @@
 								@_relationships[field].push entity
 
 								#Call the reverse setter
-								#	Need to find the back relationship...
-								back_rel = ec.back_rel(@_type!, field, relationship)
-								#	Make sure it exists
-								if back_rel then entity[back_rel.name].set.call(entity, @)
+								if relationship.back then entity[relationship.back] @
 
 						# Notify observers
 						@modified <: [field, &]
@@ -343,19 +340,18 @@
 						@_relationships[field] = related
 						resolve_ids.call @, related
 						if \is_a isnt relationship.type
-							back_rel = ec.back_rel @_type!, field, relationship
-							related[back_rel.name] @
+							if relationship.back then related[relationship.back] @
 						# Notify observers
 						@modified <: [field, related]
 						@
 
 					remove: _.lock ->
 						if \is_a isnt relationship.type
-							back_rel = ec.back_rel @_type!, field, relationship
-							if \has_a is relationship.type
-								@_relationships[field][back_rel.name].remove.call @_relationships[field], @
-							else
-								@_relationships[field][back_rel.name] null
+							if relationship.back
+								if \has_a is relationship.type
+									@_relationships[field][relationship.back].remove.call @_relationships[field], @
+								else
+									@_relationships[field][relationship.back] null
 						@_relationships[field] = null
 						@[relationship.property] undefined
 						@
@@ -435,18 +431,6 @@
 		definition: (name) ->
 			name = name._type?! || name
 			@_context.entities[name]
-
-		# Find the relationship back to this entity, if it exists
-		back_rel: (type, field, relationship) ->
-			ec = @
-			def = ec.definition(relationship.to.type)
-			back = null
-			for srel_name, rel of def.relationships
-				if (rel.to.type is type && srel_name isnt field)
-					#Found it
-					back = rel
-					back.name = srel_name
-			back
 
 		# Add the methods in the extend prototype to the prototype of type specified
 		# affecting _ALL_ instances, both current and future, of type.
