@@ -268,7 +268,7 @@
 								ec._modified.remove(@)
 
 						# Notify observers
-						@modify <: [field, value]
+						@modified <: [field, value]
 
 				get: ->
 					# Just a getter.
@@ -327,7 +327,7 @@
 								if back_rel then entity[back_rel.name].set.call(entity, @)
 
 						# Notify observers
-						@modify <: [field, &]
+						@modified <: [field, &]
 						@
 
 					remove: (related)->
@@ -345,7 +345,7 @@
 							back_rel = ec.back_rel @_type!, field, relationship
 							related[back_rel.name] @
 						# Notify observers
-						@modify <: [field, related]
+						@modified <: [field, related]
 						@
 
 					remove: _.lock ->
