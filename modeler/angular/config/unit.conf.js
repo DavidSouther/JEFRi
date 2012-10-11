@@ -14,7 +14,7 @@ files = [
 
   'test/lib/angular/angular-mocks.js',
 
-  'build/modeler.js',
+  'app/dist/modeler.js',
   'test/unit.js'
 ];
 
