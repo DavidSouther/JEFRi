@@ -74,8 +74,8 @@ asyncTest("Instantiate Runtime", function() {
 		equal(authinfo2.user_id(), user2.id(), "Authinfo2 refers to correct user.");
 		equal(authinfo2.user().id(), user2.id(), "Authinfo2 returns correct user.");
 		user2.authinfo(null);
-		ok(user2._relationships.authinfo, null, "User2 removed authinfo.");
-		ok(authinfo2._relationships.user, null, "Authinfo2 removed user.");
+		equal(user2._relationships.authinfo, null, "User2 removed authinfo.");
+		equal(authinfo2._relationships.user, null, "Authinfo2 removed user.");
 
 		start();
 	});
