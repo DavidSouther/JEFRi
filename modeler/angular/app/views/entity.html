@@ -10,7 +10,7 @@
 		<div class="ui-widget-content"><a href='#' ng:click="addField()">+ Field</a></div>
 	</div>
 	<div class="ui-widget-content relationship-list">
-		<relationship ng-repeat="relationship in entity.relationship()" class="ui-widget-content" />
+		<relationship ng-repeat="relationship in entity.from_relationships()" class="ui-widget-content" />
 		<div class="ui-widget-content"><a href='#' ng:click="addRelationship()">+ Relationship</a></div>
 	</div>
 </div>
