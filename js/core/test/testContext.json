@@ -20,7 +20,8 @@
 				"property": "user_id",
 				"to": {
 					"type": "Authinfo",
-					"property": "user_id"}}},
+					"property": "user_id"},
+				"back": "user"}},
 		"attributes": {
 			"vname": "users"}},
 
@@ -103,4 +104,5 @@
 				"property": "user_id",
 				"to": {
 					"type": "User",
-					"property": "user_id"}}}}}}
+					"property": "user_id"},
+				"back": "authinfo"}}}}}
