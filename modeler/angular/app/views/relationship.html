@@ -13,7 +13,15 @@
 			<option></option>
 			<option ng:repeat="entity in context.entities()" value="{{entity.id()}}">{{entity.name()}}</option>
 		</select><br />
-		<button class="done" ng:click="editing=false;relationship.normalize();">Done</button>
+		<select jefri:property="relationship.from_property">
+			<option></option>
+			<option ng:repeat="property in relationship.from().properties()" value="{{property.id()}}">{{property.name()}}</option>
+		</select> -&gt;
+		<select jefri:property="relationship.to_property">
+			<option></option>
+			<option ng:repeat="property in relationship.to().properties()" value="{{property.id()}}">{{property.name()}}</option>
+		</select><br />
+		<button class="done" ng:click="editing=false;">Done</button>
 		<button class="done delete" ng:click="editing=false;relationship._destroy()">X</button>
 	</div>
 </div>

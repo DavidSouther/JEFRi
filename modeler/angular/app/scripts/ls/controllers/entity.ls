@@ -1,4 +1,4 @@
-Enty = !($scope, Model) ->
+Enty = !($scope, Model)->
 	$scope.addField = !->
 		$scope.entity.properties Model.runtime.build \Property, { name: "New Property", type: \string }
 	$scope.addRelationship = !->
