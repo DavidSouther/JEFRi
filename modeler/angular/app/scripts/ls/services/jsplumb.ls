@@ -6,8 +6,9 @@ JSPlumb = ($)->
 	arrows = [[ \Arrow, { location:0.7 }, arrowCommon ]]
 
 	plumb = jsPlumb.getInstance(
-		Connector : [ \Flowchart ]
+		Connector : [ \FlowChart ]
 		DragOptions : { cursor: \pointer, zIndex:2000 }
+		ConnectorZIndex: 5
 		PaintStyle : { strokeStyle:color, lineWidth:2 }
 		EndpointStyle : { radius:9, fillStyle:color }
 		HoverPaintStyle : {strokeStyle:\#ec9f2e }
@@ -17,8 +18,15 @@ JSPlumb = ($)->
 		RenderMode: \svg
 	)
 
-	connect: !(a, b)->
+	connect = !(a, b)->
 		plumb.connect {source: a, target: b, overlays: arrows}
+		draggable a, b
+	draggable = !(...)->
+		for node in &
+			plumb.draggable node
+
+	connect: connect
+	draggable: draggable
 
 angular.module \jsPlumb, [\jquery]
 	.factory \JSPlumb, [\jQuery, JSPlumb]
