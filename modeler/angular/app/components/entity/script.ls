@@ -1,4 +1,4 @@
-Enty = !($scope, Model)->
+controller = !($scope, Model)->
 	$scope.addField = !->
 		$scope.entity.properties Model.runtime.build \Property, { name: "New Property", type: \string }
 	$scope.addRelationship = !->
@@ -13,4 +13,17 @@ Enty = !($scope, Model)->
 		$scope.entity._destroy!
 
 angular.module \modeler
-	.controller \Entity, [\$scope, \Model, Enty]
+	.controller \Entity, [\$scope, \Model, controller]
+
+
+directive = (jsp) ->
+	restrict: \E
+	templateUrl: 'components/entity/view.html'
+	replace: true
+	controller: \Entity
+	link: !(scope, element) ->
+		element .draggable! .resizable handles: \e
+		#jsp.draggable element
+
+angular.module \modeler
+	.directive \entity, [\JSPlumb, directive]

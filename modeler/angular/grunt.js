@@ -30,7 +30,8 @@ module.exports = function(grunt) {
 					'app/scripts/js/filters.js': 'app/scripts/ls/filters/*ls',
 					'app/scripts/js/services.js': 'app/scripts/ls/services/*ls',
 					'app/scripts/js/directives.js': 'app/scripts/ls/directives/*ls',
-					'app/scripts/js/controllers.js': 'app/scripts/ls/controllers/*ls'
+					'app/scripts/js/controllers.js': 'app/scripts/ls/controllers/*ls',
+					'app/scripts/js/components.js': 'app/components/**/*scripts.ls'
 				},
 				options: {
 					bare: false
@@ -55,7 +56,7 @@ module.exports = function(grunt) {
 		stylus: {
 			app: {
 				files: {
-					'app/styles/css/modeler.css': 'app/styles/styl/*styl'
+					'app/styles/css/modeler.css': ['app/components/**/*styl', 'app/styles/styl/*styl']
 				}
 			}
 		},
