@@ -105,11 +105,6 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		docco: {
-			app: {
-				src: ['**/*.ls', '**/*.js']
-			}
-		},
 		qunit: {
 			files: ['test/**/*.html']
 		},
