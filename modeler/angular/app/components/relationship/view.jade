@@ -1,0 +1,30 @@
+.relationship
+	.relationship
+		div(ng:hide="editing", ng:click="editing=true")
+			| {{relationship.name()}}:
+			span.type
+				| {{relationship.type()}} {{relationship.to().name()}}
+		
+		div.edit(ng:show="editing")
+			input.name(jefri:property="relationship.name")
+			br
+			select(jefri:property="relationship.type")
+				option(value="is_a")Is a
+				option(value="has_a")Has a
+				option(value="has_many")Has many
+			
+			select(jefri:property="relationship.to_id")
+				option
+				option(ng:repeat="entity in context.entities()", value="{{entity.id()}}"){{entity.name()}}
+			br
+			select(jefri:property="relationship.from_property")
+				option
+				option(ng:repeat="property in relationship.from().properties()", value="{{property.id()}}"){{property.name()}}
+			| -&gt;
+			select(jefri:property="relationship.to_property")
+				option
+				option(ng:repeat="property in relationship.to().properties()", value="{{property.id()}}"){{property.name()}}
+			br
+			button.done(ng:click="editing=false;")Done
+			button.done.delete(ng:click="editing=false;relationship._destroy()")X
+		

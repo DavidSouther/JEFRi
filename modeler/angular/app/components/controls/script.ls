@@ -1,6 +1,6 @@
 directive = ($, Model) ->
 	restrict: \E
-	templateUrl: 'components/controls/view.html'
+	template: $.template "\#controls"
 	replace: true,
 	controller: !($scope)->
 		$scope.add = !->

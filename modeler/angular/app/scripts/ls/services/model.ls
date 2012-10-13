@@ -71,6 +71,7 @@ model = (JEFRi) ->
 
 				@context.entities [host, router]
 
+				@loaded <: {}
 			@ready :> load
 
 		addEntity: !->

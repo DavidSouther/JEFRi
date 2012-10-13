@@ -1,13 +1,14 @@
 controller = !($scope, model) ->
-	$scope.context = model.context
+	model.loaded :> !->
+		$scope.context = model.context
+		$scope.$digest!
 
 angular.module \modeler
 	.controller \Context, [\$scope, \Model, controller]
 
-
 directive = ($, Model) ->
 	restrict: \E
-	templateUrl: 'components/context/view.html'
+	template: $.template \.context
 	replace: true
 	controller: \Context
 

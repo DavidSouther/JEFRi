@@ -12,26 +12,30 @@ module.exports = function(grunt) {
 		},
 		clean: {
 			app: {
-				src: ["dist", "docs", "app/js", 'test/unit/js']
+				src: ["build", "docs", "app/views/templates.html", 'test/unit/js']
 			}
 		},
-		docco: {
-			app: {
-				src: ['**/*.ls', '**/*.js']
+		jade: {
+			templates: {
+				files: {
+					'app/views/templates.html': ['app/components/**/*jade']
+				}
+			},
+			page: {
+				files: {
+					'build/index.html': 'app/views/page/index.jade'
+				}
 			}
-		},
-		qunit: {
-			files: ['test/**/*.html']
 		},
 		livescript: {
 			app: {
 				files: {
-					'app/scripts/js/app.js': 'app/scripts/ls/app.ls',
-					'app/scripts/js/filters.js': 'app/scripts/ls/filters/*ls',
-					'app/scripts/js/services.js': 'app/scripts/ls/services/*ls',
-					'app/scripts/js/directives.js': 'app/scripts/ls/directives/*ls',
-					'app/scripts/js/controllers.js': 'app/scripts/ls/controllers/*ls',
-					'app/scripts/js/components.js': 'app/components/**/*scripts.ls'
+					'build/scripts/app.js': 'app/scripts/ls/app.ls',
+					'build/scripts/filters.js': 'app/scripts/ls/filters/*ls',
+					'build/scripts/services.js': 'app/scripts/ls/services/*ls',
+					'build/scripts/directives.js': 'app/scripts/ls/directives/*ls',
+					'build/scripts/controllers.js': 'app/scripts/ls/controllers/*ls',
+					'build/scripts/components.js': 'app/components/**/*ls'
 				},
 				options: {
 					bare: false
@@ -39,7 +43,7 @@ module.exports = function(grunt) {
 			},
 			dist: {
 				files: {
-					'app/dist/modeler.js': 'app/dist/modeler.ls'
+					'build/dist/<%= pkg.name %>.js': 'build/dist/<%= pkg.name %>.ls'
 				}
 			},
 			test: {
@@ -56,17 +60,18 @@ module.exports = function(grunt) {
 		stylus: {
 			app: {
 				files: {
-					'app/styles/css/modeler.css': ['app/components/**/*styl', 'app/styles/styl/*styl']
+					'build/styles/<%= pkg.name %>.css': ['app/styles/styl/*styl', 'app/components/**/*styl']
 				}
 			}
 		},
 		concat: {
-			app: {
+			ls: {
 				src: [
 					'app/scripts/ls/app.ls',
 					'app/scripts/ls/**/*ls',
+					'app/components/**/*ls'
 				],
-				dest: 'app/dist/modeler.ls'
+				dest: 'build/dist/<%= pkg.name %>.ls'
 			},
 			unit: {
 				src: ['test/unit/js/*'],
@@ -77,22 +82,40 @@ module.exports = function(grunt) {
 				dest: 'test/e2e.js'	
 			}
 		},
+		copy: {
+			app: {
+				files: {
+					'build/scripts/lib/': 'app/scripts/lib/**',
+					'build/styles/lib/': 'app/styles/lib/**',
+					'build/images/': 'app/images/**',
+					'build/entityContext.json': 'app/entityContext.json'
+				}
+			}
+		},
 		min: {
 			dist: {
-				src: ['<banner:meta.banner>', 'app/dist/modeler.js'],
-				dest: 'app/dist/modeler.min.js'
+				src: ['<banner:meta.banner>', 'build/dist/<%= pkg.name %>.js'],
+				dest: 'build/dist/<%= pkg.name %>.min.js'
 			}
 		},
 		mincss: {
 			dist: {
 				files: {
-					'app/dist/modeler.min.css': ['app/styles/css/modeler.css']
+					'build/dist/<%= pkg.name %>.min.css': ['build/styles/<%= pkg.name %>.css']
 				}
 			}
 		},
+		docco: {
+			app: {
+				src: ['**/*.ls', '**/*.js']
+			}
+		},
+		qunit: {
+			files: ['test/**/*.html']
+		},
 		watch: {
 			app: {
-				files: ["app/scripts/ls/**/*ls", "app/views/**", "app/index.html", "test/**/*ls", "app/styles/styl/**/*styl"],
+				files: ["app/scripts/ls/**/*ls", "app/views/**", "test/**/*ls", "app/styles/styl/**/*styl", "app/components/**/*"],
 				tasks: ["default"]
 			}
 		}
@@ -102,8 +125,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-docco');
 	grunt.loadNpmTasks('grunt-contrib-livescript');
 
+	grunt.registerTask('views', 'jade:templates jade:page');
+	grunt.registerTask('scripts', 'livescript:app concat:ls livescript:dist');
 	grunt.registerTask('styles', 'stylus:app mincss:dist');
-	grunt.registerTask('app', 'livescript:app concat:app livescript:dist styles min');
+	grunt.registerTask('app', 'views scripts styles copy min');
 	grunt.registerTask('tests', 'livescript:test concat:unit concat:e2e');
 	grunt.registerTask('default', 'clean app tests');
 };

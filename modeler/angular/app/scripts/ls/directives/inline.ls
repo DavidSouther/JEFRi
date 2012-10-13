@@ -1,8 +1,16 @@
 Inline = ($) ->
 	restrict: \E
-	templateUrl: 'views/inline.html'
-	replace: true,
-	scope: true,
+	template: '<span>
+				<span ng:hide="editing" ng:click="edit()">
+					{{value}}
+				</span>
+
+				<span ng:show="editing">
+					<input type="text" name="value" ng:required ng-model="value" ui-event="{blur:\'save()\'}" />
+				</span>
+			</span>'
+	replace: true
+	scope: true
 	controller: !($scope)->
 		$scope.editing = no
 		$scope.edit = !->

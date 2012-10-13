@@ -1,6 +1,6 @@
 directive = ($, Model) ->
 	restrict: \E
-	templateUrl: 'components/property/view.html'
+	template: $.template \.property
 	replace: true
 
 angular.module \modeler

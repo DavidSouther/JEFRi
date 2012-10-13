@@ -16,9 +16,9 @@ angular.module \modeler
 	.controller \Entity, [\$scope, \Model, controller]
 
 
-directive = (jsp) ->
+directive = ($, jsp) ->
 	restrict: \E
-	templateUrl: 'components/entity/view.html'
+	template: $.template \.entity
 	replace: true
 	controller: \Entity
 	link: !(scope, element) ->
@@ -26,4 +26,4 @@ directive = (jsp) ->
 		#jsp.draggable element
 
 angular.module \modeler
-	.directive \entity, [\JSPlumb, directive]
+	.directive \entity, [\jQuery, \JSPlumb, directive]
