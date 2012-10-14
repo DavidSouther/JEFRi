@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 					'build/scripts/services.js': 'app/scripts/ls/services/*ls',
 					'build/scripts/directives.js': 'app/scripts/ls/directives/*ls',
 					'build/scripts/controllers.js': 'app/scripts/ls/controllers/*ls',
-					'build/scripts/components.js': 'app/components/**/*ls'
+					'build/scripts/components.js': 'app/components/**/script*ls'
 				},
 				options: {
 					bare: false
@@ -48,7 +48,7 @@ module.exports = function(grunt) {
 			},
 			test: {
 				files: {
-					'test/unit/js/unit.js': 'test/unit/**/*.ls',
+					'test/unit/js/components.js': ['app/components/**/test*ls'],
 
 					'test/e2e/js/spec.js': 'test/e2e/ls/*.ls'
 				},
