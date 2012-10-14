@@ -1,0 +1,16 @@
+#controls
+	.controls
+		button#new_entity(value="New Entity", ng:click="add()") New Entity
+		br
+		button#new_relationship +
+		select#new_relationship_type
+			option Is_a
+			option Has_a -&gt; Has_a
+			option Has_a -&gt; Has_many
+			option Has_many -&gt; Has_a
+		
+		br
+		hr
+		button#load_context Load Context
+		button#save_context Save Context
+		br

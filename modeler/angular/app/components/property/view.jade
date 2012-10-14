@@ -1,0 +1,25 @@
+.property
+	.property(class="{{property.name()}}")
+		span(ng:hide="editing", ng:click="editing=true")
+			| {{property.name()}}:
+			span.type(jefri:property="property.type")
+		
+		span.edit(ng:show="editing")
+			input(jefri:property="property.name")
+			br
+			select(jefri:property="property.type")
+				option(value="string") String
+				option(value="int") Integer
+				option(value="float") Float
+				option &nbsp;
+				option Real
+				option Complex
+				option Ordinal
+				option Cardinal
+				option Prime
+				option Singular
+				option Blob
+			
+			button.done(ng:click="editing=false;") Done
+			button.done.delete(ng:click="editing=false;property._destroy()") X
+		

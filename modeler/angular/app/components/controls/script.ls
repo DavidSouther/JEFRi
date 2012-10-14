@@ -1,10 +1,10 @@
-Controls = ($, Model) ->
+directive = ($, Model) ->
 	restrict: \E
-	templateUrl: 'views/controls.html'
+	template: $.template "\#controls"
 	replace: true,
 	controller: !($scope)->
 		$scope.add = !->
 			Model.addEntity!
 
 angular.module \modeler
-	.directive \controls, [\jQuery, \Model, Controls]
+	.directive \controls, [\jQuery, \Model, directive]
