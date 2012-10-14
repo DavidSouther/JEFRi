@@ -1,0 +1,33 @@
+!!!
+html(lang="en")
+	head
+		meta(charset="utf-8")
+		title JEFRi Modeler
+		link(rel="stylesheet", href="styles/lib/glight.css")
+		link(rel="stylesheet", href="styles/jefri-modeler.css")
+
+		script(src="scripts/lib/$/min.js")
+		script(src="scripts/lib/$/ui/min.js")
+		script(src="scripts/lib/$/jsplumb/min.js")
+		script(src="scripts/lib/_/dev.js")
+		script(src="scripts/lib/_/superscore.js")
+		script(src="scripts/lib/jefri/dev.js")
+		
+		script(src="scripts/lib/angular/dev.js")
+		script(src="scripts/lib/angular/ui/min.js")
+
+	body
+		include app
+
+		#templates(ng:hide)
+			include ../templates.html
+
+		script(src="scripts/app.js")
+		script(src="scripts/filters.js")
+		//- script(src="scripts/controllers.js")
+		script(src="scripts/services.js")
+		script(src="scripts/directives.js")
+		script(src="scripts/components.js")
+
+		//- script(src="dist/modeler.min.js")
+		//- script(src="dist/modeler.ls.js")
