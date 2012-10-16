@@ -3,7 +3,7 @@ let $ = jQuery
 	module \Contexts
 
 	asyncTest \Relationships, !->
-		runtime = new JEFRi.Runtime "../context.json"
+		runtime = new JEFRi.Runtime "../../context.json"
 		<-! runtime.ready.done
 		context = runtime.build \Context
 
