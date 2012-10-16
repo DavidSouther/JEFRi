@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 					'build/scripts/services.js': 'app/scripts/ls/services/*ls',
 					'build/scripts/directives.js': 'app/scripts/ls/directives/*ls',
 					'build/scripts/controllers.js': 'app/scripts/ls/controllers/*ls',
-					'build/scripts/components.js': 'app/components/**/script*ls'
+					'build/scripts/components.js': 'app/components/**/script.ls'
 				},
 				options: {
 					bare: false
@@ -49,8 +49,7 @@ module.exports = function(grunt) {
 			test: {
 				files: {
 					'test/unit/js/components.js': ['app/components/**/test*ls'],
-
-					'test/e2e/js/spec.js': 'test/e2e/ls/*.ls'
+					'test/e2e/e2e.js': 'test/e2e/ls/**/*ls'
 				},
 				options: {
 					bare: true
@@ -76,10 +75,6 @@ module.exports = function(grunt) {
 			unit: {
 				src: ['test/unit/js/*'],
 				dest: 'test/unit.js'
-			},
-			e2e: {
-				src: ['test/e2e/js/*'],
-				dest: 'test/e2e.js'	
 			}
 		},
 		copy: {
@@ -110,7 +105,13 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			app: {
-				files: ["app/scripts/ls/**/*ls", "app/views/**", "test/**/*ls", "app/styles/styl/**/*styl", "app/components/**/*"],
+				files: [
+					"app/scripts/ls/**/*ls",
+					"app/views/**/*",
+					"test/**/*ls",
+					"app/styles/styl/**/*",
+					"app/components/**/*"
+				],
 				tasks: ["default"]
 			}
 		}
@@ -123,6 +124,6 @@ module.exports = function(grunt) {
 	grunt.registerTask('scripts', 'livescript:app concat:ls livescript:dist');
 	grunt.registerTask('styles', 'stylus:app mincss:dist');
 	grunt.registerTask('app', 'views scripts styles copy min');
-	grunt.registerTask('tests', 'livescript:test concat:unit concat:e2e');
+	grunt.registerTask('tests', 'livescript:test concat:unit');
 	grunt.registerTask('default', 'clean app tests');
 };

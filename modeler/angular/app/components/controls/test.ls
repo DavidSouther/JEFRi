@@ -4,5 +4,8 @@ describe "Directive", !->
 	describe "Controls", !(a)->
 		it "Has a New Entity button", !->
 			inject  !($rootScope, $compile)->
-				element = $compile("<controls></controls>")($rootScope)
 				debugger
+				element = "<controls></controls>"
+				element = angular.element element
+				element = $compile element
+				element = element $rootScope
