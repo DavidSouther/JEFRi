@@ -23,5 +23,9 @@
     "entity",
     "entity framework"
   ],
+  "devDependencies": {
+    "grunt-contrib": "*",
+    "grunt-contrib-livescript": "*"
+  },
   "licenses": [{"type": "MIT"}]
 }
