@@ -33,7 +33,8 @@
     "grunt-contrib": "0.2.x",
     "grunt-livescript": "0.4.x",
     "grunt-jasmine-node": "0.0.2",
-    "jasmine-node": "1.0.26"
+    "jasmine-node": "1.0.26",
+    "requirejs": "*"
   },
   "licenses": [{"type": "MIT"}]
 }
