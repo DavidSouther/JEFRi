@@ -4,10 +4,8 @@
 #   For all details and documentation:
 #   http://jefri.org
 
-	root = @
-
 	# ## JEFRi Namespace
-	root.JEFRi =
+	JEFRi =
 		# Compare two entities for equality. Entities are equal if they
 		# are of the same type and have equivalent IDs.
 		EntityComparator: (a, b) -->
@@ -26,9 +24,14 @@
 	_.mixin isEntity: JEFRi.isEntity
 
 	# ### Runtime Constructor
-	root.JEFRi.Runtime = (contextUri, options, protos) ->
+	JEFRi.Runtime = (contextUri, options, protos) ->
 		# The ec reference for entity prototypes
 		ec = @
+
+		if ! _.isString contextUri
+			protos = options
+			options = contextUri
+			contextUri = ''
 
 		# Prepare a promise for completing context loading.
 		ready = _.Deferred!
@@ -385,7 +388,7 @@
 						@[relationship.property] id
 						related[relationship.to.property] id
 
-		_build_method = ! (definition, method, func) ->
+		_build_method = !(definition, method, func) ->
 			body = func.@definitions.javascript || ""
 			params = func.@@order
 			if body && ! body.match /window/
@@ -395,9 +398,9 @@
 				fn = _.noop
 			definition.Constructor::[method] = fn
 
-		@load = (contextUri) ->
-			_.get contextUri, {dataType: \application/json}
-			.done (data) ->
+		@load = (contextUri)->
+			request {uri: contextUri, json: true}, !(er, res, data)->
+				if (er) then throw { message: "Error in request", innerException: er}
 				if (!data) then throw { message: "Context loaded, but invalid." }
 				data = if _.isString(data) then JSON.parse(data) else data
 				_set_context(data, protos)
@@ -417,9 +420,9 @@
 		@[type].push(entity)
 
 	# #### Runtime Prototype
-	root.JEFRi.Runtime:: <<< JEFRi.Runtime::
+	JEFRi.Runtime:: <<< JEFRi.Runtime::
 
-	root.JEFRi.Runtime:: <<<
+	JEFRi.Runtime:: <<<
 		# Reset the runtime's data, maintains context definitions.
 		clear: ->
 			@_modified = {}

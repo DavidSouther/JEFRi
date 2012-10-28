@@ -22,12 +22,59 @@ module.exports = function(grunt) {
 				src: ['**/*.ls', '**/*.js']
 			}
 		},
+		livescript: {
+			app: {
+				files: {
+					"dist/compiled/Runtime.js": 'src/Runtime.ls',
+					"dist/compiled/Transaction.js": 'src/Transaction.ls',
+					"dist/compiled/Stores.js": ['src/*Store.ls']
+				},
+				options: {
+					bare: true
+				}
+			},
+			nunit: {
+				files: {
+					"test/nunit/tests.js": ["test/nunit/**/*ls"]
+				}
+			},
+			qunit: {
+				files: {
+					"test/qunit/min/ls/tests.js": ["test/qunit/min/ls/*ls"]
+				},
+				options: {
+					bare: true
+				}
+			},
+			jasmine: {
+				files: {
+					"test/spec/livescript.spec.js": ["test/spec/**/*ls"]
+				},
+				options: {
+					bare: true
+				}
+			}
+		},
+		concat: {
+			node: {
+				src: ['<banner:meta.banner>', 'src/node/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/node/post.js'],
+				dest: 'lib/<%= pkg.name %>.js'
+			},
+			min: {
+				src: ['<banner:meta.banner>', 'src/min/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/min/post.js'],
+				dest: 'lib/<%= pkg.name %>.min.js'
+			},
+			qunitMin: {
+				src: ['test/qunit/min/context/*.js', 'test/qunit/min/js/*.js', 'test/qunit/min/ls/tests.js'],
+				dest: 'test/qunit/min/tests.js'
+			}
+		},
 		qunit: {
-			files: ['test/qunit/*.html']
+			files: ['test/qunit/**/*.html']
 		},
 		jasmine_node: {
-			specFolderName: "spec",
-			projectRoot: "./test/",
+			specFolderName: "./test/spec/",
+			projectRoot: ".",
 			requirejs: false,
 			forceExit: true,
 			jUnit: {
@@ -37,38 +84,18 @@ module.exports = function(grunt) {
 				consolidate: true
 			}
 		},
-		livescript: {
-			app: {
-				files: {
-					"dist/compiled/Runtime.js": 'src/Runtime.ls',
-					"dist/compiled/Transaction.js": 'src/Transaction.ls',
-					"dist/compiled/Stores.js": ['src/*Store.ls']
-				}
-			},
-			qunit: {
-				files: {
-					"test/qunit/livescripttests.js": ["test/qunit/livescript/*ls"]
-				}
-			},
-			jasmine: {
-				files: {
-					"test/spec/livescript.spec.js": ["test/spec/livescript/**/*ls"]
-				},
-				options: {
-					bare: true
-				}
-			}
+		test: {
+			files: ['test/nunit/**/*js']
 		},
-		concat: {
-			dist: {
-				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js'],
-				dest: 'dist/<%= pkg.name %>.js'
+		browserify: {
+			"dist/bundle.js": {
+				entries: ["<%= pkg.name %>.js"]
 			}
 		},
 		min: {
 			dist: {
 				src: ['<banner:meta.banner>', '<config:concat.dist.dest>'],
-				dest: 'dist/<%= pkg.name %>.min.js'
+				dest: 'lib/<%= pkg.name %>.min.js'
 			}
 		},
 		watch: {
@@ -76,36 +103,19 @@ module.exports = function(grunt) {
 				files: ["src/*ls", "test/**/*"],
 				tasks: ["default"]
 			}
-		},
-		jshint: {
-			options: {
-				curly: true,
-				eqeqeq: true,
-				immed: true,
-				latedef: true,
-				newcap: true,
-				noarg: true,
-				sub: true,
-				undef: true,
-				boss: true,
-				eqnull: true
-			},
-			globals: {
-				jQuery:false,
-				JEFRi:false,
-				UUID: false,
-				_:false
-			}
-		},
-		uglify: {}
+		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib');
-	grunt.loadNpmTasks('grunt-contrib-livescript');
-	grunt.loadNpmTasks('grunt-docco');
+	grunt.loadNpmTasks('grunt-livescript');
+	// grunt.loadNpmTasks('grunt-docco');
 	grunt.loadNpmTasks('grunt-jasmine-node');
+	// grunt.loadNpmTasks('grunt-browserify');
 
-	grunt.registerTask('jasmine', 'livescript:jasmine jasmine_node');
-	grunt.registerTask('tests', 'livescript:qunit qunit jasmine');
-	grunt.registerTask('default', 'clean livescript concat min tests');
+	grunt.registerTask('jasmineTests', 'livescript:jasmine jasmine_node');
+	grunt.registerTask('qunitTests', 'livescript:qunit concat:qunitMin qunit');
+	grunt.registerTask('nunit', 'test');
+	grunt.registerTask('nunitTests', 'livescript:nunit nunit');
+	grunt.registerTask('tests', 'nunitTests qunitTests');
+	grunt.registerTask('default', 'clean livescript concat:node concat:min tests');
 };

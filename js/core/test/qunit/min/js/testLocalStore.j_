@@ -10,7 +10,7 @@ _jQuery(document).ready(function(){
 			for(var o in localStorage){ delete localStorage[o]; }
 
 			// Global in testing environment.
-			runtime = new JEFRi.Runtime("testContext.json", {store: JEFRi.LocalStore});
+			runtime = new JEFRi.Runtime({debug: {context: userContext}, storeURI: "/test/"});
 		}
 	});
 

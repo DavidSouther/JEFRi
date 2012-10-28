@@ -4,10 +4,6 @@
 #     For full details and documentation:
 #     http://jefri.org
 
-do ->
-	root = @
-
-	root.JEFRi = if root.JEFRi then root.JEFRi else {}
 
 	class LocalStore
 		(options) ->
@@ -79,14 +75,14 @@ do ->
 		# See JEFRi Core documentation 5.1.1 Gory Get Details for rules.
 		_lookup: (spec) ->
 			# Need the key, properties, and relationships details
-			def = @settings.runtime.definition spec._type
+			def = @settings.runtime.definition spec._type!
 			# Get everything for this type
-			results = for id in _.keys(_type(spec._type))
-				JSON.parse localStorage[spec._type + "." + id]
+			results = for id in _.keys(_type(spec._type!))
+				JSON.parse localStorage[spec._type! + "." + id]
 
 			# Start immediately with the key to pear down results quickly. Rule 1.
 			if def.key of spec
-				results = [results[spec[key]]]
+				results = [results[spec[def.key]]]
 
 			# Filter based on property specifications
 			for name, property of def.properties
@@ -159,7 +155,7 @@ do ->
 
 			# Spec should be an array by now, if it isn't, there's a problem.
 			if not _.isArray spec
-				throw { message: "Specification is invalid.", name: name, property: property, spec: spec}
+				throw { message: "Lookup specification is invalid (in LocalStore::_sieve).", name: name, property: property, spec: spec}
 
 			# Rule 3, only floats are allowed in operator position
 			if _.isNumber spec[0]
@@ -191,4 +187,4 @@ do ->
 							return true
 					return false
 
-	root.JEFRi.LocalStore = LocalStore
+	JEFRi.LocalStore = LocalStore

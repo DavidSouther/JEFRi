@@ -4,13 +4,11 @@
 //     For all details and documentation:
 //     http://jefri.org
 
-(function(_){
-	var root = this;
-
+(function(_, JEFRi){
 	// ### PostStore
 	//
 	// Handles POSTing a transaction to a remote JEFRi instance.
-	root.JEFRi.PostStore = function(ec, options) {
+	JEFRi.PostStore = function(ec, options) {
 		this.ec = ec;
 		this.target = options && options.target;
 		var self = this;
@@ -59,7 +57,7 @@
 		};
 	};
 
-	_.extend(root.JEFRi.PostStore.prototype, {
+	_.extend(JEFRi.PostStore.prototype, {
 		execute: function(type, transaction){
 			this[type](transaction);
 		}

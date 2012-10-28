@@ -2,7 +2,7 @@
 #     (c) 2011-2012 David Souther
 #     JEFRi is freely distributable under the MIT license.
 #     For all details and documentation:
-#     http:#jefri.org
+#     http://jefri.org
 
 # ## Transactions
 	# ### Transaction

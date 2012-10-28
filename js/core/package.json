@@ -23,10 +23,15 @@
     "entity",
     "entity framework"
   ],
+  "dependencies": {
+    "superscore": "*",
+    "request": "*",
+    "browser-request": "*"
+  },
   "devDependencies": {
     "grunt": "0.3.x",
     "grunt-contrib": "0.2.x",
-    "grunt-contrib-livescript": "0.3.x",
+    "grunt-livescript": "0.4.x",
     "grunt-jasmine-node": "0.0.2",
     "jasmine-node": "1.0.26"
   },

@@ -3,8 +3,6 @@
 /*global notDeepEqual:false, strictEqual:false, notStrictEqual:false, raises:false*/
 /*global jQuery:false, JEFRi:false, isLocal:false*/
 
-(function($){
-
 var testDone = function(){
 	var tests = 3;
 	return function(){
@@ -23,12 +21,11 @@ module("JEFRi Runtime", {
 
 test("Underscore utils", function(){
 	ok(_.on && _.once && _.off && _.trigger, "Underscore has additional pubsub?");
-	ok(_.ajax && _.get && _.post, "Does Underscore have additional ajax?");
 });
 
 test("Runtime Prototype", function() {
 	ok(JEFRi.Runtime, "JEFRi Runtime is available.");
-	var runtime = new JEFRi.Runtime();
+	var runtime = new JEFRi.Runtime({debug: {context: {}}});
 	ok(runtime.definition, "JEFRi.Runtime::definition");
 	ok(runtime.build, "JEFRi.Runtime::build");
 	ok(runtime.intern, "JEFRi.Runtime::intern");
@@ -38,7 +35,7 @@ test("Runtime Prototype", function() {
 });
 
 asyncTest("Instantiate Runtime", function() {
-	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+	var runtime = new JEFRi.Runtime({debug:{context: userContext}, storeURI: "/test/"});
 	runtime.ready.done(function(){
 		ok(runtime, "Could not load runtime.");
 		ok(!!runtime.definition('Authinfo') && !!runtime.definition('User'), "Runtime has the correct entities.");
@@ -82,7 +79,7 @@ asyncTest("Instantiate Runtime", function() {
 });
 
 asyncTest("Runtime Features", function() {
-	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+	var runtime = new JEFRi.Runtime({debug:{context: userContext}, storeURI: "/test/"});
 	runtime.ready.done(function(){
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 		ok(user._runtime, "Entity has reference to creating runtime.");
@@ -111,7 +108,7 @@ test("Transaction Prototype", function(){
 
 
 asyncTest("Exceptional cases", function(){
-	var runtime = new JEFRi.Runtime("testContext.json", {storeURI: "/test/"});
+	var runtime = new JEFRi.Runtime({debug:{context: userContext}, storeURI: "/test/"});
 	runtime.ready.done(function(){
 		ok(runtime, "Could not load runtime.");
 
@@ -131,4 +128,3 @@ asyncTest("Exceptional cases", function(){
 	});
 });
 
-}(_jQuery));

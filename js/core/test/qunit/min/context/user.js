@@ -1,4 +1,4 @@
-{"attributes":{},
+userContext = {"attributes":{},
 "entities":{
 	"User": {
 		"key": "user_id",
@@ -105,4 +105,4 @@
 				"to": {
 					"type": "User",
 					"property": "user_id"},
-				"back": "authinfo"}}}}}
+				"back": "authinfo"}}}}};
