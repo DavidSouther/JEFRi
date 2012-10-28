@@ -3,7 +3,7 @@ asyncTest('Relationships', function(){
   var runtime;
   runtime = new JEFRi.Runtime({
     debug: {
-      context: jefriContext
+      context: jefriContext()
     }
   });
   runtime.ready.done(function(){

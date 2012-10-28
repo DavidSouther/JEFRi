@@ -1,4 +1,4 @@
-userContext = {"attributes":{},
+userContext = function(){return {"attributes":{},
 "entities":{
 	"User": {
 		"key": "user_id",
@@ -106,3 +106,4 @@ userContext = {"attributes":{},
 					"type": "User",
 					"property": "user_id"},
 				"back": "authinfo"}}}}};
+};

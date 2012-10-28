@@ -2,7 +2,7 @@
 	module \Contexts
 
 	asyncTest \Relationships, !->
-		runtime = new JEFRi.Runtime {debug: {context: jefriContext}}
+		runtime = new JEFRi.Runtime {debug: {context: jefriContext!}}
 		<-! runtime.ready.done
 		context = runtime.build \Context
 

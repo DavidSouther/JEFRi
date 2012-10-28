@@ -35,7 +35,7 @@ test("Runtime Prototype", function() {
 });
 
 asyncTest("Instantiate Runtime", function() {
-	var runtime = new JEFRi.Runtime({debug:{context: userContext}, storeURI: "/test/"});
+	var runtime = new JEFRi.Runtime({debug:{context: userContext()}, storeURI: "/test/"});
 	runtime.ready.done(function(){
 		ok(runtime, "Could not load runtime.");
 		ok(!!runtime.definition('Authinfo') && !!runtime.definition('User'), "Runtime has the correct entities.");
@@ -79,7 +79,7 @@ asyncTest("Instantiate Runtime", function() {
 });
 
 asyncTest("Runtime Features", function() {
-	var runtime = new JEFRi.Runtime({debug:{context: userContext}, storeURI: "/test/"});
+	var runtime = new JEFRi.Runtime({debug:{context: userContext()}, storeURI: "/test/"});
 	runtime.ready.done(function(){
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 		ok(user._runtime, "Entity has reference to creating runtime.");
@@ -108,7 +108,7 @@ test("Transaction Prototype", function(){
 
 
 asyncTest("Exceptional cases", function(){
-	var runtime = new JEFRi.Runtime({debug:{context: userContext}, storeURI: "/test/"});
+	var runtime = new JEFRi.Runtime({debug:{context: userContext()}, storeURI: "/test/"});
 	runtime.ready.done(function(){
 		ok(runtime, "Could not load runtime.");
 

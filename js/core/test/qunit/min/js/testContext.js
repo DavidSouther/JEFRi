@@ -8,7 +8,7 @@
 module("Contexts");
 
 asyncTest("Context", function() {
-	var runtime = new JEFRi.Runtime({debug: {context: jefriContext}});
+	var runtime = new JEFRi.Runtime({debug: {context: jefriContext()}});
 	runtime.ready.done(function(){
 		ok(runtime._context.entities, "Has entities.");
 
