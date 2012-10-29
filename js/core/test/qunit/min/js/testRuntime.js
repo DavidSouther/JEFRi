@@ -79,10 +79,13 @@ asyncTest("Instantiate Runtime", function() {
 });
 
 asyncTest("Runtime Features", function() {
+	expect(3);
 	var runtime = new JEFRi.Runtime({debug:{context: userContext()}, storeURI: "/test/"});
 	runtime.ready.done(function(){
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 		ok(user._runtime, "Entity has reference to creating runtime.");
+
+		ok(_.isEntity(user), "isEntity checks correctly.");
 
 		d1 = _.Deferred();
 		runtime.get_first({_type: 'User', user_id: user.id()}).then(function(first){

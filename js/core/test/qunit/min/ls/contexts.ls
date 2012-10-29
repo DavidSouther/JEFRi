@@ -42,7 +42,7 @@
 			type: \has_a
 			to_property: \router_id
 			from_property: \router_id
-		debugger
+
 		host-router.to router
 		host-router.from host
 
