@@ -40,7 +40,7 @@ module.exports = function(grunt) {
 			},
 			qunit: {
 				files: {
-					"test/qunit/min/ls/tests.js": ["test/qunit/min/ls/*ls"]
+					"test/qunit/min/ls/compiled/*.js": ["test/qunit/min/ls/*ls"]
 				},
 				options: {
 					bare: true
@@ -63,10 +63,6 @@ module.exports = function(grunt) {
 			min: {
 				src: ['<banner:meta.banner>', 'src/min/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/min/post.js'],
 				dest: 'lib/<%= pkg.name %>.min.js'
-			},
-			qunitMin: {
-				src: ['test/qunit/min/context/*.js', 'test/qunit/min/js/*.js', 'test/qunit/min/ls/tests.js'],
-				dest: 'test/qunit/min/tests.js'
 			}
 		},
 		qunit: {
@@ -113,7 +109,7 @@ module.exports = function(grunt) {
 	// grunt.loadNpmTasks('grunt-browserify');
 
 	grunt.registerTask('jasmineTests', 'livescript:jasmine jasmine_node');
-	grunt.registerTask('qunitTests', 'livescript:qunit concat:qunitMin qunit');
+	grunt.registerTask('qunitTests', 'livescript:qunit qunit');
 	grunt.registerTask('nunit', 'test');
 	grunt.registerTask('nunitTests', 'livescript:nunit nunit');
 	grunt.registerTask('tests', 'nunitTests qunitTests');
