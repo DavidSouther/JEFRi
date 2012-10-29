@@ -75,10 +75,10 @@
 		# See JEFRi Core documentation 5.1.1 Gory Get Details for rules.
 		_lookup: (spec) ->
 			# Need the key, properties, and relationships details
-			def = @settings.runtime.definition spec._type!
+			def = @settings.runtime.definition spec._type
 			# Get everything for this type
-			results = for id in _.keys(_type(spec._type!))
-				JSON.parse localStorage[spec._type! + "." + id]
+			results = for id in _.keys(_type(spec._type))
+				JSON.parse localStorage[spec._type + "." + id]
 
 			# Start immediately with the key to pear down results quickly. Rule 1.
 			if def.key of spec

@@ -22,7 +22,7 @@
 				attributes: @attributes
 				entities: []
 
-			for entity of @entities
+			for entity in @entities
 				transaction.entities.push if _.isEntity(entity) then entity._encode! else entity
 
 			return JSON.stringify(transaction)
@@ -60,12 +60,11 @@
 		add: (spec) ->
 			#Force spec to be an array
 			spec = if _.isArray(spec) then spec else [].slice.call(arguments, 0)
-			ents = @entities
-			for i, s of spec
+			for s in spec
 				# TODO switch to direct lookup.
-				if _.indexBy(ents, _.bind(JEFRi.EntityComparator, s)) < 0
+				if _.indexBy(@entities, JEFRi.EntityComparator s) < 0
 					#Hasn't been added yet...
-					ents.push(s)
+					@entities.push(s)
 			return @
 
 

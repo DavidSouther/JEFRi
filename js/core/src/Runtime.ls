@@ -18,7 +18,7 @@
 		#Duck type check if an object is an entity.
 		isEntity: (obj) ->
 			return obj._type && obj.id &&
-				_.isFunction obj._type && _.isFunction obj.id
+				_.isFunction(obj._type) && _.isFunction(obj.id)
 
 	# Add isEntity to the underscore function.
 	_.mixin isEntity: JEFRi.isEntity
