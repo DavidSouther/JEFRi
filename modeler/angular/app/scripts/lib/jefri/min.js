@@ -1,1 +1,1 @@
-../../../../../../js/core/dist/jefri.min.js
+../../../../../../js/core/lib/jefri.min.js

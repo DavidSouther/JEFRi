@@ -19,5 +19,8 @@
     "erdf",
     "entity-relationship"
   ],
+  "dependencies": {
+    "superscore": "*"
+  },
   "licenses": [{"type": "MIT"}]
 }
