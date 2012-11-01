@@ -1,1 +1,1 @@
-../../../../../../js/core/lib/jefri.min.js
+../../../../node_modules/jefri/lib/jefri.min.js
