@@ -399,9 +399,7 @@
 			definition.Constructor::[method] = fn
 
 		@load = (contextUri)->
-			request {uri: contextUri, json: true}, !(er, res, data)->
-				if (er) then throw { message: "Error in request", innerException: er}
-				if (!data) then throw { message: "Context loaded, but invalid." }
+			_.request contextUri .then !(data)->
 				data = if _.isString(data) then JSON.parse(data) else data
 				_set_context(data, protos)
 
