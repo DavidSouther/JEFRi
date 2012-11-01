@@ -4,7 +4,12 @@
 
 _jQuery document .ready !->
 	runtime = null
-	module "Transaction", setup: !-> runtime := new JEFRi.Runtime {debug: {context: userContext()}, storeURI: "/test/"}
+	module do
+		"Transaction"
+		setup: !->
+			runtime := new JEFRi.Runtime do
+				"/test/qunit/min/context/user.json"
+				storeURI: "/test/"
 
 	asyncTest "Transaction Basics", !->
 		expect 1

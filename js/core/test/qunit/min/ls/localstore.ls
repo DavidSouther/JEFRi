@@ -4,16 +4,15 @@
 
 _jQuery document .ready !->
 	runtime = null
-	module "Local Storage", {
+	module do
+		"Local Storage"
 		setup: !->
 			# Clear localStorage
 			for o of localStorage
 				delete localStorage[o]
 
 			# Global in testing environment.
-			runtime := new JEFRi.Runtime {debug: {context: userContext!}, storeURI: "/test/"}
-
-	}
+			runtime := new JEFRi.Runtime "/test/qunit/min/context/user.json"
 
 	asyncTest "LocalStore minimal save", !->
 		expect 3
