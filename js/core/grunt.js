@@ -63,10 +63,11 @@ module.exports = function(grunt) {
 			min: {
 				src: ['<banner:meta.banner>', 'src/min/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/min/post.js'],
 				dest: 'lib/<%= pkg.name %>.min.js'
+			},
+			qunitMin: {
+				src: ['test/qunit/min/js/*.js', 'test/qunit/min/ls/tests.js'],
+				dest: 'test/qunit/min/tests.js'
 			}
-		},
-		qunit: {
-			files: ['test/qunit/**/*.html']
 		},
 		jasmine_node: {
 			specFolderName: "./test/spec/",
@@ -82,6 +83,11 @@ module.exports = function(grunt) {
 		},
 		test: {
 			files: ['test/nunit/**/*js']
+		},
+		qunit: {
+			min: {
+				src: ['http://localhost:8000/test/qunit/min/qunit.html']
+			}
 		},
 		browserify: {
 			"dist/bundle.js": {
@@ -99,6 +105,12 @@ module.exports = function(grunt) {
 				files: ["src/*ls", "test/**/*"],
 				tasks: ["default"]
 			}
+		},
+		server: {
+			test: {
+				port: 8000,
+				base: '.'
+			}
 		}
 	});
 
@@ -109,9 +121,9 @@ module.exports = function(grunt) {
 	// grunt.loadNpmTasks('grunt-browserify');
 
 	grunt.registerTask('jasmineTests', 'livescript:jasmine jasmine_node');
-	grunt.registerTask('qunitTests', 'livescript:qunit qunit');
+	grunt.registerTask('qunitTests', 'livescript:qunit concat:qunitMin qunit:min');
 	grunt.registerTask('nunit', 'test');
 	grunt.registerTask('nunitTests', 'livescript:nunit nunit');
-	grunt.registerTask('tests', 'nunitTests qunitTests');
+	grunt.registerTask('tests', 'server:test nunitTests qunitTests');
 	grunt.registerTask('default', 'clean livescript concat:node concat:min tests');
 };

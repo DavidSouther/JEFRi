@@ -25,7 +25,7 @@ test("Underscore utils", function(){
 
 test("Runtime Prototype", function() {
 	ok(JEFRi.Runtime, "JEFRi Runtime is available.");
-	var runtime = new JEFRi.Runtime({debug: {context: {}}});
+	var runtime = new JEFRi.Runtime('http://localhost:8000/context.json');
 	ok(runtime.definition, "JEFRi.Runtime::definition");
 	ok(runtime.build, "JEFRi.Runtime::build");
 	ok(runtime.intern, "JEFRi.Runtime::intern");
@@ -113,7 +113,7 @@ test("Transaction Prototype", function(){
 asyncTest("Exceptional cases", function(){
 	var runtime = new JEFRi.Runtime("/test/qunit/min/context/user.json", {storeURI: "/test/"});
 	runtime.ready.done(function(){
-		ok(runtime, "Could not load runtime.");
+		ok(runtime, "Could load runtime.");
 
 		function badType(){
 			var foo = runtime.build("foo");

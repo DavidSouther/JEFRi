@@ -24,8 +24,7 @@
     "entity framework"
   ],
   "dependencies": {
-    "superscore": "*",
-    "request": "*"
+    "superscore": ">=0.3.0"
   },
   "devDependencies": {
     "grunt": "0.3.x",
