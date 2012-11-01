@@ -1,5 +1,4 @@
-jefriContext = function(){
-	return {	"attributes": {},
+{	"attributes": {},
 	"entities": {
 		"Context": {
 			"key": "context_id",
@@ -147,5 +146,4 @@ jefriContext = function(){
 			}
 		}
 	}
-};
-};
+}
