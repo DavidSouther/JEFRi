@@ -1,1 +1,1 @@
-/home/southerd/devel/southerd/superscore/dist/superscore.js
+../../../../node_modules/superscore/lib/superscore.min.js

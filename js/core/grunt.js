@@ -22,68 +22,108 @@ module.exports = function(grunt) {
 				src: ['**/*.ls', '**/*.js']
 			}
 		},
-		qunit: {
-			files: ['test/**/*.html']
-		},
 		livescript: {
 			app: {
 				files: {
 					"dist/compiled/Runtime.js": 'src/Runtime.ls',
 					"dist/compiled/Transaction.js": 'src/Transaction.ls',
 					"dist/compiled/Stores.js": ['src/*Store.ls']
+				},
+				options: {
+					bare: true
 				}
 			},
-			tests: {
+			nunit: {
 				files: {
-					"test/livescripttests.js": ["test/livescript/*ls"]
+					"test/nunit/tests.js": ["test/nunit/**/*ls"]
+				}
+			},
+			qunit: {
+				files: {
+					"test/qunit/min/ls/compiled/*.js": ["test/qunit/min/ls/*ls"]
+				},
+				options: {
+					bare: true
+				}
+			},
+			jasmine: {
+				files: {
+					"test/spec/livescript.spec.js": ["test/spec/**/*ls"]
+				},
+				options: {
+					bare: true
 				}
 			}
 		},
 		concat: {
-			dist: {
-				src: ['<banner:meta.banner>', 'src/uuid.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js'],
-				dest: 'dist/<%= pkg.name %>.js'
+			node: {
+				src: ['<banner:meta.banner>', 'src/node/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/node/post.js'],
+				dest: 'lib/<%= pkg.name %>.js'
+			},
+			min: {
+				src: ['<banner:meta.banner>', 'src/min/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/min/post.js'],
+				dest: 'lib/<%= pkg.name %>.min.js'
+			},
+			qunitMin: {
+				src: ['test/qunit/min/js/*.js', 'test/qunit/min/ls/tests.js'],
+				dest: 'test/qunit/min/tests.js'
+			}
+		},
+		jasmine_node: {
+			specFolderName: "./test/spec/",
+			projectRoot: ".",
+			requirejs: false,
+			forceExit: true,
+			jUnit: {
+				report: false,
+				savePath : "./test/spec/reports/",
+				useDotNotation: true,
+				consolidate: true
+			}
+		},
+		test: {
+			files: ['test/nunit/**/*js']
+		},
+		qunit: {
+			min: {
+				src: ['http://localhost:8000/test/qunit/min/qunit.html']
+			}
+		},
+		browserify: {
+			"dist/bundle.js": {
+				entries: ["<%= pkg.name %>.js"]
 			}
 		},
 		min: {
 			dist: {
 				src: ['<banner:meta.banner>', '<config:concat.dist.dest>'],
-				dest: 'dist/<%= pkg.name %>.min.js'
+				dest: 'lib/<%= pkg.name %>.min.js'
 			}
 		},
 		watch: {
 			app: {
-				files: ["src/*ls", "test/*html", "test/*js", "test/livescript/*ls"],
+				files: ["src/*ls", "test/**/*"],
 				tasks: ["default"]
 			}
 		},
-		jshint: {
-			options: {
-				curly: true,
-				eqeqeq: true,
-				immed: true,
-				latedef: true,
-				newcap: true,
-				noarg: true,
-				sub: true,
-				undef: true,
-				boss: true,
-				eqnull: true
-			},
-			globals: {
-				jQuery:false,
-				JEFRi:false,
-				UUID: false,
-				_:false
+		server: {
+			test: {
+				port: 8000,
+				base: '.'
 			}
-		},
-		uglify: {}
+		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib');
-	grunt.loadNpmTasks('grunt-contrib-livescript');
-	grunt.loadNpmTasks('grunt-docco');
+	grunt.loadNpmTasks('grunt-livescript');
+	// grunt.loadNpmTasks('grunt-docco');
+	grunt.loadNpmTasks('grunt-jasmine-node');
+	// grunt.loadNpmTasks('grunt-browserify');
 
-	grunt.registerTask('tests', 'livescript:tests qunit');
-	grunt.registerTask('default', 'clean livescript concat min tests');
+	grunt.registerTask('jasmineTests', 'livescript:jasmine jasmine_node');
+	grunt.registerTask('qunitTests', 'livescript:qunit concat:qunitMin qunit:min');
+	grunt.registerTask('nunit', 'test');
+	grunt.registerTask('nunitTests', 'livescript:nunit nunit');
+	grunt.registerTask('tests', 'server:test nunitTests qunitTests');
+	grunt.registerTask('default', 'clean livescript concat:node concat:min tests');
 };

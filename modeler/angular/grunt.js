@@ -117,8 +117,7 @@ module.exports = function(grunt) {
 	});
 
 	grunt.loadNpmTasks('grunt-contrib');
-	grunt.loadNpmTasks('grunt-docco');
-	grunt.loadNpmTasks('grunt-contrib-livescript');
+	grunt.loadNpmTasks('grunt-livescript');
 
 	grunt.registerTask('views', 'jade:templates jade:page');
 	grunt.registerTask('scripts', 'livescript:app concat:ls livescript:dist');

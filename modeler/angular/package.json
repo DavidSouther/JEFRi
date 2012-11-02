@@ -19,5 +19,12 @@
     "erdf",
     "entity-relationship"
   ],
+  "dependencies": {
+    "superscore": "*"
+  },
+  "devDependencies": {
+    "grunt-livescript": "*",
+    "grunt-contrib": "*"
+  },
   "licenses": [{"type": "MIT"}]
 }

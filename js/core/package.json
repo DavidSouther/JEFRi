@@ -2,7 +2,7 @@
   "name": "jefri",
   "title": "JEFRi: Entity Framework Runtime",
   "homepage": "http://www.jefri.org",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "David Souther",
     "email": "<davidsouther@gmail.com>"
@@ -23,9 +23,15 @@
     "entity",
     "entity framework"
   ],
+  "dependencies": {
+    "superscore": ">=0.3.0"
+  },
   "devDependencies": {
-    "grunt-contrib": "*",
-    "grunt-contrib-livescript": "*"
+    "grunt": "0.3.x",
+    "grunt-contrib": "0.2.x",
+    "grunt-livescript": "0.4.x",
+    "grunt-jasmine-node": "0.0.2",
+    "jasmine-node": "1.0.26"
   },
   "licenses": [{"type": "MIT"}]
 }

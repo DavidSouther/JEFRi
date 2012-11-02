@@ -1,9 +1,8 @@
-let $ = jQuery
 
 	module \Contexts
 
 	asyncTest \Relationships, !->
-		runtime = new JEFRi.Runtime "../context.json"
+		runtime = new JEFRi.Runtime '/test/qunit/min/context/jefri.json'
 		<-! runtime.ready.done
 		context = runtime.build \Context
 
@@ -43,7 +42,7 @@ let $ = jQuery
 			type: \has_a
 			to_property: \router_id
 			from_property: \router_id
-		debugger
+
 		host-router.to router
 		host-router.from host
 
