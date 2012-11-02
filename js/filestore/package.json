@@ -1,0 +1,43 @@
+{
+  "name": "filestore",
+  "title": "Filestore",
+  "description": "The best project ever.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/DavidSouther/JEFRi",
+  "author": {
+    "name": "David Souther",
+    "email": "davidsouther@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidSouther/JEFRi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DavidSouther/JEFRi/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/DavidSouther/JEFRi/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "lib/filestore",
+  "engines": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "jquery": ">= 1",
+    "underscore": "~1.4.2"
+  },
+  "devDependencies": {
+    "grunt-livescript": "*",
+    "grunt-contrib": "*",
+    "grunt-jasmine-node": "*",
+    "grunt-jasmine": "*",
+    "grunt": "~0.3.17"
+  },
+  "keywords": []
+}
