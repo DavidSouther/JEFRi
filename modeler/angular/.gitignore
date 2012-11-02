@@ -1,8 +1,4 @@
-**/.DS_Store
-nbproject
-manifest.mf
-build.xml
-
-.project
-.settings
-.idea/*
+app/views/templates.html
+build/
+test/e2e.js
+test/unit.js
