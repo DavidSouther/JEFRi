@@ -1,1 +1,0 @@
-../../templates/dist/jefri-template.js
