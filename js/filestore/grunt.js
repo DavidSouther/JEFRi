@@ -49,7 +49,7 @@ module.exports = function(grunt) {
 			},
 			jasmine: {
 				files: {
-					'test/jasmine/node/spec/tests.js': 'test/jasmine/node/**/*.ls'
+					'test/jasmine/node/spec/*.spec.js': 'test/jasmine/node/ls/*.ls'
 				}
 			}
 		},
