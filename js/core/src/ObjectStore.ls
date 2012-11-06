@@ -88,7 +88,8 @@
 			def = @settings.runtime.definition spec._type
 			# Get everything for this type
 			results = for id in _.keys(@_type(spec._type))
-				JSON.parse @_get "#{spec._type}.#{id}"
+				JSON.parse @_get _key spec, id
+
 
 			# Start immediately with the key to pear down results quickly. Rule 1.
 			if def.key of spec
@@ -145,8 +146,10 @@
 
 		# #### _key*(entity)*
 		# Return the full key type/id string for an entity, since this is the bare entity with no methods.
-		_key = (entity) ->
-			entity._type!+ "." + entity.id!
+		_key = (entity, id) ->
+			type = if _.isFunction entity._type then entity._type! else entity._type
+			id = if id then id else if entity.id then if _.isFunction entity.id then entity.id! else entity.id
+			"#{type}/#{id}"
 
 		# ### _sieve*(name, property, spec)*
 		# Return a function to use to filter on a particular spec field. These functions implement

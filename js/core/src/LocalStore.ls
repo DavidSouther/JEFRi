@@ -15,4 +15,7 @@
 		_get: (key)->
 			localStorage[key]
 
+		_key: (entity)->
+			super entity .replace '.', '/'
+
 	JEFRi.LocalStore = LocalStore
