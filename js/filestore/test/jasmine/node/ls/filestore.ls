@@ -28,7 +28,7 @@ describe "FileStore", !(a)->
 
 	it "saves", !->
 		runs !->
-			filestore = new jefri.FileStore "./.jefri", runtime: runtime
+			filestore = new jefri.FileStore runtime: runtime
 			runtime.save_new filestore .then !(transaction)->
 				expect transaction .not .toBeNull!
 				# expect transction.entities.length .toBe 2

@@ -8,14 +8,16 @@
 require! { fs }
 
 class FileStore extends JEFRi.ObjectStore
-	(directory, options) ->
-		super options
-		_checkDir directory
-		@storage = directory
+	(options) ->
+		opts = 
+			directory: "./.jefri"
+		opts <<< options
+		super opts
+		_checkDir @settings.directory
+		@storage = @settings.directory
 
 	_set: (key, value)->
 		path = @_buildPath key
-		console.log "Writing #{key} to #{path}"
 		fs.writeFileSync path, value
 
 	_get: (key)->
