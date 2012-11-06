@@ -389,8 +389,8 @@
 						related[relationship.to.property] id
 
 		_build_method = !(definition, method, func) ->
-			body = func.@definitions.javascript || ""
-			params = func.@@order
+			body = func.{}definitions.javascript || ""
+			params = func.[]order
 			if body && ! body.match /window/
 				params.push body
 				fn = Function.apply null, params
