@@ -27,7 +27,7 @@ module.exports = function(grunt) {
 				files: {
 					"dist/compiled/Runtime.js": 'src/Runtime.ls',
 					"dist/compiled/Transaction.js": 'src/Transaction.ls',
-					"dist/compiled/Stores.js": ['src/*Store.ls']
+					"dist/compiled/Stores.js": ['src/ObjectStore.ls', 'src/LocalStore.ls']
 				},
 				options: {
 					bare: true
