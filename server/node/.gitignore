@@ -1,0 +1,4 @@
+build/
+lib/
+test/jasmine/node/spec/
+.jefri/
