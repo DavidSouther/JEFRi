@@ -1,0 +1,44 @@
+{
+  "name": "jefri-server",
+  "title": "JEFRi Server",
+  "description": "JEFRi Node Server",
+  "version": "0.1.0",
+  "homepage": "https://github.com/DavidSouther/JEFRi",
+  "author": {
+    "name": "David Souther",
+    "email": "davidsouther@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/DavidSouther/JEFRi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DavidSouther/JEFRi/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/DavidSouther/JEFRi/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "lib/jefri-server",
+  "engines": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "jquery": ">= 1",
+    "underscore": "~1.4.2",
+    "express": "3.x"
+  },
+  "devDependencies": {
+    "grunt-livescript": "*",
+    "grunt-contrib": "*",
+    "grunt-jasmine-node": "*",
+    "grunt-jasmine": "*",
+    "grunt": "~0.3.17"
+  },
+  "keywords": []
+}
