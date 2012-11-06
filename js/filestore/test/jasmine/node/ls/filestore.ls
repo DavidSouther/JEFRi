@@ -1,12 +1,16 @@
-JEFRi = require "jefri"
 FileStore = require "../../../../lib/filestore"
+require! { fs, jefri }
 
 describe "FileStore", !(a)->
 	user = au = runtime = null
 	loaded = done = false
 
 	beforeEach !->
-		runtime := new JEFRi.Runtime "http://souther.co/EntityContext.json"
+		try
+			fs.rmdirSync './.jefri'
+		catch
+			true
+		runtime := new jefri.Runtime "http://souther.co/EntityContext.json"
 		runtime.ready.then !(a)->
 			user := runtime.build \User
 			au := user.authinfo!
@@ -15,6 +19,7 @@ describe "FileStore", !(a)->
 
 	afterEach !->
 		waitsFor -> done
+		runs !-> loaded := done := false
 
 	it "smokes", !->
 		runs !->
@@ -23,7 +28,7 @@ describe "FileStore", !(a)->
 
 	it "saves", !->
 		runs !->
-			filestore = new JEFRi.FileStore "./.jefri", runtime: runtime
+			filestore = new jefri.FileStore "./.jefri", runtime: runtime
 			runtime.save_new filestore .then !(transaction)->
 				expect transaction .not .toBeNull!
 				# expect transction.entities.length .toBe 2
