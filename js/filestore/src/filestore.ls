@@ -25,7 +25,7 @@ class FileStore extends JEFRi.ObjectStore
 		try
 			fs.readFileSync path
 		catch
-			""
+			"{}"
 
 	_buildPath: (key)->
 		key = key.split '/'
