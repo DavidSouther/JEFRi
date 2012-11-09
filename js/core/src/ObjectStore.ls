@@ -60,7 +60,7 @@
 			ents = _.flatten ents
 			transaction.entities = _.uniq(
 				# The lookup
-				ents
+				_.filter(ents, -> it)
 				false,
 				# Uniq based on type.id
 				~> it._type + '.' + it[@settings.runtime.definition(it._type).key]

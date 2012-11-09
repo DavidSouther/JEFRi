@@ -52,7 +52,7 @@
 				for entity in e.entities
 					entity.persisted <: {}
 				d.resolve data
-			store 'persist', @encode!
+			store.execute 'persist', @encode!
 
 		# ### add*(spec...)*
 		# Add several entities to the transaction
