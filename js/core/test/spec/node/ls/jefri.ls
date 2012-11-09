@@ -10,4 +10,3 @@ describe "jefri", !(a)->
 				done := true
 
 		waitsFor -> done
-
