@@ -35,12 +35,11 @@
 		get: (store) ->
 			d = new _.Deferred!
 			@getting <: {}
-			@gotten :> once = ->
-				d.resolve(@)
-				@ -:> once
 
 			store = store || @store
-			store.execute 'get', @encode!
+			store.execute 'get', @ .then !->
+				d.resolve @
+			.promise!
 
 		# ### persist*([store])*
 		# Execute the transaction as a POST request
@@ -49,10 +48,10 @@
 			store = store || @store
 			@persisting <: {}
 			@persisted <: (e, data) ->
+			store.execute 'persist', @ .then !->
 				for entity in e.entities
 					entity.persisted <: {}
-				d.resolve data
-			store.execute 'persist', @encode!
+			.promise!
 
 		# ### add*(spec...)*
 		# Add several entities to the transaction
