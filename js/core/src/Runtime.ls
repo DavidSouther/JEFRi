@@ -400,7 +400,8 @@
 
 		@load = (contextUri)->
 			_.request contextUri .then !(data)->
-				data = if _.isString(data) then JSON.parse(data || "{}") else data
+				data = data || "{}"
+				data = if _.isString(data) then JSON.parse(data) else data
 				_set_context(data, protos)
 
 		# Prepare the runtime with the given contexts.
