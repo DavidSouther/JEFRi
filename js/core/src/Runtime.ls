@@ -614,4 +614,4 @@
 
 		_save: (transaction, store) ->
 			store = store || @_store
-			return store.execute('persist', transaction.encode!).then _.bind(@expand, @)
+			return store.execute('persist', transaction).then _.bind(@expand, @)
