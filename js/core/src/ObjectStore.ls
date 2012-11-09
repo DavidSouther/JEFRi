@@ -15,12 +15,13 @@
 		# ### execute*(type, transaction)*
 		# Run the transaction.
 		execute: (type, transaction) ->
-			@sending <: transaction
+			transactionData = transaction.encode!
+			@sending <: transactionData
 			if  type == "persist"
-				@persist transaction
+				@persist transactionData
 			else if  type == "get"
-				@get transaction
-			_.Deferred!resolve transaction
+				@get transactionData
+			_.Deferred!resolve transactionData
 
 		# ### persist*(transction)*
 		# Treat the transaction as a persistence call. Save the data.
