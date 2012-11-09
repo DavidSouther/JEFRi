@@ -61,6 +61,8 @@
 			#Force spec to be an array
 			spec = if _.isArray(spec) then spec else [].slice.call(arguments, 0)
 			for s in spec
+				# if not _.isEntity s
+				#	s = @store.settings.runtime.expand s
 				# TODO switch to direct lookup.
 				if _.indexBy(@entities, JEFRi.EntityComparator s) < 0
 					#Hasn't been added yet...
