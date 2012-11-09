@@ -1,7 +1,8 @@
 angular.module \modeler, <[ jefri jquery jsPlumb ui ]>
 
-modeler = !(JEFRi) ->
-	JEFRi.load "entityContext.json"
+modeler = !(JEFRi, model) ->
+	JEFRi.load "entityContext.json" .then !->
+		model.load!
 
 angular.module \modeler
-	.run [\JEFRi, modeler]
+	.run [\JEFRi, \Model, modeler]
