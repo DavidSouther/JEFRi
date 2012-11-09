@@ -13,7 +13,7 @@
 			localStorage[key] = value
 
 		_get: (key)->
-			localStorage[key]
+			localStorage[key] || '{}'
 
 		_key: (entity)->
 			super entity .replace '.', '/'

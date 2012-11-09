@@ -198,7 +198,7 @@
 
 				# Encode returns the bare object.
 				_encode: ->
-					min = {_type: @_type!}
+					min = {_type: @_type!, _id: @id!}
 
 					#Add all the properties to the writer.
 					for prop of definition.properties
@@ -614,4 +614,4 @@
 
 		_save: (transaction, store) ->
 			store = store || @_store
-			return store.execute('persist', transaction).then _.bind(@expand, @)
+			return store.execute('persist', transaction.encode!).then _.bind(@expand, @)
