@@ -30,13 +30,13 @@ app.post '/get', !(req, res)->
 	transaction = runtime.transaction!
 	transaction.add req.body.entities
 	transaction.get!then !(gotten)->
-		res.send gotten.toString! + \\n
+		res.send JSON.stringify(gotten) + \\n
 
 app.post '/persist', !(req, res)->
 	transaction = runtime.transaction!
 	transaction.add req.body.entities, true
 	transaction.persist!then !(gotten)->
-		res.send gotten.toString! + \\n
+		res.send JSON.stringify(gotten) + \\n
 
 jefri_server = 
 	serve: !->
