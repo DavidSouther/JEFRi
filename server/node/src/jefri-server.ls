@@ -34,7 +34,7 @@ app.post '/get', !(req, res)->
 
 app.post '/persist', !(req, res)->
 	transaction = runtime.transaction!
-	transaction.add req.body.entities
+	transaction.add req.body.entities, true
 	transaction.persist!then !(gotten)->
 		res.send gotten.toString! + \\n
 
