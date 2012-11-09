@@ -9,17 +9,9 @@ module.exports = function(grunt) {
 				'// Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 				' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %>'
 		},
-		lint: {
-			files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
-		},
 		clean: {
 			app: {
 				src: ["dist", "docs"]
-			}
-		},
-		docco: {
-			app: {
-				src: ['**/*.ls', '**/*.js']
 			}
 		},
 		livescript: {
@@ -48,10 +40,7 @@ module.exports = function(grunt) {
 			},
 			jasmine: {
 				files: {
-					"test/spec/livescript.spec.js": ["test/spec/**/*ls"]
-				},
-				options: {
-					bare: true
+					'test/spec/node/spec/*.spec.js': 'test/spec/node/ls/*.ls'
 				}
 			}
 		},
@@ -70,16 +59,10 @@ module.exports = function(grunt) {
 			}
 		},
 		jasmine_node: {
-			specFolderName: "./test/spec/",
-			projectRoot: ".",
-			requirejs: false,
-			forceExit: true,
-			jUnit: {
-				report: false,
-				savePath : "./test/spec/reports/",
-				useDotNotation: true,
-				consolidate: true
-			}
+			projectRoot: 'test/spec/node',
+			specFolderName: 'spec',
+			match: "",
+			matchall: true
 		},
 		test: {
 			files: ['test/nunit/**/*js']
@@ -116,14 +99,12 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-livescript');
-	// grunt.loadNpmTasks('grunt-docco');
 	grunt.loadNpmTasks('grunt-jasmine-node');
-	// grunt.loadNpmTasks('grunt-browserify');
 
 	grunt.registerTask('jasmineTests', 'livescript:jasmine jasmine_node');
 	grunt.registerTask('qunitTests', 'livescript:qunit concat:qunitMin qunit:min');
 	grunt.registerTask('nunit', 'test');
 	grunt.registerTask('nunitTests', 'livescript:nunit nunit');
-	grunt.registerTask('tests', 'server:test nunitTests qunitTests');
+	grunt.registerTask('tests', 'server:test nunitTests qunitTests jasmineTests');
 	grunt.registerTask('default', 'clean livescript concat:node concat:min tests');
 };
