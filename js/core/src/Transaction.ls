@@ -48,8 +48,8 @@
 			store = store || @store
 			@persisting <: {}
 			@persisted <: (e, data) ->
-			store.execute 'persist', @ .then !->
-				for entity in e.entities
+			store.execute 'persist', @ .then !(t)->
+				for entity in t.entities
 					entity.persisted <: {}
 			.promise!
 
