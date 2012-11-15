@@ -74,6 +74,20 @@ model = (JEFRi) ->
 			s = new window.JEFRi[storeType](storeOptions)
 			s.execute 'get', t
 
+		Save: !(store, name, storeOptions)->
+			@context.name name
+			t = JEFRi.transaction!
+			t.add @context
+			for entity in @context.entities!
+				t.add entity
+				for property in entity.properties!
+					t.add property
+				for relationship in entity.relationships!
+					t.add relationship
+			storeOptions <<<
+				runtime: JEFRi
+			s = new window.JEFRi[store](storeOptions)
+			s.execute 'persist', t
 
 	new Model!
 

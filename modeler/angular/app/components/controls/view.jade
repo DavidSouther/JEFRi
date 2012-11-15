@@ -33,11 +33,11 @@
 									| Remote endpoint: 
 									input(ng:model="endpoint")
 							#context-selection.tab-pane
-								select(ng:model="conextId", multiple)
+								select(ng:model="contextId", multiple)
 									option(ng:repeat="context in contexts", value="context.id()") {{context.name()}}
 								div(ng:show="isSaving()")
 									input(ng:model="contextName")
 
 			.modal-footer
 				button.btn(data-dismiss="modal", aria-hidden="true") Close
-				button.btn.btn-primary Save changes
+				button.btn.btn-primary(ng:click="finish()") {{action + " changes"}}
