@@ -3,9 +3,12 @@ directive = ($, Model) ->
 	template: $.template "\#controls"
 	replace: true,
 	controller: !($scope)->
-		$scope.action = "Load"
-		$scope.add = !->
-			Model.addEntity!
+		$scope <<<
+			action: 'Load'
+			storage: 'LocalStore'
+			endpoint: 'http://localhost:8000/'
+			add: !-> Model.addEntity!
+			isRemoteStore: -> $scope.storage is 'PostStore'
 
 angular.module \modeler
 	.directive \controls, [\jQuery, \Model, directive]
