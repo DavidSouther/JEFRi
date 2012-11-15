@@ -5,6 +5,9 @@
 			"properties": {
 				"context_id": {
 					"type": "string"
+				},
+				"name": {
+					"type": "string"
 				}
 			},
 			"relationships": {
