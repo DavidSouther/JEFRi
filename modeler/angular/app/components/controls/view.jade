@@ -1,16 +1,18 @@
 #controls
-	.controls
-		button#new_entity(value="New Entity", ng:click="add()") New Entity
-		br
-		button#new_relationship +
-		select#new_relationship_type
-			option Is_a
-			option Has_a -&gt; Has_a
-			option Has_a -&gt; Has_many
-			option Has_many -&gt; Has_a
-		
-		br
-		hr
-		button#load_context Load Context
-		button#save_context Save Context
-		br
+	.empty
+		.controls
+			a#new_entity.btn(type="button", ng:click="add()") New Entity
+			br
+			hr
+			a#load_context.btn(data-toggle='modal', href="#loadSaveDialog") Load Context
+			a#save_context.btn(data-toggle='modal', href="#loadSaveDialog") Save Context
+
+		#loadSaveDialog.modal.fade(data-backdrop="static", aria-labeledby="#lsModalLabel")
+			.modal-header
+				button.close(type="button", data-dismiss="modal", aria-hidden="true")×
+				h3#lsModalLabel Load
+			.modal-body
+				| Load/Save Dialog!
+			.modal-footer
+				button.btn(data-dismiss="modal", aria-hidden="true") Close
+				button.btn.btn-primary Save changes
