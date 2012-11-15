@@ -3,6 +3,7 @@ directive = ($, Model) ->
 	template: $.template "\#controls"
 	replace: true,
 	controller: !($scope)->
+		$scope.action = "Load"
 		$scope.add = !->
 			Model.addEntity!
 
