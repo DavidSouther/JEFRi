@@ -14,7 +14,7 @@ directive = ($, model) ->
 			isSaving: -> $scope.action is 'Save'
 			loadContexts: !->
 				model.listContexts($scope.storage, {remote: $scope.endpoint}).then !(results)->
-					$scope.contexts = results.entities.Context
+					$scope.contexts = results.entities
 			finish: !->
 				name = $scope.contextName || model.context.name! || "DEFAULT_CONTEXT"
 				model[$scope.action]($scope.storage, name, {remote: $scope.endpoint})

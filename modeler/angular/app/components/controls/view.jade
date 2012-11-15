@@ -4,8 +4,7 @@
 			a#new_entity.btn(type="button", ng:click="add()") New Entity
 			br
 			hr
-			a#load_context.btn(ng:click='action="Load"', data-toggle='modal', href="#loadSaveDialog") Load Context
-			a#save_context.btn(ng:click='action="Save"', data-toggle='modal', href="#loadSaveDialog") Save Context
+			a#load_context.btn(ng:click='action="Load"', data-toggle='modal', href="#loadSaveDialog") Manage Context
 
 		#loadSaveDialog.modal.fade(data-backdrop="static", aria-labeledby="#lsModalLabel")
 			.modal-header
@@ -34,7 +33,7 @@
 									input(ng:model="endpoint")
 							#context-selection.tab-pane
 								select(ng:model="contextId", multiple)
-									option(ng:repeat="context in contexts", value="context.id()") {{context.name()}}
+									option(ng:repeat="context in contexts", value="context.id()") {{context.name()}} {{context.id() | shortId }}
 								div(ng:show="isSaving()")
 									input(ng:model="contextName")
 
