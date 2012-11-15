@@ -66,6 +66,14 @@ model = (JEFRi) ->
 		addEntity: !->
 			@context.entities JEFRi.build \Entity
 
+		listContexts: (storeType, storeOptions)->
+			t = JEFRi.transaction!
+			t.add _type: \Context
+			storeOptions <<<
+				runtime: JEFRi
+			s = new window.JEFRi[storeType](storeOptions)
+			s.execute 'get', t
+
 
 	new Model!
 

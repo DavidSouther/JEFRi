@@ -23,7 +23,7 @@
 							li.active
 								a(href="#store-selection", data-toggle="tab") Store
 							li
-								a(href="#context-selection", data-toggle="tab") Context
+								a(href="#context-selection", ng:click="loadContexts()", data-toggle="tab") Context
 						.tab-content
 							#store-selection.tab-pane.active
 								select(ng:model='storage')
@@ -33,7 +33,10 @@
 									| Remote endpoint: 
 									input(ng:model="endpoint")
 							#context-selection.tab-pane
-								| Context Selection
+								select(ng:model="conextId", multiple)
+									option(ng:repeat="context in contexts", value="context.id()") {{context.name()}}
+								div(ng:show="isSaving()")
+									input(ng:model="contextName")
 
 			.modal-footer
 				button.btn(data-dismiss="modal", aria-hidden="true") Close
