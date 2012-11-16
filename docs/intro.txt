@@ -1,0 +1,8 @@
+JEFRi
+
+JEFRi is a consistent, cross-platform data abstraction layer. Using JEFRi as a data layer allows developers to focus purely on their data model. Entity frameworks simplify development by allowing both server and client to acess data abstraction objects in a consistent way, streamlining data modeling and usage.
+
+History
+
+JEFRi began life as a port of Kohana's ORM system to Javascript. Since its birth in early 2011, JEFRi has grown to focus its spec on providing a robust data modeling system. This in turn allows a suite of JEFRi aware libraries to handle many common data tasks, allowing the application to focus on nothing but necessary business features.
+
