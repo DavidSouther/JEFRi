@@ -1,3 +1,3 @@
 angular.module \jefri, []
 	.factory \JEFRi, ->
-		new JEFRi.Runtime!
+		new JEFRi.Runtime "entityContext.json"

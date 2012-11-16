@@ -9,59 +9,64 @@ model = (JEFRi) ->
 			@runtime = JEFRi
 
 		load: !->
-			@context = @runtime.build "Context"
-			router = JEFRi.build \Entity,
-				"name": "Router",
-				"key": "router_id"
+			load = !~>
+				@ready -:> load
 
-			host = JEFRi.build \Entity,
-				"name": "Host"
-				"key": "host_id"
+				router = JEFRi.build \Entity,
+					"name": "Router",
+					"key": "router_id"
 
-			router.properties do
-				JEFRi.build \Property,
-					name: \router_id
-					type: \string
-				JEFRi.build \Property,
-					name: \name
-					type: \string
+				host = JEFRi.build \Entity,
+					"name": "Host"
+					"key": "host_id"
 
-			router-hosts = JEFRi.build \Relationship,
-				name: \hosts
-				type: \has_many
-				to_property: \router_id
-				from_property: \router_id
-			router-hosts.to host
-			router-hosts.from router
+				router.properties [
+					JEFRi.build \Property,
+						name: \router_id
+						type: \string
+					JEFRi.build \Property,
+						name: \name
+						type: \string
+				]
 
-			host.properties do
-				JEFRi.build "Property",
-					name: "host_id",
-					type: "string"
-				JEFRi.build "Property",
-					name: "hostname",
-					type: "string"
-				JEFRi.build "Property",
-					name: "ip",
-					type: "string"
-				JEFRi.build "Property",
-					name: "mac",
-					type: "string"
-				JEFRi.build \Property,
-					name: \router_id
-					type: \string
+				router-hosts = JEFRi.build \Relationship,
+					name: \hosts
+					type: \has_many
+					to_property: \router_id
+					from_property: \router_id
+				router-hosts.to host
+				router-hosts.from router
 
-			hostRouter = JEFRi.build \Relationship,
-				name: \router
-				type: \has_a
-				to_property: \router_id
-				from_property: \router_id
-			host-router.to router
-			host-router.from host
+				host.properties [
+					JEFRi.build "Property",
+						name: "host_id",
+						type: "string"
+					JEFRi.build "Property",
+						name: "hostname",
+						type: "string"
+					JEFRi.build "Property",
+						name: "ip",
+						type: "string"
+					JEFRi.build "Property",
+						name: "mac",
+						type: "string"
+					JEFRi.build \Property,
+						name: \router_id
+						type: \string
+				]
 
-			@context.entities [host, router]
+				hostRouter = JEFRi.build \Relationship,
+					name: \router
+					type: \has_a
+					to_property: \router_id
+					from_property: \router_id
+				host-router.to router
+				host-router.from host
 
-			@loaded <: {}
+				@context.entities [host, router]
+
+				@loaded <: {}
+			#@ready :> load
 
 		addEntity: !->
 			@context.entities JEFRi.build \Entity
@@ -88,6 +93,18 @@ model = (JEFRi) ->
 				runtime: JEFRi
 			s = new window.JEFRi[store](storeOptions)
 			s.execute 'persist', t
+
+		Load: !(store, name, storeOptions)->
+			@context.name name
+			t = JEFRi.transaction!
+			t.add id: name, _type: \Context, entities: { properties: {}, relationships: {} }
+			storeOptions <<<
+				runtime: JEFRi
+			s = new window.JEFRi[store](storeOptions)
+			s.execute 'get', t  .then !(results)~>
+				@context = results.entities[0]
+				@context.entities!
+				@ready <: {}
 
 	new Model!
 

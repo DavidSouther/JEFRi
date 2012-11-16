@@ -2,11 +2,10 @@
 	.empty
 		.controls
 			a#new_entity.btn(type="button", ng:click="add()") New Entity
-			br
 			hr
 			a#load_context.btn(ng:click='action="Load"', data-toggle='modal', href="#loadSaveDialog") Manage Context
 
-		#loadSaveDialog.modal.fade(data-backdrop="static", aria-labeledby="#lsModalLabel")
+		#loadSaveDialog.modal.fade(ng:model="showLoadSave", ui-modal, data-backdrop="static", aria-labeledby="#lsModalLabel")
 			.modal-header
 				button.close(type="button", data-dismiss="modal", aria-hidden="true")×
 				h3#lsModalLabel {{action}}
@@ -32,8 +31,8 @@
 									| Remote endpoint: 
 									input(ng:model="endpoint")
 							#context-selection.tab-pane
-								select(ng:model="contextId", multiple)
-									option(ng:repeat="context in contexts", value="context.id()") {{context.name()}} {{context.id() | shortId }}
+								select(ng:model="contextId", size=4)
+									option(ng:repeat="context in contexts", value="{{context.id()}}") {{context.name()}} {{context.id() | shortId }}
 								div(ng:show="isSaving()")
 									input(ng:model="contextName")
 

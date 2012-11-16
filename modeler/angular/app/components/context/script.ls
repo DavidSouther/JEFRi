@@ -1,7 +1,7 @@
 controller = !($scope, model) ->
-	model.loaded :> !->
+	model.ready :> !->
 		$scope.context = model.context
-		$scope.$digest!
+		try $scope.$digest!
 
 angular.module \modeler
 	.controller \Context, [\$scope, \Model, controller]
