@@ -1,3 +1,6 @@
 docs
 _out_
 *.pdf
+*.log
+*.fls
+*.md
