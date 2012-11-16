@@ -2,3 +2,7 @@ app/views/templates.html
 build/
 test/e2e.js
 test/unit.js
+test/e2e/js/
+test/e2e/e2e.js
+test/e2e/angular-scenario.js
+test/unit/js/
