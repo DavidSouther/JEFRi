@@ -164,6 +164,10 @@
 			if _.isString spec
 				spec = ['REGEX', '.*' + spec + '.*']
 
+			# Guard against bad specs
+			if not spec
+				spec = ['=', undefined]
+
 			# Spec should be an array by now, if it isn't, there's a problem.
 			if not _.isArray spec
 				throw { message: "Lookup specification is invalid (in LocalStore::_sieve).", name: name, property: property, spec: spec}

@@ -306,7 +306,7 @@
 							# We'll need to grab everything who points to us...
 							@_relationships[field] = []
 							# Loop over every entity this relationship could point to
-							for type in ec._instances[relationship.to.type]
+							for id, type of ec._instances[relationship.to.type]
 								# If these are related
 								if (type[relationship.to.property]! is @[relationship.property]!)
 									# Add it
