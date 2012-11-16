@@ -36,7 +36,7 @@
 			# Merge the new data over the old data.
 			entity = @_find(entity) <<<< entity
 			# Store the JSON of the entity.
-			@_set _key(entity), JSON.stringify(entity)
+			@_set @_key(entity), JSON.stringify(entity)
 			# Register the entity with the type map.
 			@_type entity._type, entity._id
 			# Return the bare encoded object.
@@ -73,7 +73,7 @@
 		# #### _find*(entity)*
 		# Return an entity directly, or pass a spec to _lookup.
 		_find: (entity) ->
-			JSON.parse @_get _key entity
+			JSON.parse @_get @_key entity
 
 		# #### _lookup*(spec)*
 		# Given a transaction spec, pull all entities (including relationships) that match.
@@ -83,7 +83,7 @@
 			def = @settings.runtime.definition spec._type
 			# Get everything for this type
 			results = for id in _.keys(@_type(spec._type))
-				JSON.parse @_get _key spec, id
+				JSON.parse @_get @_key spec, id
 
 			# If we didn't find anything, don't return anything. Rule 0.
 			if results.length is 0
@@ -144,7 +144,7 @@
 
 		# #### _key*(entity)*
 		# Return the full key type/id string for an entity, since this is the bare entity with no methods.
-		_key = (entity, id) ->
+		_key: (entity, id) ->
 			_type = entity._type
 			_id = id || entity._id
 			"#{_type}/#{_id}"
