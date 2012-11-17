@@ -19,6 +19,7 @@ directive = ($, model) ->
 				name = if $scope.isSaving! then $scope.contextName || model.context.name! || "DEFAULT_CONTEXT" else $scope.contextId
 				model[$scope.action]($scope.storage, name, {remote: $scope.endpoint})
 				$scope.showLoadSave = false
+			loadSample: !-> model.load!
 
 angular.module \modeler
 	.directive \controls, [\jQuery, \Model, \JEFRi, directive]

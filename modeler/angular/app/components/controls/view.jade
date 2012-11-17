@@ -4,6 +4,8 @@
 			a#new_entity.btn(type="button", ng:click="add()") New Entity
 			hr
 			a#load_context.btn(ng:click='action="Load"', data-toggle='modal', href="#loadSaveDialog") Manage Context
+			br
+			a#load_sample.btn(ng:click='loadSample()', href="#loadSample") Load Sample
 
 		#loadSaveDialog.modal.fade(ng:model="showLoadSave", ui-modal, data-backdrop="static", aria-labeledby="#lsModalLabel")
 			.modal-header

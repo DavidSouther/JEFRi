@@ -1,5 +1,5 @@
 controller = !($scope, model) ->
-	model.ready :> !->
+	model.loaded :> !->
 		$scope.context = model.context
 		try $scope.$digest!
 
