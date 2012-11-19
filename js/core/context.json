@@ -20,6 +20,13 @@
 					},
 					"back": "context"
 				}
+			},
+			"methods": {
+				"export": {
+					"definitions": {
+						"javascript": "return JSON.stringify({attributes: {}, entities: {}});"
+					}
+				}
 			}
 		},
 		"Entity": {
