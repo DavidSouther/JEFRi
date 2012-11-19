@@ -22,8 +22,12 @@ directive = ($, jsp) ->
 	replace: true
 	controller: \Entity
 	link: !(scope, element) ->
-		element .draggable! .resizable handles: \e
-		#jsp.draggable element
+		element
+			.draggable do
+				start: jsp.drag.start
+				drag: jsp.drag.drag
+				stop: jsp.drag.stop
+			.resizable handles: \e
 
 angular.module \modeler
 	.directive \entity, [\jQuery, \JSPlumb, directive]
