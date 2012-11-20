@@ -20,6 +20,7 @@ directive = ($, model) ->
 				model[$scope.action]($scope.storage, name, {remote: $scope.endpoint})
 				$scope.showLoadSave = false
 			loadSample: !-> model.load!
+			export: model.export
 
 angular.module \modeler
 	.directive \controls, [\jQuery, \Model, \JEFRi, directive]

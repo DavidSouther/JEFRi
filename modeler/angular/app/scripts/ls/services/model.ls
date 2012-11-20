@@ -104,6 +104,9 @@ model = (JEFRi) ->
 				@context.entities!
 				@loaded <: {}
 
+		export: ->
+			@context.export!
+
 	new Model!
 
 angular.module \modeler

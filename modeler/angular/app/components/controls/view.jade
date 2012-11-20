@@ -24,6 +24,8 @@
 								a(href="#store-selection", data-toggle="tab") Store
 							li
 								a(href="#context-selection", ng:click="loadContexts()", data-toggle="tab") Context
+							li
+								a(href="#context-export", data-toggle="tab") Export
 						.tab-content
 							#store-selection.tab-pane.active
 								select(ng:model='storage')
@@ -37,6 +39,9 @@
 									option(ng:repeat="context in contexts", value="{{context.id()}}") {{context.name()}} {{context.id() | shortId }}
 								div(ng:show="isSaving()")
 									input(ng:model="contextName")
+							#context-export.tab-pane
+								textarea
+									| {{export()}}
 
 			.modal-footer
 				button.btn(data-dismiss="modal", aria-hidden="true") Close
