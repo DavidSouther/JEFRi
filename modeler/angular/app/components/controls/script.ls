@@ -6,7 +6,7 @@ directive = ($, model) ->
 		$scope <<<
 			action: 'Load'
 			storage: 'LocalStore'
-			endpoint: 'http://localhost:8000/'
+			endpoint: 'http://localhost:3000/'
 			contexts: []
 			contextName: ""
 			add: !-> model.addEntity!
