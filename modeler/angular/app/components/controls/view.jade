@@ -45,6 +45,8 @@
 								div(ng:show='isRemoteStore()')
 									| Remote endpoint: 
 									input(ng:model="endpoint")
+									br
+									button.btn(ng:click="loadContext()") Load Context
 							#context-selection.tab-pane
 								select(ng:model="contextId", size=4)
 									option(ng:repeat="context in contexts", value="{{context.id()}}") {{context.name()}} {{context.id() | shortId }}

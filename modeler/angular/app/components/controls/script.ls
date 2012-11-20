@@ -20,6 +20,8 @@ directive = ($, model) ->
 				model[$scope.action]($scope.storage, name, {remote: $scope.endpoint})
 				$scope.showLoadSave = false
 			loadSample: !-> model.load!
+			loadContext: !-> 
+				_.request.post "#{$scope.endpoint}load/", {data: '{"context": "http://localhost:3000/entityContext.json"}', dataType: "application/json"}
 			export: model.export
 
 angular.module \modeler
