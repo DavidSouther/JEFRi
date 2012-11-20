@@ -20,6 +20,13 @@
 					},
 					"back": "context"
 				}
+			},
+			"methods": {
+				"export": {
+					"definitions": {
+						"javascript": "var context = {attributes: {}, entities: {}};\nthis.entities().forEach(function(entity){\n\tcontext.entities[entity.name()] = entity.export();\n});\nreturn JSON.stringify(context);"
+					}
+				}
 			}
 		},
 		"Entity": {
@@ -66,6 +73,13 @@
 					},
 					"back": "from"
 				}
+			},
+			"methods": {
+				"export": {
+					"definitions": {
+						"javascript": "var entity = {key: this.key(), properties: {}, relationships: {}};\nthis.properties().forEach(function(property){\n\tentity.properties[property.name()] = property.export();\n});\nthis.relationships().forEach(function(relationship){\n\tentity.relationships[relationship.name()] = relationship.export();\n});\nreturn entity;"
+					}
+				}
 			}
 		},
 		"Property": {
@@ -93,6 +107,13 @@
 						"property": "entity_id"
 					},
 					"back": "properties"
+				}
+			},
+			"methods": {
+				"export": {
+					"definitions": {
+						"javascript": "var property = {type: this.type()};\nreturn property;"
+					}
 				}
 			}
 		},
@@ -144,6 +165,11 @@
 				"normalize": {
 					"definitions": {
 						"javascript": "var this$=this;\nthis._runtime.get_first({'_type': 'Entity', 'entity_id': this.to_id()}).then(\n\tfunction(found){\n\t\tthis$.to(found);\n\t}\n);"
+					}
+				},
+				"export": {
+					"definitions": {
+						"javascript": "var relationship = {type: this.type(), property: this.from_property(), to: {type: this.to().name(), property: this.to_property()}};\nreturn relationship;"
 					}
 				}
 			}
