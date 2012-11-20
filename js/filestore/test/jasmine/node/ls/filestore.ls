@@ -1,4 +1,4 @@
-FileStore = require "../../../../lib/filestore"
+FileStore = require "../../../../lib/jefri-filestore"
 require! { fs, jefri }
 
 describe "FileStore", !(a)->
