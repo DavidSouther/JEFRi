@@ -2,7 +2,7 @@
   "name": "jefri",
   "title": "JEFRi: Entity Framework Runtime",
   "homepage": "http://www.jefri.org",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "author": {
     "name": "David Souther",
     "email": "<davidsouther@gmail.com>"
@@ -13,6 +13,9 @@
       "name": "Jonathan Porta",
       "email": "jonathan@jonathanporta.com"
     }
+  ],
+  "files": [
+    "lib/", "package.json"
   ],
   "main": "./lib/jefri",
   "repository": {
