@@ -2,7 +2,7 @@
   "name": "jefri-server",
   "title": "JEFRi Server",
   "description": "JEFRi Node Server",
-  "version": "0.1.0",
+  "version": "0.1.0-RC1",
   "homepage": "https://github.com/DavidSouther/JEFRi",
   "author": {
     "name": "David Souther",
@@ -31,7 +31,9 @@
   "dependencies": {
     "jquery": ">= 1",
     "underscore": "~1.4.2",
-    "express": "3.x"
+    "express": "3.x",
+    "jefri": "*",
+    "jefri-filestore": "*"
   },
   "devDependencies": {
     "grunt-livescript": "*",

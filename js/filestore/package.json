@@ -1,7 +1,7 @@
 {
-  "name": "filestore",
-  "title": "Filestore",
-  "description": "The best project ever.",
+  "name": "jefri-filestore",
+  "title": "JEFRi Filestore",
+  "description": "JEFRi store using the File System in node.",
   "version": "0.1.0",
   "homepage": "https://github.com/DavidSouther/JEFRi",
   "author": {
@@ -21,7 +21,7 @@
       "url": "https://github.com/DavidSouther/JEFRi/blob/master/LICENSE-MIT"
     }
   ],
-  "main": "lib/filestore",
+  "main": "lib/jefri-filestore",
   "engines": {
     "node": "*"
   },
@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "jquery": ">= 1",
-    "underscore": "~1.4.2"
+    "underscore": "~1.4.2",
+    "jefri": "*"
   },
   "devDependencies": {
     "grunt-livescript": "*",
