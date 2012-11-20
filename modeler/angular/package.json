@@ -22,7 +22,8 @@
   "dependencies": {
     "superscore": "*",
     "jefri": "*",
-    "jefri-server": "*"
+    "jefri-server": "*",
+    "express": "*"
   },
   "devDependencies": {
     "grunt-livescript": "*",

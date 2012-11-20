@@ -2,7 +2,7 @@
   "name": "jefri-server",
   "title": "JEFRi Server",
   "description": "JEFRi Node Server",
-  "version": "0.1.0-RC1",
+  "version": "0.1.1",
   "homepage": "https://github.com/DavidSouther/JEFRi",
   "author": {
     "name": "David Souther",
@@ -32,7 +32,7 @@
     "jquery": ">= 1",
     "underscore": "~1.4.2",
     "express": "3.x",
-    "jefri": "*",
+    "jefri": ">= 1",
     "jefri-filestore": "*"
   },
   "devDependencies": {

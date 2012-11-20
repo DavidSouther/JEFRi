@@ -46,6 +46,11 @@ module.exports = function(grunt) {
 					'build/dist/<%= pkg.name %>.js': 'build/dist/<%= pkg.name %>.ls'
 				}
 			},
+			src: {
+				files: {
+					'lib/<%= pkg.name %>.js': ['src/*']
+				}
+			},
 			test: {
 				files: {
 					'test/unit/js/components.js': ['app/components/**/test*ls'],
@@ -124,6 +129,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('scripts', 'livescript:app concat:ls livescript:dist');
 	grunt.registerTask('styles', 'stylus:app mincss:dist');
 	grunt.registerTask('app', 'views scripts styles copy min');
+	grunt.registerTask('server', 'livescript:src');
 	grunt.registerTask('tests', 'livescript:test concat:unit');
-	grunt.registerTask('default', 'clean app tests');
+	grunt.registerTask('default', 'clean app server tests');
 };

@@ -18,9 +18,6 @@ app.use !(req, res, next)->
 	console.log "#{req.method} #{req.url}"
 	next!
 
-app.get '/', !(req, res)->
-	res.send "Hello\n"
-
 app.post '/load', !(req, res)->
 	runtime.load req.body.context
 	runtime.ready.then !->
@@ -43,6 +40,7 @@ jefri_server =
 		console.log \Listening
 		app.listen 3000
 
-
 if require.main is module
 	jefri_server.serve!
+else
+	module.exports = app
