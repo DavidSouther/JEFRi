@@ -87,6 +87,7 @@ module.exports = function(grunt) {
 				files: {
 					'build/scripts/lib/': 'app/scripts/lib/**',
 					'build/styles/lib/': 'app/styles/lib/**',
+					'build/styles/img/': 'app/styles/img/**',
 					'build/images/': 'app/images/**',
 					'build/entityContext.json': 'app/entityContext.json'
 				}
