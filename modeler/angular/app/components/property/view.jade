@@ -20,6 +20,8 @@
 				option Singular
 				option Blob
 			
-			button.done(ng:click="editing=false;") Done
-			button.done.delete(ng:click="editing=false;property._destroy()") X
-		
+			button.done.btn.btn-mini(ng:click="editing=false;")
+				i.icon-ok-sign
+			button.done.delete.btn.btn-mini(ng:click="editing=false;property._destroy()")
+				i.icon-remove
+			br

@@ -1,16 +1,15 @@
 controller = !($scope, model) ->
-	model.loaded :> !->
+	model.ready :> !->
 		$scope.context = model.context
 		try $scope.$digest!
 
-angular.module \modeler
-	.controller \Context, [\$scope, \Model, controller]
+controller.$inject = <[ $scope Model ]>
 
 directive = ($, Model) ->
 	restrict: \E
 	template: $.template \.context
 	replace: true
-	controller: \Context
+	controller: controller
 
 angular.module \modeler
 	.directive \context, [\jQuery, \Model, directive]

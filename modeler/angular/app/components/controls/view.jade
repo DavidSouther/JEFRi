@@ -1,25 +1,26 @@
 #controls
-	.empty
+	.controlsContainer
 		.controls
 			a#new_entity.btn(type="button", ng:click="add()") New Entity
 			hr
-			a#load_context.btn(ng:click='action="Load"', data-toggle='modal', href="#loadSaveDialog") Manage Context
+			a#load_context.btn(data-toggle='modal', href="#contextDialog") Manage Context
 			br
 			a#load_sample.btn(ng:click='loadSample()', href="#loadSample") Load Sample
 
-		#loadSaveDialog.modal.fade(ng:model="showLoadSave", ui-modal, data-backdrop="static", aria-labeledby="#lsModalLabel")
+		#contextDialog.modal.fade(ng:model="showContext", ui-modal, data-backdrop="static", aria-labeledby="#contextDialogLabel")
 			.modal-header
-				button.close(type="button", data-dismiss="modal", aria-hidden="true")×
-				h3#lsModalLabel {{action}}
+				button.close.btn.btn-mini(type="button", data-dismiss="modal", aria-hidden="true")
+					i.icon-remove
+				h3#contextDialogLabel {{action}}
 			.modal-body
 				.tabbable.tabs-left
 					ul.nav.nav-tabs
 						li
-							a(href="#loadContent", ng:click='action="Load"')
+							a(href="#loadContext", ng:click='action="Load"')
 								i.icon-folder-open
 								| Load
 						li
-							a(href="#saveContent", ng:click='action="Save"')
+							a(href="#saveContext", ng:click='action="Save"')
 								i.icon-hdd
 								| Save
 					.tab-content

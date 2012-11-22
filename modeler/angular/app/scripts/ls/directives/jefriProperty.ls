@@ -9,7 +9,8 @@ JefriProperty = ($)->
 			update = !(val)->
 				element.find "option" .filter (-> $ this .attr(\value) is val) .attr \selected, true
 			element.change !-> entity[property] element.val!
-			entity.modified :> !-> update entity[property]!
+			entity.modified :> !(changed, value)->
+				if changed is property then update entity[property]!
 			# HACK! since Angular probably won't have the <option>s expanded, update at the end of the stack.
 			setTimeout (-> update entity[property]!), 0
 		| <[ INPUT TEXTAREA ]> =>

@@ -8,6 +8,7 @@ describe "JEFRi", !(a)->
 		runtime := new jefri.Runtime "http://localhost:8000/context.json"
 		runtime.ready.then !(a)->
 			context := runtime.build \Context, name: "network"
+
 			router = runtime.build \Entity,
 				"name": "Router",
 				"key": "router_id"
@@ -16,6 +17,8 @@ describe "JEFRi", !(a)->
 				"name": "Host"
 				"key": "host_id"
 
+			context.entities [host, router]
+			
 			router.properties [
 				runtime.build \Property,
 					name: \router_id
@@ -59,7 +62,6 @@ describe "JEFRi", !(a)->
 			host-router.to router
 			host-router.from host
 
-			context.entities [host, router]
 			loaded := true
 		waitsFor -> loaded
 

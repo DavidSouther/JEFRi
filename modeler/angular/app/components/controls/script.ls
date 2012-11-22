@@ -1,7 +1,8 @@
 directive = ($, model) ->
 	restrict: \E
 	template: $.template "\#controls"
-	replace: true,
+	replace: true
+	scope: true
 	controller: !($scope)->
 		$scope <<<
 			action: 'Load'
@@ -9,7 +10,11 @@ directive = ($, model) ->
 			endpoint: 'http://localhost:3000/'
 			contexts: []
 			contextName: ""
-			add: !-> model.addEntity!
+			add: !->
+				model.addEntity!
+				try
+					$scope.digest!
+
 			isRemoteStore: -> $scope.storage is 'PostStore'
 			isSaving: -> $scope.action is 'Save'
 			loadContexts: !->

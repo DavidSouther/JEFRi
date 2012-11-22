@@ -29,14 +29,6 @@ model = (JEFRi) ->
 					type: \string
 			]
 
-			router-hosts = JEFRi.build \Relationship,
-				name: \hosts
-				type: \has_many
-				to_property: \router_id
-				from_property: \router_id
-			router-hosts.to host
-			router-hosts.from router
-
 			host.properties [
 				JEFRi.build "Property",
 					name: "host_id",
@@ -55,16 +47,22 @@ model = (JEFRi) ->
 					type: \string
 			]
 
-			hostRouter = JEFRi.build \Relationship,
+			router-many-hosts = JEFRi.build \Relationship,
+				name: \hosts
+				type: \has_many
+				to_property: \router_id
+				from_property: \router_id
+			router-many-hosts .from router .to host
+
+			host-a-router = JEFRi.build \Relationship,
 				name: \router
 				type: \has_a
 				to_property: \router_id
 				from_property: \router_id
-			host-router.to router
-			host-router.from host
+			host-a-router .from host .to router
 
 			@context.entities [host, router]
-			@loaded <: {}
+			@ready <: {}
 
 		addEntity: !->
 			@context.entities JEFRi.build \Entity
@@ -105,7 +103,7 @@ model = (JEFRi) ->
 				@loaded <: {}
 
 		export: ->
-			@context.export!
+			@context?.export!
 
 	new Model!
 

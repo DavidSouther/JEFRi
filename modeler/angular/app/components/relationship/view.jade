@@ -4,26 +4,32 @@
 			| {{relationship.name()}}:
 			span.type
 				| {{relationship.type()}} {{relationship.to().name()}}
-		
+
 		div.edit(ng:show="editing")
-			input.name(jefri:property="relationship.name")
+			| Calling
+			br
+			input.name(jefri:property="relationship.name") | ()
 			br
 			select(jefri:property="relationship.type")
 				option(value="is_a") Is a
 				option(value="has_a") Has a
 				option(value="has_many") Has many
 			
-			select(jefri:property="relationship.to_id")
-				option
+			select.to_id(jefri:property="relationship.to_id")
+				option(disabled) Entity:
 				option(ng:repeat="entity in context.entities()", value="{{entity.id()}}") {{entity.name()}}
 			br
-			select(jefri:property="relationship.from_property")
-				option
+			| Linking
+			select.from_property(jefri:property="relationship.from_property")
+				option(disabled) From:
 				option(ng:repeat="property in relationship.from().properties()", value="{{property.id()}}") {{property.name()}}
-			| -&gt;
-			select(jefri:property="relationship.to_property")
-				option
+			| &rarr;
+			select.to_property(jefri:property="relationship.to_property")
+				option(disabled) To:
 				option(ng:repeat="property in relationship.to().properties()", value="{{property.id()}}") {{property.name()}}
 			br
-			button.done(ng:click="editing=false;") Done
-			button.done.delete(ng:click="editing=false; relationship._destroy()") X
+			button.done.btn.btn-mini(ng:click="editing=false;")
+				i.icon-ok-sign
+			button.done.delete.btn.btn-mini(ng:click="editing=false; relationship._destroy()")
+				i.icon-remove
+			br

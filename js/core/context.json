@@ -123,6 +123,12 @@
 				"relationship_id": {
 					"type": "string"
 				},
+				"name": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
 				"to_id": {
 					"type": "string"
 				},
@@ -133,12 +139,6 @@
 					"type": "string"
 				},
 				"from_property": {
-					"type": "string"
-				},
-				"name": {
-					"type": "string"
-				},
-				"type": {
 					"type": "string"
 				}
 			},
