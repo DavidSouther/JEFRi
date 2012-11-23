@@ -18,6 +18,7 @@ directive = ($, jsp, jefri)->
 					if ent.id! is value
 						return ent
 			if _(field).isArray! then [field, value] = field
+			if value is undefined then return
 			if field is \to_id
 				to_rel = _find \Entity
 				$scope.relationship.to to_rel
@@ -27,7 +28,7 @@ directive = ($, jsp, jefri)->
 			if field is \to_property
 				to_property = _find \Property
 				$scope.relationship.to_property to_property.name! 
-			$scope.$apply!
+			try $scope.$apply!
 
 angular.module \modeler
 	.directive \relationship, [\jQuery, \JSPlumb, \JEFRi, directive]

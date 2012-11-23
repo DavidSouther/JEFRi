@@ -26,6 +26,7 @@ directive = ($, jsp) ->
 				start: jsp.drag.start
 				drag: jsp.drag.drag
 				stop: jsp.drag.stop
+				stack: ".context .entity"
 			.resizable handles: \e
 
 angular.module \modeler

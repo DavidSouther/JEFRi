@@ -7,7 +7,7 @@ controller.$inject = <[ $scope Model ]>
 
 directive = ($) ->
 	restrict: \E
-	template: $.template \.context
+	template: $.template \#context
 	replace: true
 	controller: controller
 
