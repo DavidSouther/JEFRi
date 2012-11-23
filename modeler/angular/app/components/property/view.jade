@@ -7,7 +7,8 @@
 		span.edit(ng:show="editing")
 			input(jefri:property="property.name")
 			br
-			select(jefri:property="property.type", ui-select2)
+			select(jefri:property="property.type")
+				option(disabled) Type
 				optgroup(label="Common")
 					option(value="string") String
 					option(value="int") Integer

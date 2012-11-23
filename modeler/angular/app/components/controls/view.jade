@@ -8,7 +8,7 @@
 			a#load_sample.btn(ng:click='loadSample()', href="#loadSample") Load Sample
 			br
 			textarea
-				| {{ model.export() | prettyjson }}
+				| {{ export() | prettyjson }}
 
 		#contextDialog.modal.fade(ng:model="showContext", ui-modal, data-backdrop="static", aria-labeledby="#contextDialogLabel")
 			.modal-header
