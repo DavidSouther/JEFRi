@@ -1,5 +1,7 @@
 .property
 	.property(class="{{property.name()}}")
+		input(type="radio", name="{{entity.name()}}_key", jefri:property="entity.key", value="{{property.name()}}")
+
 		span(ng:hide="editing", ng:click="editing=true")
 			| {{property.name()}}:
 			span.type(jefri:property="property.type")

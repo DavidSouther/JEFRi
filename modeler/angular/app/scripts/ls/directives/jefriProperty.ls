@@ -8,11 +8,28 @@ JefriProperty = ($)->
 		| <[ SELECT ]> =>
 			update = !(val)->
 				element.find "option" .filter (-> $ this .attr(\value) is val) .attr \selected, true
-			element.change !-> entity[property] element.val!
+			element.change !->
+				entity[property] element.val!
+				try
+					scope.$apply!
 			entity.modified :> !(changed, value)->
-				if changed is property then update entity[property]!
+				if _(changed).isArray! then [changed, value] = &
+				if changed is property then update value
 			# HACK! since Angular probably won't have the <option>s expanded, update at the end of the stack.
 			setTimeout (-> update entity[property]!), 0
+		| <[ INPUT ]> =>
+			if 'radio' is element.attr 'type'
+				update = !(val)->
+					element.attr 'checked', val is element.val!
+				element.change !->
+					entity[property] element.val!
+					try
+						scope.$apply!
+				entity.modified :> !(changed, value)->
+					if _(changed).isArray! then [changed, value] = &
+					if changed is property then update value
+				return # Seriously, get the hell out of this link function
+			fallthrough
 		| <[ INPUT TEXTAREA ]> =>
 			element.val entity[property]!
 			element.change !-> entity[property] element.val!

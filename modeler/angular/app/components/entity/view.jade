@@ -10,9 +10,10 @@
 				property
 			
 			.ui-widget-content
-				a(href='#', ng:click="addProperty()") + Property
+				a(href='#', ng:click="addProperty()")+ Property
 
-		//-.relationship-list.ui-widget-content
-		//-	relationship.ui-widget-content(ng-repeat="relationship in entity.relationships()")
-		//-	.ui-widget-content
-		//-		a(href='#', ng:click="addRelationship()")+ Relationship
+		.relationship-list.ui-widget-content
+			relationship.ui-widget-content(ng-repeat="relationship in entity.relationships()")
+
+		.ui-widget-content
+			a(href='#', ng:click="addRelationship()")+ Relationship
