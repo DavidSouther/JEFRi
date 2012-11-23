@@ -13,7 +13,7 @@ JefriProperty = ($)->
 				try
 					scope.$apply!
 			entity.modified :> !(changed, value)->
-				if _(changed).isArray! then [changed, value] = &
+				if _(changed).isArray! then [changed, value] = changed
 				if changed is property then update value
 			# HACK! since Angular probably won't have the <option>s expanded, update at the end of the stack.
 			setTimeout (-> update entity[property]!), 0
@@ -26,7 +26,7 @@ JefriProperty = ($)->
 					try
 						scope.$apply!
 				entity.modified :> !(changed, value)->
-					if _(changed).isArray! then [changed, value] = &
+					if _(changed).isArray! then [changed, value] = changed
 					if changed is property then update value
 				return # Seriously, get the hell out of this link function
 			fallthrough

@@ -11,14 +11,16 @@ directive = ($, jsp, jefri)->
 		setTimeout -> jsp.connect $(from), $(to)
 	controller: !($scope)->
 		$scope.relationship.modified :> !(field, value)->
+			if _(field).isArray! then [field, value] = field
 			if field is \to_id
 				to_rel = jefri.find {_type: \Entity, _id: value}
 				# BUG IN JEFRI (find not implemented)
 				for rel in to_rel
 					if rel.id! is value
 						to_rel = rel
+						break
 				$scope.relationship.to to_rel
-				$scope.$parent.$digest!
+				$scope.$apply!
 
 angular.module \modeler
 	.directive \relationship, [\jQuery, \JSPlumb, \JEFRi, directive]
