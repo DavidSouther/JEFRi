@@ -2,7 +2,7 @@
 	.entity.ui-widget.ui-corner-all(class="{{entity.name()}}")
 		h3.ui-widget-header.ui-corner-top
 			inline(property="name", default="Name")
-			button.delete.btn.btn-mini(ng:click="delete()")
+			button.delete.btn.btn-mini(ng:click="entity._destroy()")
 				i.icon-remove
 		
 		.field-list.ui-widget-content
@@ -10,9 +10,9 @@
 				property
 			
 			.ui-widget-content
-				a(href='#', ng:click="addField()") + Field
-		
-		.ui-widget-content.relationship-list
-			relationship.ui-widget-content(ng-repeat="relationship in entity.relationships()")
-			.ui-widget-content
-				a(href='#', ng:click="addRelationship()")+ Relationship
+				a(href='#', ng:click="addProperty()") + Property
+
+		//-.relationship-list.ui-widget-content
+		//-	relationship.ui-widget-content(ng-repeat="relationship in entity.relationships()")
+		//-	.ui-widget-content
+		//-		a(href='#', ng:click="addRelationship()")+ Relationship

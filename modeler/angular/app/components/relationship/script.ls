@@ -10,7 +10,6 @@ directive = ($, jsp, jefri)->
 		if scope.relationship.to_property! => to = "#to .#{scope.relationship.to_property!}"
 		setTimeout -> jsp.connect $(from), $(to)
 	controller: !($scope)->
-
 		$scope.relationship.modified :> !(field, value)->
 			if field is \to_id
 				to_rel = jefri.find {_type: \Entity, _id: value}

@@ -19,6 +19,7 @@ model = (JEFRi) ->
 			host = JEFRi.build \Entity,
 				"name": "Host"
 				"key": "host_id"
+			@context.entities [host, router]
 
 			router.properties [
 				JEFRi.build \Property,
@@ -61,11 +62,12 @@ model = (JEFRi) ->
 				from_property: \router_id
 			host-a-router .from host .to router
 
-			@context.entities [host, router]
 			@ready <: {}
 
+		newEntityId: 1
 		addEntity: !->
-			@context.entities JEFRi.build \Entity
+			@context.entities JEFRi.build \Entity,
+				name: "entity_#{@newEntityId++}"
 
 		listContexts: (storeType, storeOptions)->
 			t = JEFRi.transaction!

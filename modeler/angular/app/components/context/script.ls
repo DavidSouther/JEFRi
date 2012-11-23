@@ -5,11 +5,11 @@ controller = !($scope, model) ->
 
 controller.$inject = <[ $scope Model ]>
 
-directive = ($, Model) ->
+directive = ($) ->
 	restrict: \E
 	template: $.template \.context
 	replace: true
 	controller: controller
 
 angular.module \modeler
-	.directive \context, [\jQuery, \Model, directive]
+	.directive \context, [\jQuery, directive]

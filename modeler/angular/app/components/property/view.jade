@@ -7,18 +7,19 @@
 		span.edit(ng:show="editing")
 			input(jefri:property="property.name")
 			br
-			select(jefri:property="property.type")
-				option(value="string") String
-				option(value="int") Integer
-				option(value="float") Float
-				option &nbsp;
-				option Real
-				option Complex
-				option Ordinal
-				option Cardinal
-				option Prime
-				option Singular
-				option Blob
+			select(jefri:property="property.type", ui-select2)
+				optgroup(label="Common")
+					option(value="string") String
+					option(value="int") Integer
+					option(value="float") Float
+				optgroup(label="Extended")
+					option Real
+					option Complex
+					option Ordinal
+					option Cardinal
+					option Prime
+					option Singular
+					option Blob
 			
 			button.done.btn.btn-mini(ng:click="editing=false;")
 				i.icon-ok-sign

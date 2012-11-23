@@ -28,6 +28,7 @@ directive = ($, model) ->
 			loadContext: !-> 
 				_.request.post "#{$scope.endpoint}load/", {data: '{"context": "http://localhost:3000/entityContext.json"}', dataType: "application/json"}
 			export: model.export
+			exported: model.export!
 
 angular.module \modeler
 	.directive \controls, [\jQuery, \Model, \JEFRi, directive]

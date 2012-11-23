@@ -6,6 +6,9 @@
 			a#load_context.btn(data-toggle='modal', href="#contextDialog") Manage Context
 			br
 			a#load_sample.btn(ng:click='loadSample()', href="#loadSample") Load Sample
+			br
+			textarea
+				| {{export() | prettyjson}}
 
 		#contextDialog.modal.fade(ng:model="showContext", ui-modal, data-backdrop="static", aria-labeledby="#contextDialogLabel")
 			.modal-header
@@ -54,8 +57,7 @@
 								div(ng:show="isSaving()")
 									input(ng:model="contextName")
 							#context-export.tab-pane
-								textarea
-									| {{export()}}
+								textarea(ui-codemirror="{theme:'monokai'}", ng-model="exported")
 
 			.modal-footer
 				button.btn(data-dismiss="modal", aria-hidden="true")

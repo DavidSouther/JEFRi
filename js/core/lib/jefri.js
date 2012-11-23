@@ -11,16 +11,16 @@ var JEFRi, pushResult, ref$, prepareHandler$ = function (o){
       prepareHandler$(this);
       this.__event_handler.push(callback);
     }, trigger$ = function (e, p){
-      var advisors, _e, ex, handlers;
+      var i$, ref$, len$, advice, _e, ex, callback;
       prepareHandler$(this);
       this.last = {
         event: e,
         exception: null
       };
-      advisors = this.__event_advisor.length;
-      while ((advisors -= 1) >= 0) {
+      for (i$ = 0, len$ = (ref$ = this.__event_advisor).length; i$ < len$; ++i$) {
+        advice = ref$[i$];
         try {
-          _e = this.__event_advisor[advisors].call(p, e);
+          _e = advice.call(p, e);
           if (_e) {
             this.last.event = e = _e;
           }
@@ -30,9 +30,9 @@ var JEFRi, pushResult, ref$, prepareHandler$ = function (o){
           return false;
         }
       }
-      handlers = this.__event_handler.length;
-      while ((handlers -= 1) >= 0) {
-        this.__event_handler[handlers].call(p, e);
+      for (i$ = 0, len$ = (ref$ = this.__event_handler).length; i$ < len$; ++i$) {
+        callback = ref$[i$];
+        callback.call(p, e);
       }
       return true;
     }, splice$ = [].splice;
@@ -611,16 +611,16 @@ var ref$, prepareHandler$ = function (o){
       o.__event_handler = o.__event_handler || [];
       o.__event_advisor = o.__event_advisor || [];
     }, trigger$ = function (e, p){
-      var advisors, _e, ex, handlers;
+      var i$, ref$, len$, advice, _e, ex, callback;
       prepareHandler$(this);
       this.last = {
         event: e,
         exception: null
       };
-      advisors = this.__event_advisor.length;
-      while ((advisors -= 1) >= 0) {
+      for (i$ = 0, len$ = (ref$ = this.__event_advisor).length; i$ < len$; ++i$) {
+        advice = ref$[i$];
         try {
-          _e = this.__event_advisor[advisors].call(p, e);
+          _e = advice.call(p, e);
           if (_e) {
             this.last.event = e = _e;
           }
@@ -630,9 +630,9 @@ var ref$, prepareHandler$ = function (o){
           return false;
         }
       }
-      handlers = this.__event_handler.length;
-      while ((handlers -= 1) >= 0) {
-        this.__event_handler[handlers].call(p, e);
+      for (i$ = 0, len$ = (ref$ = this.__event_handler).length; i$ < len$; ++i$) {
+        callback = ref$[i$];
+        callback.call(p, e);
       }
       return true;
     };
@@ -707,16 +707,16 @@ var ObjectStore, prepareHandler$ = function (o){
       o.__event_handler = o.__event_handler || [];
       o.__event_advisor = o.__event_advisor || [];
     }, trigger$ = function (e, p){
-      var advisors, _e, ex, handlers;
+      var i$, ref$, len$, advice, _e, ex, callback;
       prepareHandler$(this);
       this.last = {
         event: e,
         exception: null
       };
-      advisors = this.__event_advisor.length;
-      while ((advisors -= 1) >= 0) {
+      for (i$ = 0, len$ = (ref$ = this.__event_advisor).length; i$ < len$; ++i$) {
+        advice = ref$[i$];
         try {
-          _e = this.__event_advisor[advisors].call(p, e);
+          _e = advice.call(p, e);
           if (_e) {
             this.last.event = e = _e;
           }
@@ -726,9 +726,9 @@ var ObjectStore, prepareHandler$ = function (o){
           return false;
         }
       }
-      handlers = this.__event_handler.length;
-      while ((handlers -= 1) >= 0) {
-        this.__event_handler[handlers].call(p, e);
+      for (i$ = 0, len$ = (ref$ = this.__event_handler).length; i$ < len$; ++i$) {
+        callback = ref$[i$];
+        callback.call(p, e);
       }
       return true;
     }, slice$ = [].slice;
