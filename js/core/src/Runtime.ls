@@ -210,10 +210,8 @@
 				# Delete this entity.
 				# Remove it from all relationships, invalidate the ID.
 				_destroy: _.lock !->
-					for rel_name, relationship of definition.relationships
-						if relationship.type is \has_many
-							@[rel_name].remove
-						@[rel_name] null
+					for rel_name of definition.relationships
+						@[rel_name]?remove.call @
 					ec.destroy @
 					@[definition.key] 0
 
@@ -221,7 +219,7 @@
 			# Alias _encode as toJSON for ES5 JSON.stringify!
 			definition.Constructor::toJSON = definition.Constructor::_encode
 
-			# Prepare property mutators and accsessors.
+			# Prepare property mutators and accessors.
 			for field, property of definition.properties
 				_build_mutacc definition, field, property
 
@@ -351,10 +349,7 @@
 					remove: _.lock ->
 						if \is_a isnt relationship.type
 							if relationship.back
-								if \has_a is relationship.type
-									@_relationships[field][relationship.back].remove.call @_relationships[field], @
-								else
-									@_relationships[field][relationship.back] null
+								@_relationships[field]?[relationship.back].remove.call @_relationships[field], @
 						@_relationships[field] = null
 						@[relationship.property] undefined
 						@
