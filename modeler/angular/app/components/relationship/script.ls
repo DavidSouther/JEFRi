@@ -10,17 +10,24 @@ directive = ($, jsp, jefri)->
 		if scope.relationship.to_property! => to = "#to .#{scope.relationship.to_property!}"
 		setTimeout -> jsp.connect $(from), $(to)
 	controller: !($scope)->
-		$scope.relationship.modified :> !(field, value)->
+		$scope.relationship.modified :> _.lock !(field, value)->
+			# BUG IN JEFRI (find not implemented quite right)
+			_find = (type)->
+				found = jefri.find {_type: type, _id: value}
+				for ent in found
+					if ent.id! is value
+						return ent
 			if _(field).isArray! then [field, value] = field
 			if field is \to_id
-				to_rel = jefri.find {_type: \Entity, _id: value}
-				# BUG IN JEFRI (find not implemented)
-				for rel in to_rel
-					if rel.id! is value
-						to_rel = rel
-						break
+				to_rel = _find \Entity
 				$scope.relationship.to to_rel
-				$scope.$apply!
+			if field is \from_property
+				from_property = _find \Property
+				$scope.relationship.from_property from_property.name!
+			if field is \to_property
+				to_property = _find \Property
+				$scope.relationship.to_property to_property.name! 
+			$scope.$apply!
 
 angular.module \modeler
 	.directive \relationship, [\jQuery, \JSPlumb, \JEFRi, directive]
