@@ -343,7 +343,7 @@
 						@_relationships[field] = related
 						resolve_ids.call @, related
 						if \is_a isnt relationship.type
-							if relationship.back then related[relationship.back] @
+							if relationship.back then related?[relationship.back] @
 						# Notify observers
 						@modified <: [field, related]
 						@
@@ -373,8 +373,11 @@
 
 			# Helper for has_a::set
 			resolve_ids = !(related) ->
+				# If related is undefined, unset the property
+				if related is undefined
+					@[relationship.property] undefined
 				# If @'s key is relprop, use it for related
-				if definition.key is relationship.property # Always use this' ID if we can
+				else if definition.key is relationship.property # Always use this' ID if we can
 					related[relationship.to.property] @[relationship.property]!
 				else if related._definition!key is relationship.to.property # Back-up ID
 					@[relationship.property] related[relationship.to.property]!

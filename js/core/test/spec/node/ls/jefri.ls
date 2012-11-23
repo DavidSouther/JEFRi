@@ -56,5 +56,6 @@ describe "jefri", !(a)->
 			foo.bar undefined
 
 			expect foo._relationships.bar .toBeUndefined "Setting to undefined works."
+			done := true
 
 		waitsFor -> done
