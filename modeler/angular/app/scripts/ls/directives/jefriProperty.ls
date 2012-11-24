@@ -7,7 +7,7 @@ JefriProperty = ($)->
 		switch element[0].nodeName
 		| <[ SELECT ]> =>
 			update = !(val)->
-				element.find "option" .filter (-> $ this .attr(\value) is val) .attr \selected, true
+				element.find "option" .filter (-> $ this .attr(\value) is val or $ this .text! is val) .attr \selected, true
 			element.change !->
 				entity[property] element.val!
 				try
