@@ -28,6 +28,11 @@
 				option(disabled) To:
 				option(ng:repeat="property in relationship.to().properties()", value="{{property.id()}}") {{property.name()}}
 			br
+			| Back relationship is:
+			select.back(jefri.property="relationship.back")
+				option(value="") None
+				option(ng:repeat="backrelationship in relationship.to().relationships()", value="{{backrelationship.id()}}") {{backrelationship.name()}}
+			br
 			button.done.btn.btn-mini(ng:click="editing=false;")
 				i.icon-ok-sign
 			button.done.delete.btn.btn-mini(ng:click="editing=false; relationship._destroy()")

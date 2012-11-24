@@ -140,6 +140,9 @@
 				},
 				"from_property": {
 					"type": "string"
+				},
+				"back": {
+					"type": "string"
 				}
 			},
 			"relationships": {
@@ -169,7 +172,7 @@
 				},
 				"export": {
 					"definitions": {
-						"javascript": "var relationship = {type: this.type(), property: this.from_property(), to: {type: this.to().name(), property: this.to_property()}};\nreturn relationship;"
+						"javascript": "var relationship = {type: this.type(), property: this.from_property(), to: {type: this.to().name(), property: this.to_property()}, back: this.back()};\nreturn relationship;"
 					}
 				}
 			}
