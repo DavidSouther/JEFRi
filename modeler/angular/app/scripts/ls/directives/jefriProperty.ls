@@ -15,12 +15,12 @@ JefriProperty = ($)->
 			entity.modified :> !(changed, value)->
 				if _(changed).isArray! then [changed, value] = changed
 				if changed is property then update value
-			# HACK! since Angular probably won't have the <option>s expanded, update at the end of the stack.
+			# Since Angular probably won't have the <option>s expanded, update at the end of the stack.
 			setTimeout (-> update entity[property]!), 0
 		| <[ INPUT ]> =>
 			if 'radio' is element.attr 'type'
 				update = !(val)->
-					element.attr 'checked', val is element.val!
+					if val is element.val! then element.attr 'checked', 'checked'
 				element.change !->
 					entity[property] element.val!
 					try
@@ -28,6 +28,8 @@ JefriProperty = ($)->
 				entity.modified :> !(changed, value)->
 					if _(changed).isArray! then [changed, value] = changed
 					if changed is property then update value
+				# Since Angular probably won't have the {{value}}s expanded, update at the end of the stack.
+				setTimeout (-> update entity[property]!), 0
 				return # Seriously, get the hell out of this link function
 			fallthrough
 		| <[ INPUT TEXTAREA ]> =>
