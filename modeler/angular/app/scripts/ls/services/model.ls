@@ -53,14 +53,17 @@ model = (JEFRi) ->
 				type: \has_many
 				to_property: \router_id
 				from_property: \router_id
-			router-many-hosts .from router .to host
+				back: \router
+			router-many-hosts .from router
 
 			host-a-router = JEFRi.build \Relationship,
 				name: \router
 				type: \has_a
 				to_property: \router_id
 				from_property: \router_id
+				back: \hosts
 			host-a-router .from host .to router
+			router-many-hosts .to host
 
 			@ready <: {}
 
