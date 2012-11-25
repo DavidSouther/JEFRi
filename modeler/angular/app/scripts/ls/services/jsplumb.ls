@@ -21,8 +21,13 @@ JSPlumb = ($)->
 
 	connections = []
 
-	connect = !(a, b)->
-		connections.push plumb.connect {source: a, target: b, overlays: arrows}
+	connect = (a, b)->
+		connection = plumb.connect {source: a, target: b, overlays: arrows}
+		connections.push connection
+		connection
+
+	detach = (conn)->
+		plumb.detach conn
 
 	draggable = !(...)->
 		for node in &
@@ -46,6 +51,7 @@ JSPlumb = ($)->
 				endpoint.setHoverPaintStyle plumbStyles.EndpointHoverStyle
 
 	connect: connect
+	detach: detach
 	draggable: draggable
 	drag:
 		start: startDrag

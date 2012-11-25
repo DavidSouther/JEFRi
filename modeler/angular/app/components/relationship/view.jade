@@ -8,7 +8,7 @@
 		div.edit(ng:show="editing")
 			| Calling
 			br
-			input.name(jefri:property="relationship.name") | ()
+			input.name(jefri:property="relationship.name", type="text") | ()
 			br
 			select(jefri:property="relationship.type")
 				option(value="is_a") Is a
@@ -29,12 +29,12 @@
 				option(ng:repeat="property in relationship.to().properties()", value="{{property.id()}}") {{property.name()}}
 			br
 			| Back relationship is:
-			select.back(jefri.property="relationship.back")
+			select.back(jefri:property="relationship.back")
 				option(value="") None
 				option(ng:repeat="backrelationship in relationship.to().relationships()", value="{{backrelationship.id()}}") {{backrelationship.name()}}
 			br
 			button.done.btn.btn-mini(ng:click="editing=false;")
 				i.icon-ok-sign
-			button.done.delete.btn.btn-mini(ng:click="editing=false; relationship._destroy()")
+			button.done.delete.btn.btn-mini(ng:click="editing=false; destroy()")
 				i.icon-remove
 			br

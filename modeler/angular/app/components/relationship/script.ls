@@ -1,15 +1,22 @@
 directive = ($, jsp, jefri)->
-	restrict: \E
-	template: $.template \.relationship
-	replace: true
-	# When rendering a relationship, also connect the plumbing.
-	link: !(scope)->
+	plumb = !(scope)->
 		from = ".entity.#{scope.relationship.from!.name!}"
 		to = ".entity.#{scope.relationship.to!.name!}"
 		if scope.relationship.from_property! => from = "#from .#{scope.relationship.from_property!}"
 		if scope.relationship.to_property! => to = "#to .#{scope.relationship.to_property!}"
-		setTimeout -> jsp.connect $(from), $(to)
+		if scope.connector => jsp.detach scope.connector
+		scope.connector := jsp.connect $(from), $(to)
+
+	restrict: \E
+	template: $.template \.relationship
+	replace: true
+	link: !(scope)->
+		# When rendering a relationship, also connect the plumbing.
+		setTimeout !-> plumb scope
 	controller: !($scope)->
+		$scope.destroy = !->
+			jsp.detach $scope.connector
+			$scope.relationship._destroy!
 		$scope.relationship.modified :> _.lock !(field, value)->
 			# BUG IN JEFRI (find not implemented quite right)
 			_find = (type)->
@@ -19,16 +26,24 @@ directive = ($, jsp, jefri)->
 						return ent
 			if _(field).isArray! then [field, value] = field
 			if value is undefined then return
-			if field is \to_id
+			switch field
+			| \to_id =>
 				to_rel = _find \Entity
 				$scope.relationship.to to_rel
-			if field is \from_property
+			| \from_property =>
 				from_property = _find \Property
 				$scope.relationship.from_property from_property.name!
-			if field is \to_property
+			| \to_property =>
 				to_property = _find \Property
 				$scope.relationship.to_property to_property.name! 
+			| \back =>
+				if value is ""
+					$scope.relationship.back ""
+				else
+					back = _find \Relationship
+					$scope.relationship.back back.name!
 			try $scope.$apply!
+			plumb $scope
 
 angular.module \modeler
 	.directive \relationship, [\jQuery, \JSPlumb, \JEFRi, directive]
