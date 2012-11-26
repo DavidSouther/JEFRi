@@ -210,11 +210,12 @@
 				# Delete this entity.
 				# Remove it from all relationships, invalidate the ID.
 				_destroy: _.lock !->
+					@destroying <: {}
 					for rel_name of definition.relationships
 						@[rel_name]?remove.call @
 					ec.destroy @
 					@[definition.key] 0
-
+					@destroyed <: {}
 
 			# Alias _encode as toJSON for ES5 JSON.stringify!
 			definition.Constructor::toJSON = definition.Constructor::_encode

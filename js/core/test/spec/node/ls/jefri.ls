@@ -59,3 +59,34 @@ describe "jefri", !(a)->
 			done := true
 
 		waitsFor -> done
+
+	it "triggers entity destruction events", !->
+		done = false
+		runtime = new jefri.Runtime "",
+			debug:
+				context:
+					entities:
+						Foo:
+							key: "foo_id",
+							properties:
+								foo_id: {type: "string"}
+
+		runtime.ready.done !->
+			expect runtime._instances.Foo .toBeDefined "Runtime instantiated."
+
+			foo = runtime.build "Foo"
+
+			destroying = jasmine.createSpy!
+			destroyed = jasmine.createSpy!
+
+			foo.destroying :> destroying
+			foo.destroyed :> destroyed
+
+			foo._destroy!
+
+			expect destroying .toHaveBeenCalled!
+			expect destroyed .toHaveBeenCalled!
+
+			done := true
+
+		waitsFor -> done
