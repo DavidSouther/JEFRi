@@ -1,18 +1,19 @@
 JSPlumb = ($)->
 	color = \gray
+	hoverColor = \#ec9f2e
 	arrowCommon = 
-		foldback:0.7
-		fillStyle:color, width:14
-	arrows = [[ \Arrow, { location:0.7 }, arrowCommon ]]
+		foldback: 0.7
+		fillStyle: color
+		width: 14
+	arrows = [ \Arrow, { location: 0.2 }, arrowCommon ]
 
 	plumbStyles =
 		Connector : [ \Flowchart ]
-		DragOptions : { cursor: \pointer, zIndex:2000 }
-		ConnectorZIndex: 5
-		PaintStyle : { strokeStyle:color, lineWidth:2 }
-		EndpointStyle : { radius:9, fillStyle:color }
-		HoverPaintStyle : {strokeStyle:\#ec9f2e }
-		EndpointHoverStyle : {fillStyle:\#ec9f2e }
+		ConnectorZIndex: -5
+		PaintStyle : { strokeStyle: color, lineWidth:2 }
+		EndpointStyle : { radius:9, fillStyle: color }
+		HoverPaintStyle : { strokeStyle: hoverColor }
+		EndpointHoverStyle : { fillStyle: hoverColor }
 		Anchors :  [ \RightMiddle, \LeftMiddle ]
 		Container: $ \.context:first
 		RenderMode: \svg
@@ -21,13 +22,21 @@ JSPlumb = ($)->
 
 	connections = []
 
-	connect = (a, b)->
-		connection = plumb.connect {source: a, target: b, overlays: arrows}
+	connect = (a, b, label)->
+		overlays = [arrows]
+		if label
+			overlays .push [ \Label, {label: label, location: 0.1}]
+		connection = plumb.connect do
+			source: a
+			target: b
+			overlays: overlays
 		connections.push connection
 		connection
 
-	detach = (conn)->
+	detach = !(conn)->
 		plumb.detach conn
+		if (t = connections.indexOf conn) > -1
+			connections[t to t] = []
 
 	draggable = !(...)->
 		for node in &

@@ -1,11 +1,13 @@
 directive = ($, jsp, jefri)->
 	plumb = !(scope)->
+		if !scope.relationship => return
 		from = ".entity.#{scope.relationship.from!.name!}"
 		to = ".entity.#{scope.relationship.to!.name!}"
 		if scope.relationship.from_property! => from = "#from .#{scope.relationship.from_property!}"
 		if scope.relationship.to_property! => to = "#to .#{scope.relationship.to_property!}"
 		if scope.connector => jsp.detach scope.connector
-		scope.connector := jsp.connect $(from), $(to)
+		label = "#{scope.relationship.from!name!}::#{scope.relationship.name!}"
+		scope.connector := jsp.connect $(from), $(to)#, label
 
 	restrict: \E
 	template: $.template \.relationship
@@ -14,10 +16,7 @@ directive = ($, jsp, jefri)->
 		# When rendering a relationship, also connect the plumbing.
 		setTimeout !-> plumb scope
 	controller: !($scope)->
-		$scope.destroy = !->
-			jsp.detach $scope.connector
-			$scope.relationship._destroy!
-		$scope.relationship.modified :> _.lock !(field, value)->
+		modified = _.lock !(field, value)->
 			# BUG IN JEFRI (find not implemented quite right)
 			_find = (type)->
 				found = jefri.find {_type: type, _id: value}
@@ -44,6 +43,21 @@ directive = ($, jsp, jefri)->
 					$scope.relationship.back back.name!
 			try $scope.$apply!
 			plumb $scope
+		$scope.relationship.modified :> modified
+
+		$scope.relationship.destroying :> !->
+			$scope.relationship.modified -:> modified
+			jsp.detach $scope.connector
+			$scope.connector = null
+
+		$scope.relationship.destroyed :> !->
+			$scope.relationship = null
+
+		$scope.entity.destroyed :> !->
+			$scope.relationship?_destroy!
+		$scope.relationship.to!destroyed :> !->
+			$scope.relationship?_destroy!
+			# Do destroy this relationship
 
 angular.module \modeler
 	.directive \relationship, [\jQuery, \JSPlumb, \JEFRi, directive]
