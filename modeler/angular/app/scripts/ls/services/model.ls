@@ -73,16 +73,16 @@ model = (JEFRi) ->
 				name: "entity_#{@newEntityId++}"
 
 		listContexts: (storeType, storeOptions)->
-			t = JEFRi.transaction!
+			t = new window.JEFRi.Transaction!
 			t.add _type: \Context
 			storeOptions <<<
 				runtime: JEFRi
 			s = new window.JEFRi[storeType](storeOptions)
 			s.execute 'get', t
 
-		Save: !(store, name, storeOptions)->
+		Save: (store, name, storeOptions)->
 			@context.name name
-			t = JEFRi.transaction!
+			t = new window.JEFRi.Transaction!
 			t.add @context
 			for entity in @context.entities!
 				t.add entity
@@ -95,9 +95,9 @@ model = (JEFRi) ->
 			s = new window.JEFRi[store](storeOptions)
 			s.execute 'persist', t
 
-		Load: !(store, name, storeOptions)->
+		Load: (store, name, storeOptions)->
 			@context.name name
-			t = JEFRi.transaction!
+			t = new window.JEFRi.Transaction!
 			t.add id: name, _type: \Context, entities: { properties: {}, relationships: {} }
 			storeOptions <<<
 				runtime: JEFRi
@@ -105,7 +105,7 @@ model = (JEFRi) ->
 			s.execute 'get', t  .then !(results)~>
 				@context = results.entities[0]
 				@context.entities!
-				@loaded <: {}
+				@ready <: {}
 
 		export: ->
 			@context?.export!
