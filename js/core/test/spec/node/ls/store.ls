@@ -8,7 +8,7 @@ describe "JEFRi ObjectStore", !(a)->
 			runtime = new jefri.Runtime "http://localhost:8000/test/qunit/min/context/jefri.json"
 			s = new jefri.ObjectStore {runtime: runtime}
 			runtime.ready.then !->
-				transaction = runtime.transaction!
+				transaction = new jefri.Transaction!
 
 				transaction.add do
 					[
@@ -26,12 +26,11 @@ describe "JEFRi ObjectStore", !(a)->
 						{"_type":"Relationship","_id":"fbaf51e3-de97-4bc0-b7b4-34ef05b1fd2e","relationship_id":"fbaf51e3-de97-4bc0-b7b4-34ef05b1fd2e","name":"hosts","type":"has_many","to_id":"d8fcce7e-d0fc-44e8-bef4-92fc73c9f9f6","to_property":"router_id","from_id":"26631940-3166-44d8-bdaf-d52a1c56b6d1","from_property":"router_id","back":"router"}
 					], true
 				
-				s.execute 'persist', transaction .then !(data)->
-					transaction = runtime.transaction!
+				s.persist transaction .then !(data)->
+					transaction = new jefri.Transaction!
 					transaction.add {"_type": \Context, "entities": {"properties": {}, "relationships": {}}}
-					s.execute 'get', transaction .then !(data)->
+					s.get transaction .then !(data)->
 						expect data.entities.length .toBe 12, "Got all entities back."
-						done = true
+						done := true
 
 		waitsFor -> done
-

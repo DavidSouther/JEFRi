@@ -6,8 +6,7 @@ describe "jefri", !(a)->
 		done = false
 		runs !->
 			runtime = new jefri.Runtime!
-			runtime.ready.then !->
-				done := true
+			done := true
 
 		waitsFor -> done
 

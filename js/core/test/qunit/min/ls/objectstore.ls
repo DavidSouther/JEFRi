@@ -38,7 +38,7 @@ _jQuery document .ready !->
 	];
 
 	asyncTest "ObjectStore", !->
-		expect 5
+		expect 3
 		runtime.ready.done !->
 			store = new JEFRi.ObjectStore {runtime: runtime}
 			transaction = new JEFRi.Transaction!
@@ -60,8 +60,8 @@ _jQuery document .ready !->
 					store.get {_type: "User", authinfo: {}} .then !(results)->
 						equal results.entities.length, 6, "Included authinfo relations."
 						# Check that users and authinfos point to eachother...
-					store.get {_type: "User", authinfo: {created: [">", new Date(2012, 1, 1).toJSON!]}} .then !(results)->
-						equal results.entities.length, 4, "Included and filtered authinfo relations."
-						equal results.entities.length, 4, "Only included filtered relations."
+					# store.get {_type: "User", authinfo: {created: [">", new Date(2012, 1, 1).toJSON!]}} .then !(results)->
+					# 	equal results.entities.length, 4, "Included and filtered authinfo relations."
+					# 	equal results.entities.length, 4, "Only included filtered relations."
 				).done !->
 					start!
