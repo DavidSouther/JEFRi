@@ -6,9 +6,10 @@
  * Licensed under the MIT license.
  */
 
-require! { express, jefri, 'jefri-filestore' }
+require! { express, 'jefri-filestore' }
 
-runtime = new jefri.Runtime "", store: jefri.FileStore
+runtime = new JEFRi.Runtime ""
+store = new jefriFilestore runtime: runtime
 
 app = express!
 
@@ -21,19 +22,19 @@ app.use !(req, res, next)->
 app.post '/load', !(req, res)->
 	runtime.load req.body.context
 	runtime.ready.then !->
-		res.send "Loaded #{req.body.context}\n"
+		res.jsonp {loaded: req.body.context}
 
 app.post '/get', !(req, res)->
-	transaction = runtime.transaction!
+	transaction = new JEFRi.Transaction!
 	transaction.add req.body.entities
-	transaction.get!then !(gotten)->
-		res.send JSON.stringify(gotten) + \\n
+	store.get transaction .then !(gotten)->
+		res.jsonp gotten
 
 app.post '/persist', !(req, res)->
-	transaction = runtime.transaction!
+	transaction = new JEFRi.Transaction!
 	transaction.add req.body.entities, true
-	transaction.persist!then !(gotten)->
-		res.send JSON.stringify(gotten) + \\n
+	store.persist transaction .then !(gotten)->
+		res.jsonp gotten
 
 jefri_server = 
 	serve: !->
