@@ -9,23 +9,42 @@
 		(options) ->
 			@settings = { version: "1.0", size: Math.pow(2, 16) }
 			_.extend @settings, options
+			@{}_store
 			if not @settings.runtime
 				throw {message: "LocalStore instantiated without runtime to reference."}
+
+		# #### _set*(key, value)*
+		# Generic key/value setter, should be overwritten by extending classes.
+		_set: !(key, value)->
+			@_store[key] = value
+
+		# #### _get*(key)*
+		# Generic key/value getter, should be overwritten by extending classes.
+		_get: (key)->
+			@_store[key] || '{}'
 
 		# ### execute*(type, transaction)*
 		# Run the transaction.
 		execute: (type, transaction) ->
-			transactionData = transaction.encode!
-			@sending <: transactionData
-			if  type == "persist"
-				@persist transactionData
-			else if  type == "get"
-				@get transactionData
-			_.Deferred!resolve transactionData
+			transaction = _transactify transaction
+			@sending <: transaction
+			@"do_#{type}" transaction
+			@settings.runtime.expand transaction
+			_.Deferred!resolve transaction
 
-		# ### persist*(transction)*
+		# #### get*(transaction)*
+		# Execute as a `get` transaction.
+		get: (transaction)->
+			@execute 'get', transaction
+
+		# #### persist*(transaction)*
+		# Execute as a `persist` transaction.
+		persist: (transction)->
+			@execute 'persist', transction
+
+		# ### do_persist*(transction)*
 		# Treat the transaction as a persistence call. Save the data.
-		persist: (transaction) ->
+		do_persist: (transaction) ->
 			transaction.entities =
 				for entity in transaction.entities
 					@_save entity
@@ -42,32 +61,20 @@
 			# Return the bare encoded object.
 			entity
 
-		# #### _set*(key, value)*
-		# Generic key/value setter, should be overwritten by extending classes.
-		_set: !(key, value)->
-			@{}_store[key] = value
-
-		# #### _get*(key)*
-		# Generic key/value getter, should be overwritten by extending classes.
-		_get: (key)->
-			@_store?[key] || '{}'
-
-		# ### get*(transaction)*
+		# ### do_get*(transaction)*
 		# Treat the transaction as a lookup. Find all data matching the specs.
-		get: (transaction) ->
+		do_get: (transaction) ->
 			# Let _lookup handle the actual lookups. Each spec is an `or` op, so flatten then remove duplicates.
 			ents = for entity in transaction.entities
 				@_lookup entity
 			ents = _.flatten ents
 			transaction.entities = _.uniq(
 				# The lookup
-				_.filter(ents, -> it)
+				_(ents).filter -> it
 				false,
 				# Uniq based on type.id
 				~> it._type + '.' + it[@settings.runtime.definition(it._type).key]
 			)
-			# Put the entities back in the runtime
-			@settings.runtime.expand transaction, "gotten"
 			transaction
 
 		# #### _find*(entity)*
@@ -114,8 +121,8 @@
 						# Giveth, or taketh away
 						if  related.length
 							give.push  related
-						else
-							take.push i
+						# else
+						# 	take.push i
 					# Remove the indicies which didn't have a relation.
 					take.reverse!
 					#
@@ -201,5 +208,11 @@
 						if entity[name] is field
 							return true
 					return false
+
+		_transactify = (transaction)->
+			if not _(transaction.encode).isFunction!
+				transaction = new JEFRi.Transaction transaction
+			return transaction.encode!
+
 
 	JEFRi.ObjectStore = ObjectStore

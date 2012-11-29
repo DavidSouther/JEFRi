@@ -30,8 +30,6 @@ test("Runtime Prototype", function() {
 	ok(runtime.build, "JEFRi.Runtime::build");
 	ok(runtime.intern, "JEFRi.Runtime::intern");
 	ok(runtime.expand, "JEFRi.Runtime::expand");
-	ok(runtime.save_new, "JEFRi.Runtime::save_new");
-	ok(runtime.save_all, "JEFRi.Runtime::save_all");
 });
 
 asyncTest("Instantiate Runtime", function() {
@@ -61,9 +59,7 @@ asyncTest("Instantiate Runtime", function() {
 		equal(authinfo._relationships.user, null, "Relationship cleared.");
 		equal(user._relationships.authinfo, null, "Remote relationship cleared.");
 		equal(runtime._instances.Authinfo[aid], undefined, "Removed from runtime instances.");
-		equal(runtime._new.length, 1, "Seemingly removed from runtime._new");
-
-
+		
 		var user2 = runtime.build("User", {name: "portaj", address: "rurd4me@example.com"});
 		var authinfo2 = user2.authinfo();
 		ok(authinfo2, "Default relationship created.");
@@ -79,23 +75,14 @@ asyncTest("Instantiate Runtime", function() {
 });
 
 asyncTest("Runtime Features", function() {
-	expect(3);
+	expect(2);
 	var runtime = new JEFRi.Runtime("/test/qunit/min/context/user.json", {storeURI: "/test/"});
 	runtime.ready.done(function(){
 		var user = runtime.build("User", {name: "southerd", address: "davidsouther@gmail.com"});
 		ok(user._runtime, "Entity has reference to creating runtime.");
 
 		ok(_.isEntity(user), "isEntity checks correctly.");
-
-		d1 = _.Deferred();
-		runtime.get_first({_type: 'User', user_id: user.id()}).then(function(first){
-			equal(first.id(), user.id(), "Got user by id using get_first.");
-			d1.resolve();
-		});
-
-		_.when(d1).then(function(){
-			start();
-		});
+		start();
 	});
 });
 

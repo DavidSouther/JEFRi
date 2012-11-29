@@ -25,6 +25,8 @@
 
 	# ### Runtime Constructor
 	JEFRi.Runtime = (contextUri, options, protos) ->
+		if not @ instanceof JEFRi.Runtime => return new JEFRi.Rutime contextUri, options, protos
+
 		# The ec reference for entity prototypes
 		ec = @
 
@@ -38,15 +40,13 @@
 
 		# Fill in all the privileged properties
 		settings =
-				# The location of our context
-				contextUri: contextUri,
 				# If an entity already exists, does JEFRi update or replace?
-				updateOnIntern: true,
+				updateOnIntern: true
 				# The constructor for the default store.
 				store: JEFRi.LocalStore
 		settings <<<< options
 
-		@ <<<<
+		@ <<<
 			settings: settings
 
 			ready: ready.promise!
@@ -60,29 +60,6 @@
 
 			# In-memory store of JEFRi entities.
 			_instances: {}
-
-			# List of entities that have been built, but not persisted.
-			_new: []
-
-			# Collection of entities that have modifications since their inception or last persistence. Partitioned by types.
-			_modified:
-				# Some helper methods to manage modified entities.
-				# Add an entity to the modified set.
-				set: !(entity) ~>
-					# Check if the type exists yet
-					if not @_modified[entity._type!]
-						# Add the type, since we didn't have it before.
-						@_modified[entity._type!] = {}
-
-					# Add the entity to the bucket.
-					@_modified[entity._type!][entity.id!] = entity
-
-				# Remove an entity from the modified set.
-				remove: !(entity) ~>
-					id = entity.id!
-					type = @_modified[entity._type!]
-					type[id] = null
-					delete type[id]
 
 		# Build the default store
 		@_store = new @settings.store {runtime: @}
@@ -152,7 +129,6 @@
 						_new: false
 						_modified:
 							_count: 0
-					ec._modified.remove(@)
 				return @
 
 			#Set up the prototype for any of this entity.
@@ -168,7 +144,7 @@
 
 				# Get this entity's ID.
 				id: (full) ->
-					(if full then "#{@_type!}/" else "") + @[definition.key]!
+					"#{if full => "#{@_type!}/" else ""}#{@[definition.key]!}"
 
 				# Find the status of an entity.
 				_status: ->
@@ -260,15 +236,11 @@
 						if (!@_modified[field])
 							@_modified[field] = @_fields[field]
 							@_modified._count += 1
-							ec._modified.set(@)
 						else
 							# It might be getting set to the old value...
 							if (@_modified[field] is value)
 								delete @_modified[field]
 								@_modified._count -= 1
-							# If it was the last property, remove from the context's modified list.
-							if (@_modified._count is 0)
-								ec._modified.remove(@)
 
 						# Notify observers
 						@modified <: [field, value]
@@ -397,18 +369,17 @@
 				fn = _.noop
 			definition.Constructor::[method] = fn
 
-		@load = (contextUri)->
+		@load = (contextUri, prototypes)->
 			_.request contextUri .then !(data)->
 				data = data || "{}"
 				data = if _.isString(data) then JSON.parse(data) else data
-				_set_context(data, protos)
+				_set_context(data, prototypes)
 
 		# Prepare the runtime with the given contexts.
 		if (options && options.debug)
 			# The context object was provided by the caller
 			_set_context(options.debug.context, protos)
-		else if @settings.contextUri?
-			@load @settings.contextUri
+		if contextUri => @load contextUri, protos
 		@
 
 	# #### Entity Array helper
@@ -423,8 +394,6 @@
 	JEFRi.Runtime:: <<<
 		# Reset the runtime's data, maintains context definitions.
 		clear: ->
-			@_modified = {}
-			@_new = []
 			@_instances = {}
 			@
 
@@ -438,6 +407,7 @@
 		extend: (type, extend) ->
 			if (@_context.entities[type])
 				@_context.entities[type].Constructor:: <<< extend::
+			@
 
 		# Return the canonical memory reference of the entity.
 		intern: (entity, updateOnIntern) ->
@@ -481,7 +451,6 @@
 					instance._fields <<< r._fields
 					return instance
 			@_instances[type][r.id!] = r
-			@_new.push(r)
 			return r
 
 		# Expand and intern a transaction.
@@ -500,20 +469,12 @@
 
 		# Completely remove an entity from this runtime
 		destroy: (entity)->
-			@_modified.remove entity
 			delete @_instances[entity._type!][entity.id!]
-			t = _ @_new .indexBy JEFRi.EntityComparator entity
-			if (t > -1) then @_new[t to t] = []
 			@
-
-		# Prepare a new transaction
-		transaction: (spec) ->
-			spec = spec || []
-			return new JEFRi.Transaction(spec, @_store)
 
 		# Return an interned entity from the local instance matching spec.
 		#
-		# Spec requires an _type property and the entity key.
+		# Spec requires an _type property and either the entity key or _id set.
 		find: (spec) ->
 			if (typeof spec is "string")
 				spec = {_type : spec}
@@ -521,7 +482,7 @@
 			r = @definition(spec._type)
 			results = @_instances[spec._type]
 
-			if (spec.hasOwnProperty(r.key))
+			if spec.hasOwnProperty r.key || spec.hasOwnProperty '_id'
 				# If a key is set, return only that result.
 				if (results[spec[r.key]])
 					to_return.push(results[spec[r.key]])
@@ -531,86 +492,3 @@
 					to_return.push result
 
 			return to_return
-
-		# Return a non-array of interned entities matching spec.
-		#
-		# If spec is an array with multiple elements, and ANY ONE matches, the
-		# result array will have only the matching entities. If NONE matches, the
-		# result array will have one entity per spec.
-		get: (spec) ->
-			spec = if _.isArray(spec) then spec else [spec]
-			results = {}
-			transaction = @transaction!
-			deferred = _.Deferred!
-
-			results.push = pushResult
-
-			for _spec in spec
-				#Add the queries
-				_type = if (_spec._type instanceof Function) then _spec._type! else _spec._type
-				def = @definition(_type)
-				id = _spec[def.key]
-
-				#Check if the ID is set and exists locally
-				if ( id? && @_instances[_type][id])
-					#It is local, so use that one
-					results.push(@_instances[_type][id])
-				else
-					#Otherwise, add to transaction
-					transaction.add(_spec)
-
-			# If transaction is not empty
-			if (transaction.entities.length > 0)
-				# Run the transaction
-				transaction.get!.done (transaction) ->
-					# Merge the result sets, adding `gotten` things to `had` things.
-					for entity in transaction.entities
-						results.push entity
-					deferred.resolve(results, transaction.attributes)
-			else
-				# just resolve...
-				deferred.resolve(results, {})
-
-			return deferred.promise!
-
-		# Pass the spec to get, and just pop the first entity.
-		get_first: (spec) ->
-			spec = if spec instanceof Array then spec[0] else spec # get_first only makes sense with one spec.
-			d = _.Deferred!
-
-			@get(spec).then (data, meta) ->
-				_type = if spec._type instanceof Function then spec._type! else spec._type
-				d.resolve(data[_type].pop!, meta)
-
-			return d.promise!
-
-		# Save all the new entities.
-		save_new: (store) ->
-			transaction = @transaction!
-			@saving <: {}
-
-			#Add all new entities to the transaction
-			transaction.add(@_new)
-
-			return @_save(transaction, store)
-
-		# Save all entities with changes, including new entities.
-		save_all: (store) ->
-			transaction = @transaction!
-			@saving <: {}
-
-			#Add all new entities to the transaction
-			# Modified is keyed by type...
-			for t, modified of @_modified
-				# ...and each key contains an object of entity instances
-				for k, entity of modified
-					entity._persist(transaction)
-
-			for neu in @_new
-				@persist neu
-
-			@_save transaction, store
-
-		_save: (transaction, store) ->
-			store = store || @_store
-			return store.execute('persist', transaction).then _.bind(@expand, @)

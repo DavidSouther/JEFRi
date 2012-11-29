@@ -11,7 +11,7 @@
 		@ <<<
 			attributes: {}
 			store: store
-			entities: if (spec instanceof Array) then spec else [spec]
+			entities: if (spec instanceof Array) then spec else (if spec then [spec] else [])
 
 	# ### Prototype
 	JEFRi.Transaction:: <<<

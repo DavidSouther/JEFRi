@@ -7,21 +7,22 @@ _jQuery document .ready !->
 	module do
 		"Object Storage"
 		setup: !->
-			# Clear localStorage
-			for o of localStorage
-				delete localStorage[o]
-
 			# Global in testing environment.
 			runtime := new JEFRi.Runtime "/test/qunit/min/context/user.json", store: JEFRi.ObjectStore
 
 	asyncTest "ObjectStore minimal save", !->
 		expect 3
 		runtime.ready.done !->
+			store = new JEFRi.ObjectStore {runtime: runtime}
+			transaction = new JEFRi.Transaction!
+
 			user = runtime.build "User", {name: "southerd", address: "davidsouther@gmail.com"}
 			user.authinfo runtime.build 'Authinfo', {}
-			authinfo = user.authinfo 
+			authinfo = user.authinfo!
 
-			runtime.save_new!then !(transaction)->
+			transaction.add user, authinfo
+
+			store.persist transaction .then !(transaction)->
 				ok transaction.entities && transaction.attributes, "Transaction entities and attributes."
 				equal transaction.entities.length, 2, "Transaction should only have 2 entities."
 				nkeys = _.keys transaction.entities[0]
@@ -39,23 +40,28 @@ _jQuery document .ready !->
 	asyncTest "ObjectStore", !->
 		expect 5
 		runtime.ready.done !->
+			store = new JEFRi.ObjectStore {runtime: runtime}
+			transaction = new JEFRi.Transaction!
+
 			for u in users
 				user = runtime.build "User", {name: u[0], address: u[1]}
 				authinfo = runtime.build "Authinfo", _.extend({authinfo_id: user.id!}, u[2])
 				user.authinfo authinfo
+				transaction.add user
+				transaction.add authinfo
 
-			runtime.save_new!then !->
+			store.persist transaction .then !->
 				_.when(
-					runtime.get {_type: "User"} .then (results)->
-						equal results.User.length, 3, "Find users."
+					store.get {_type: "User"} .then !(results)->
+						equal results.entities.length, 3, "Find users."
 
-					runtime.get {_type: "Authinfo", username: "southerd"} .then (results)->
-						equal results.Authinfo.length, 1, "Find southerd."
-					runtime.get {_type: "User", authinfo: {}} .then (results)->
-						equal results.Authinfo.length, 3, "Included authinfo relations."
+					store.get {_type: "Authinfo", username: "southerd"} .then !(results)->
+						equal results.entities.length, 1, "Find southerd."
+					store.get {_type: "User", authinfo: {}} .then !(results)->
+						equal results.entities.length, 6, "Included authinfo relations."
 						# Check that users and authinfos point to eachother...
-					runtime.get {_type: "User", authinfo: {created: [">", new Date(2012, 1, 1).toJSON!]}} .then (results)->
-						equal results.Authinfo.length, 2, "Included and filtered authinfo relations."
-						equal results.User.length, 2, "Only included filtered relations."
+					store.get {_type: "User", authinfo: {created: [">", new Date(2012, 1, 1).toJSON!]}} .then !(results)->
+						equal results.entities.length, 4, "Included and filtered authinfo relations."
+						equal results.entities.length, 4, "Only included filtered relations."
 				).done !->
 					start!

@@ -18,8 +18,8 @@ _jQuery document .ready !->
 			user.authinfo runtime.build 'Authinfo', {}
 			authinfo = user.authinfo!
 
-			transaction = runtime.transaction!
-			transaction.add runtime._new
+			transaction = new JEFRi.Transaction!
+			transaction.add user, authinfo
 
 			equal transaction.entities.length, 2, "Has both entities."
 			start!
