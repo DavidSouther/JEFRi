@@ -1,4 +1,4 @@
-// JEFRi: Entity Framework Runtime - v1.0.0 - 2012-11-22
+// JEFRi: Entity Framework Runtime - v1.0.0 - 2012-11-29
 // http://www.jefri.org
 // Copyright (c) 2012 David Souther; Licensed MIT
 
@@ -11,16 +11,16 @@ var JEFRi, pushResult, ref$, prepareHandler$ = function (o){
       prepareHandler$(this);
       this.__event_handler.push(callback);
     }, trigger$ = function (e, p){
-      var i$, ref$, len$, advice, _e, ex, callback;
+      var advisors, _e, ex, handlers;
       prepareHandler$(this);
       this.last = {
         event: e,
         exception: null
       };
-      for (i$ = 0, len$ = (ref$ = this.__event_advisor).length; i$ < len$; ++i$) {
-        advice = ref$[i$];
+      advisors = this.__event_advisor.length;
+      while ((advisors -= 1) >= 0) {
         try {
-          _e = advice.call(p, e);
+          _e = this.__event_advisor[advisors].call(p, e);
           if (_e) {
             this.last.event = e = _e;
           }
@@ -30,9 +30,9 @@ var JEFRi, pushResult, ref$, prepareHandler$ = function (o){
           return false;
         }
       }
-      for (i$ = 0, len$ = (ref$ = this.__event_handler).length; i$ < len$; ++i$) {
-        callback = ref$[i$];
-        callback.call(p, e);
+      handlers = this.__event_handler.length;
+      while ((handlers -= 1) >= 0) {
+        this.__event_handler[handlers].call(p, e);
       }
       return true;
     }, splice$ = [].splice;
@@ -51,6 +51,9 @@ _.mixin({
 });
 JEFRi.Runtime = function(contextUri, options, protos){
   var ec, ready, settings, _default, _set_context, _build_constructor, _build_prototype, _build_mutacc, _build_relationship, _build_method, this$ = this;
+  if (!this instanceof JEFRi.Runtime) {
+    return new JEFRi.Rutime(contextUri, options, protos);
+  }
   ec = this;
   if (!_.isString(contextUri)) {
     protos = options;
@@ -59,38 +62,19 @@ JEFRi.Runtime = function(contextUri, options, protos){
   }
   ready = _.Deferred();
   settings = {
-    contextUri: contextUri,
     updateOnIntern: true,
     store: JEFRi.LocalStore
   };
   importAll$(settings, options);
-  importAll$(this, {
-    settings: settings,
-    ready: ready.promise(),
-    _context: {
-      meta: {},
-      contexts: {},
-      entities: {},
-      attributes: {}
-    },
-    _instances: {},
-    _new: [],
-    _modified: {
-      set: function(entity){
-        if (!this$._modified[entity._type()]) {
-          this$._modified[entity._type()] = {};
-        }
-        this$._modified[entity._type()][entity.id()] = entity;
-      },
-      remove: function(entity){
-        var id, type;
-        id = entity.id();
-        type = this$._modified[entity._type()];
-        type[id] = null;
-        delete type[id];
-      }
-    }
-  });
+  this.settings = settings;
+  this.ready = ready.promise();
+  this._context = {
+    meta: {},
+    contexts: {},
+    entities: {},
+    attributes: {}
+  };
+  this._instances = {};
   this._store = new this.settings.store({
     runtime: this
   });
@@ -137,11 +121,9 @@ JEFRi.Runtime = function(contextUri, options, protos){
       this._id = this.id(true);
       import$(this.prototype, proto.prototype);
       observe$.call(this.persisted = this.persisted || {}, function(){
-        this._new = false;
-        this._modified = {
+        return this._new = false, this._modified = {
           _count: 0
-        };
-        return ec._modified.remove(this);
+        }, this;
       }, this);
       return this;
     };
@@ -155,7 +137,7 @@ JEFRi.Runtime = function(contextUri, options, protos){
       return type;
     };
     ref$.id = function(full){
-      return (full ? this._type() + "/" : "") + this[definition.key]();
+      return (full ? this._type() + "/" : "") + "" + this[definition.key]();
     };
     ref$._status = function(){
       var state;
@@ -194,16 +176,16 @@ JEFRi.Runtime = function(contextUri, options, protos){
       return min;
     };
     ref$._destroy = _.lock(function(){
-      var rel_name, ref$, relationship;
-      for (rel_name in ref$ = definition.relationships) {
-        relationship = ref$[rel_name];
-        if (relationship.type === 'has_many') {
-          this[rel_name].remove;
+      var rel_name, ref$;
+      trigger$.call(this.destroying = this.destroying || {}, {}, this);
+      for (rel_name in definition.relationships) {
+        if ((ref$ = this[rel_name]) != null) {
+          ref$.remove.call(this);
         }
-        this[rel_name](null);
       }
       ec.destroy(this);
       this[definition.key](0);
+      trigger$.call(this.destroyed = this.destroyed || {}, {}, this);
     });
     definition.Constructor.prototype.toJSON = definition.Constructor.prototype._encode;
     for (field in ref$ = definition.properties) {
@@ -238,14 +220,10 @@ JEFRi.Runtime = function(contextUri, options, protos){
         if (!this._modified[field]) {
           this._modified[field] = this._fields[field];
           this._modified._count += 1;
-          ec._modified.set(this);
         } else {
           if (this._modified[field] === value) {
             delete this._modified[field];
             this._modified._count -= 1;
-          }
-          if (this._modified._count === 0) {
-            ec._modified.remove(this);
           }
         }
         return trigger$.call(this.modified = this.modified || {}, [field, value], this);
@@ -318,19 +296,20 @@ JEFRi.Runtime = function(contextUri, options, protos){
         resolve_ids.call(this, related);
         if ('is_a' !== relationship.type) {
           if (relationship.back) {
-            related[relationship.back](this);
+            if (related != null) {
+              related[relationship.back](this);
+            }
           }
         }
         trigger$.call(this.modified = this.modified || {}, [field, related], this);
         return this;
       });
       ref$.remove = _.lock(function(){
+        var ref$;
         if ('is_a' !== relationship.type) {
           if (relationship.back) {
-            if ('has_a' === relationship.type) {
-              this._relationships[field][relationship.back].remove.call(this._relationships[field], this);
-            } else {
-              this._relationships[field][relationship.back](null);
+            if ((ref$ = this._relationships[field]) != null) {
+              ref$[relationship.back].remove.call(this._relationships[field], this);
             }
           }
         }
@@ -352,7 +331,9 @@ JEFRi.Runtime = function(contextUri, options, protos){
     }
     resolve_ids = function(related){
       var id;
-      if (definition.key === relationship.property) {
+      if (related === void 8) {
+        this[relationship.property](void 8);
+      } else if (definition.key === relationship.property) {
         related[relationship.to.property](this[relationship.property]());
       } else if (related._definition().key === relationship.to.property) {
         this[relationship.property](related[relationship.to.property]());
@@ -381,17 +362,18 @@ JEFRi.Runtime = function(contextUri, options, protos){
     }
     definition.Constructor.prototype[method] = fn;
   };
-  this.load = function(contextUri){
+  this.load = function(contextUri, prototypes){
     return _.request(contextUri).then(function(data){
       data = data || "{}";
       data = _.isString(data) ? JSON.parse(data) : data;
-      _set_context(data, protos);
+      _set_context(data, prototypes);
     });
   };
   if (options && options.debug) {
     _set_context(options.debug.context, protos);
-  } else if (this.settings.contextUri != null) {
-    this.load(this.settings.contextUri);
+  }
+  if (contextUri) {
+    this.load(contextUri, protos);
   }
   return this;
 };
@@ -406,8 +388,6 @@ pushResult = function(entity){
 import$(JEFRi.Runtime.prototype, JEFRi.Runtime.prototype);
 ref$ = JEFRi.Runtime.prototype;
 ref$.clear = function(){
-  this._modified = {};
-  this._new = [];
   this._instances = {};
   return this;
 };
@@ -417,8 +397,9 @@ ref$.definition = function(name){
 };
 ref$.extend = function(type, extend){
   if (this._context.entities[type]) {
-    return import$(this._context.entities[type].Constructor.prototype, extend.prototype);
+    import$(this._context.entities[type].Constructor.prototype, extend.prototype);
   }
+  return this;
 };
 ref$.intern = function(entity, updateOnIntern){
   var entities, res$, i$, len$, ent, ret;
@@ -462,7 +443,6 @@ ref$.build = function(type, obj){
     }
   }
   this._instances[type][r.id()] = r;
-  this._new.push(r);
   return r;
 };
 ref$.expand = function(transaction, action){
@@ -479,18 +459,8 @@ ref$.expand = function(transaction, action){
   return transaction.entities = built;
 };
 ref$.destroy = function(entity){
-  var t, ref$;
-  this._modified.remove(entity);
   delete this._instances[entity._type()][entity.id()];
-  t = _(this._new).indexBy(JEFRi.EntityComparator(entity));
-  if (t > -1) {
-    (splice$.apply(this._new, [t, t + 1 - t].concat(ref$ = [])), ref$);
-  }
   return this;
-};
-ref$.transaction = function(spec){
-  spec = spec || [];
-  return new JEFRi.Transaction(spec, this._store);
 };
 ref$.find = function(spec){
   var to_return, r, results, key, result;
@@ -502,7 +472,7 @@ ref$.find = function(spec){
   to_return = [];
   r = this.definition(spec._type);
   results = this._instances[spec._type];
-  if (spec.hasOwnProperty(r.key)) {
+  if (spec.hasOwnProperty(r.key || spec.hasOwnProperty('_id'))) {
     if (results[spec[r.key]]) {
       to_return.push(results[spec[r.key]]);
     }
@@ -513,83 +483,6 @@ ref$.find = function(spec){
     }
   }
   return to_return;
-};
-ref$.get = function(spec){
-  var results, transaction, deferred, i$, len$, _spec, _type, def, id;
-  spec = _.isArray(spec)
-    ? spec
-    : [spec];
-  results = {};
-  transaction = this.transaction();
-  deferred = _.Deferred();
-  results.push = pushResult;
-  for (i$ = 0, len$ = spec.length; i$ < len$; ++i$) {
-    _spec = spec[i$];
-    _type = _spec._type instanceof Function
-      ? _spec._type()
-      : _spec._type;
-    def = this.definition(_type);
-    id = _spec[def.key];
-    if (id != null && this._instances[_type][id]) {
-      results.push(this._instances[_type][id]);
-    } else {
-      transaction.add(_spec);
-    }
-  }
-  if (transaction.entities.length > 0) {
-    transaction.get().done(function(transaction){
-      var i$, ref$, len$, entity;
-      for (i$ = 0, len$ = (ref$ = transaction.entities).length; i$ < len$; ++i$) {
-        entity = ref$[i$];
-        results.push(entity);
-      }
-      return deferred.resolve(results, transaction.attributes);
-    });
-  } else {
-    deferred.resolve(results, {});
-  }
-  return deferred.promise();
-};
-ref$.get_first = function(spec){
-  var d;
-  spec = spec instanceof Array ? spec[0] : spec;
-  d = _.Deferred();
-  this.get(spec).then(function(data, meta){
-    var _type;
-    _type = spec._type instanceof Function
-      ? spec._type()
-      : spec._type;
-    return d.resolve(data[_type].pop(), meta);
-  });
-  return d.promise();
-};
-ref$.save_new = function(store){
-  var transaction;
-  transaction = this.transaction();
-  trigger$.call(this.saving = this.saving || {}, {}, this);
-  transaction.add(this._new);
-  return this._save(transaction, store);
-};
-ref$.save_all = function(store){
-  var transaction, t, ref$, modified, k, entity, i$, len$, neu;
-  transaction = this.transaction();
-  trigger$.call(this.saving = this.saving || {}, {}, this);
-  for (t in ref$ = this._modified) {
-    modified = ref$[t];
-    for (k in modified) {
-      entity = modified[k];
-      entity._persist(transaction);
-    }
-  }
-  for (i$ = 0, len$ = (ref$ = this._new).length; i$ < len$; ++i$) {
-    neu = ref$[i$];
-    this.persist(neu);
-  }
-  return this._save(transaction, store);
-};
-ref$._save = function(transaction, store){
-  store = store || this._store;
-  return store.execute('persist', transaction).then(_.bind(this.expand, this));
 };
 function curry$(f, args){
   return f.length > 1 ? function(){
@@ -611,16 +504,16 @@ var ref$, prepareHandler$ = function (o){
       o.__event_handler = o.__event_handler || [];
       o.__event_advisor = o.__event_advisor || [];
     }, trigger$ = function (e, p){
-      var i$, ref$, len$, advice, _e, ex, callback;
+      var advisors, _e, ex, handlers;
       prepareHandler$(this);
       this.last = {
         event: e,
         exception: null
       };
-      for (i$ = 0, len$ = (ref$ = this.__event_advisor).length; i$ < len$; ++i$) {
-        advice = ref$[i$];
+      advisors = this.__event_advisor.length;
+      while ((advisors -= 1) >= 0) {
         try {
-          _e = advice.call(p, e);
+          _e = this.__event_advisor[advisors].call(p, e);
           if (_e) {
             this.last.event = e = _e;
           }
@@ -630,16 +523,18 @@ var ref$, prepareHandler$ = function (o){
           return false;
         }
       }
-      for (i$ = 0, len$ = (ref$ = this.__event_handler).length; i$ < len$; ++i$) {
-        callback = ref$[i$];
-        callback.call(p, e);
+      handlers = this.__event_handler.length;
+      while ((handlers -= 1) >= 0) {
+        this.__event_handler[handlers].call(p, e);
       }
       return true;
     };
 JEFRi.Transaction = function(spec, store){
   return this.attributes = {}, this.store = store, this.entities = spec instanceof Array
     ? spec
-    : [spec], this;
+    : spec
+      ? [spec]
+      : [], this;
 };
 ref$ = JEFRi.Transaction.prototype;
 ref$.encode = function(){
@@ -707,16 +602,16 @@ var ObjectStore, prepareHandler$ = function (o){
       o.__event_handler = o.__event_handler || [];
       o.__event_advisor = o.__event_advisor || [];
     }, trigger$ = function (e, p){
-      var i$, ref$, len$, advice, _e, ex, callback;
+      var advisors, _e, ex, handlers;
       prepareHandler$(this);
       this.last = {
         event: e,
         exception: null
       };
-      for (i$ = 0, len$ = (ref$ = this.__event_advisor).length; i$ < len$; ++i$) {
-        advice = ref$[i$];
+      advisors = this.__event_advisor.length;
+      while ((advisors -= 1) >= 0) {
         try {
-          _e = advice.call(p, e);
+          _e = this.__event_advisor[advisors].call(p, e);
           if (_e) {
             this.last.event = e = _e;
           }
@@ -726,39 +621,48 @@ var ObjectStore, prepareHandler$ = function (o){
           return false;
         }
       }
-      for (i$ = 0, len$ = (ref$ = this.__event_handler).length; i$ < len$; ++i$) {
-        callback = ref$[i$];
-        callback.call(p, e);
+      handlers = this.__event_handler.length;
+      while ((handlers -= 1) >= 0) {
+        this.__event_handler[handlers].call(p, e);
       }
       return true;
     }, slice$ = [].slice;
 ObjectStore = (function(){
   ObjectStore.displayName = 'ObjectStore';
-  var _sieve, prototype = ObjectStore.prototype, constructor = ObjectStore;
+  var _sieve, _transactify, prototype = ObjectStore.prototype, constructor = ObjectStore;
   function ObjectStore(options){
     this.settings = {
       version: "1.0",
       size: Math.pow(2, 16)
     };
     _.extend(this.settings, options);
+    this._store || (this._store = {});
     if (!this.settings.runtime) {
       throw {
         message: "LocalStore instantiated without runtime to reference."
       };
     }
   }
-  prototype.execute = function(type, transaction){
-    var transactionData;
-    transactionData = transaction.encode();
-    trigger$.call(this.sending = this.sending || {}, transactionData, this);
-    if (type === "persist") {
-      this.persist(transactionData);
-    } else if (type === "get") {
-      this.get(transactionData);
-    }
-    return _.Deferred().resolve(transactionData);
+  prototype._set = function(key, value){
+    this._store[key] = value;
   };
-  prototype.persist = function(transaction){
+  prototype._get = function(key){
+    return this._store[key] || '{}';
+  };
+  prototype.execute = function(type, transaction){
+    transaction = _transactify(transaction);
+    trigger$.call(this.sending = this.sending || {}, transaction, this);
+    this["do_" + type](transaction);
+    this.settings.runtime.expand(transaction);
+    return _.Deferred().resolve(transaction);
+  };
+  prototype.get = function(transaction){
+    return this.execute('get', transaction);
+  };
+  prototype.persist = function(transction){
+    return this.execute('persist', transction);
+  };
+  prototype.do_persist = function(transaction){
     var entity;
     return transaction.entities = (function(){
       var i$, ref$, len$, results$ = [];
@@ -775,14 +679,7 @@ ObjectStore = (function(){
     this._type(entity._type, entity._id);
     return entity;
   };
-  prototype._set = function(key, value){
-    (this._store || (this._store = {}))[key] = value;
-  };
-  prototype._get = function(key){
-    var ref$;
-    return ((ref$ = this._store) != null ? ref$[key] : void 8) || '{}';
-  };
-  prototype.get = function(transaction){
+  prototype.do_get = function(transaction){
     var ents, res$, i$, ref$, len$, entity, this$ = this;
     res$ = [];
     for (i$ = 0, len$ = (ref$ = transaction.entities).length; i$ < len$; ++i$) {
@@ -791,12 +688,11 @@ ObjectStore = (function(){
     }
     ents = res$;
     ents = _.flatten(ents);
-    transaction.entities = _.uniq(_.filter(ents, function(it){
+    transaction.entities = _.uniq(_(ents).filter(function(it){
       return it;
     }), false, function(it){
       return it._type + '.' + it[this$.settings.runtime.definition(it._type).key];
     });
-    this.settings.runtime.expand(transaction, "gotten");
     return transaction;
   };
   prototype._find = function(entity){
@@ -834,8 +730,6 @@ ObjectStore = (function(){
           related = fn$();
           if (related.length) {
             give.push(related);
-          } else {
-            take.push(i);
           }
         }
         take.reverse();
@@ -959,6 +853,12 @@ ObjectStore = (function(){
       };
     }
   };
+  _transactify = function(transaction){
+    if (!_(transaction.encode).isFunction()) {
+      transaction = new JEFRi.Transaction(transaction);
+    }
+    return transaction.encode();
+  };
   return ObjectStore;
 }());
 JEFRi.ObjectStore = ObjectStore;
@@ -1000,7 +900,7 @@ PostStore = (function(){
   PostStore.displayName = 'PostStore';
   var prototype = PostStore.prototype, constructor = PostStore;
   function PostStore(options){
-    var _send, this$ = this;
+    this._send = bind$(this, '_send', prototype);
     this.settings = {
       version: "1.0",
       size: Math.pow(2, 16)
@@ -1011,36 +911,44 @@ PostStore = (function(){
         message: "LocalStore instantiated without runtime to reference."
       };
     }
-    _send = function(url, transaction, pre, post){
-      _.request.post(url, {
-        data: transaction.toString(),
-        dataType: "application/json"
-      }).done(function(data){
-        this.settings.runtime.expand(data, true);
-      });
-    };
     if (this.settings.remote) {
       this.get = function(transaction){
         var url;
         url = this.settings.remote + "get";
-        return _send(url, transaction, 'getting', 'gotten');
+        return this._send(url, transaction, 'getting', 'gotten');
       };
       this.persist = function(transaction){
         var url;
         url = this.settings.remote + "persist";
-        return _send(url, transaction, 'persisting', 'persisted');
+        return this._send(url, transaction, 'persisting', 'persisted');
       };
     } else {
       this.get = this.persist = function(transaction){
         transaction.entities = [];
-        return _.Deferred().resolve().promise();
+        return _.Deferred().resolve(transaction).promise();
       };
     }
   }
+  prototype._send = function(url, transaction, pre, post){
+    var this$ = this;
+    return _.request.post(url, {
+      data: transaction.toString(),
+      dataType: "application/json"
+    }).done(function(data){
+      if (_(data).isString()) {
+        data = JSON.parse(data);
+      }
+      this$.settings.runtime.expand(data, true);
+      return data;
+    });
+  };
   return PostStore;
 }());
 PostStore.prototype.execute = function(type, transaction){
   return this[type](transaction);
 };
 JEFRi.PostStore = PostStore;
+function bind$(obj, key, target){
+  return function(){ return (target || obj)[key].apply(obj, arguments) };
+}
 module.exports = JEFRi;
