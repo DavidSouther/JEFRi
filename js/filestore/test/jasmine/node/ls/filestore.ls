@@ -29,9 +29,10 @@ describe "FileStore", !(a)->
 	it "saves", !->
 		runs !->
 			filestore = new jefri.FileStore runtime: runtime
-			runtime.save_new filestore .then !(transaction)->
+			transaction = new jefri.Transaction [user, au]
+			filestore.persist transaction .then !(transaction)->
 				expect transaction .not .toBeNull!
-				# expect transction.entities.length .toBe 2
+				expect transaction.entities.length .toBe 2
         		# nkeys = _.keys(transaction.entities[0]);
        			# expect nkeys.sort! .to ['_id', '_fields', '_relationships', '_modified', '_new', '_runtime', 'modified', 'persisted'].sort(), "Entity has expected keys.");
 				done := true
