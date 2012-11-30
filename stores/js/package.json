@@ -1,0 +1,35 @@
+{
+  "name": "jefri-stores",
+  "title": "JEFRi Persistence Stores",
+  "homepage": "http://www.jefri.org",
+  "version": "0.1.0",
+  "author": {
+    "name": "David Souther",
+    "email": "<davidsouther@gmail.com>"
+  },
+  "description": "A collection of persistence stores for a JEFRi runtime.",
+  "files": [
+    "lib/", "package.json"
+  ],
+  "main": "./lib/jefri-stores",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidSouther/JEFRi.git"
+  },
+  "keywords": [
+    "ef",
+    "entity",
+    "entity framework"
+  ],
+  "dependencies": {
+    "superscore": ">=0.3.0"
+  },
+  "devDependencies": {
+    "grunt": "0.3.x",
+    "grunt-contrib": "0.2.x",
+    "grunt-livescript": "0.4.x",
+    "grunt-jasmine-node": "0.0.2",
+    "jasmine-node": "1.0.26"
+  },
+  "licenses": [{"type": "MIT"}]
+}
