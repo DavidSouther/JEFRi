@@ -43,7 +43,6 @@
 				# If an entity already exists, does JEFRi update or replace?
 				updateOnIntern: true
 				# The constructor for the default store.
-				store: JEFRi.LocalStore
 		settings <<<< options
 
 		@ <<<
@@ -60,9 +59,6 @@
 
 			# In-memory store of JEFRi entities.
 			_instances: {}
-
-		# Build the default store
-		@_store = new @settings.store {runtime: @}
 
 		# #### Private helper functions
 		# These handle most of the heavy lifting of building Entity classes.
