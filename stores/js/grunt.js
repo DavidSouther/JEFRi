@@ -17,7 +17,7 @@ module.exports = function(grunt) {
 		livescript: {
 			app: {
 				files: {
-					"dist/compiled/Stores.js": ['src/ObjectStore.ls', 'src/LocalStore.ls', 'src/PostStore.ls', 'src/FileStore.ls']
+					"dist/compiled/Stores.js": ['src/Stores.ls', 'src/ObjectStore.ls', 'src/LocalStore.ls', 'src/PostStore.ls', 'src/FileStore.ls']
 				},
 				options: {
 					bare: true

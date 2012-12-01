@@ -215,4 +215,4 @@
 			return transaction.encode!
 
 
-	JEFRi.ObjectStore = ObjectStore
+	JEFRi.store 'ObjectStore', -> ObjectStore

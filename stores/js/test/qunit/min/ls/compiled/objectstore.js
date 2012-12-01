@@ -6,16 +6,14 @@ _jQuery(document).ready(function(){
   runtime = null;
   module("Object Storage", {
     setup: function(){
-      runtime = new JEFRi.Runtime("/test/qunit/min/context/user.json", {
-        store: JEFRi.ObjectStore
-      });
+      runtime = new JEFRi.Runtime("/test/qunit/min/context/user.json");
     }
   });
   asyncTest("ObjectStore minimal save", function(){
     expect(3);
     runtime.ready.done(function(){
       var store, transaction, user, authinfo;
-      store = new JEFRi.ObjectStore({
+      store = new JEFRi.Stores.ObjectStore({
         runtime: runtime
       });
       transaction = new JEFRi.Transaction();
@@ -64,7 +62,7 @@ _jQuery(document).ready(function(){
     expect(3);
     runtime.ready.done(function(){
       var store, transaction, i$, ref$, len$, u, user, authinfo;
-      store = new JEFRi.ObjectStore({
+      store = new JEFRi.Stores.ObjectStore({
         runtime: runtime
       });
       transaction = new JEFRi.Transaction();

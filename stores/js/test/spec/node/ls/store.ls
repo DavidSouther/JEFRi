@@ -6,7 +6,7 @@ describe "JEFRi ObjectStore", !(a)->
 		done = false
 		runs !->
 			runtime = new jefri.Runtime "http://localhost:8000/test/qunit/min/context/jefri.json"
-			s = new jefri.ObjectStore {runtime: runtime}
+			s = new jefri.Stores.ObjectStore {runtime: runtime}
 			runtime.ready.then !->
 				transaction = new jefri.Transaction!
 

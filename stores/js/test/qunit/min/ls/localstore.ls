@@ -17,7 +17,7 @@ _jQuery document .ready !->
 	asyncTest "LocalStore minimal save", !->
 		expect 3
 		runtime.ready.done !->
-			store = new JEFRi.LocalStore {runtime: runtime}
+			store = new JEFRi.Stores.LocalStore {runtime: runtime}
 			transaction = new JEFRi.Transaction!
 
 			user = runtime.build "User", {name: "southerd", address: "davidsouther@gmail.com"}
@@ -44,7 +44,7 @@ _jQuery document .ready !->
 	asyncTest "LocalStore", !->
 		expect 3
 		runtime.ready.done !->
-			store = new JEFRi.LocalStore {runtime: runtime}
+			store = new JEFRi.Stores.LocalStore {runtime: runtime}
 			transaction = new JEFRi.Transaction!
 
 			for u in users

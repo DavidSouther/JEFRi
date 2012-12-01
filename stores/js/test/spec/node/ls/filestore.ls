@@ -27,7 +27,7 @@ describe "FileStore", !(a)->
 
 	it "saves", !->
 		runs !->
-			filestore = new jefri.FileStore runtime: runtime
+			filestore = new jefri.Stores.FileStore runtime: runtime
 			transaction = new jefri.Transaction [user, au]
 			filestore.persist transaction .then !(transaction)->
 				expect transaction .not .toBeNull!

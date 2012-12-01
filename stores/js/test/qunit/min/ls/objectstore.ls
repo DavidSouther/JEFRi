@@ -8,12 +8,12 @@ _jQuery document .ready !->
 		"Object Storage"
 		setup: !->
 			# Global in testing environment.
-			runtime := new JEFRi.Runtime "/test/qunit/min/context/user.json", store: JEFRi.ObjectStore
+			runtime := new JEFRi.Runtime "/test/qunit/min/context/user.json"
 
 	asyncTest "ObjectStore minimal save", !->
 		expect 3
 		runtime.ready.done !->
-			store = new JEFRi.ObjectStore {runtime: runtime}
+			store = new JEFRi.Stores.ObjectStore {runtime: runtime}
 			transaction = new JEFRi.Transaction!
 
 			user = runtime.build "User", {name: "southerd", address: "davidsouther@gmail.com"}
@@ -40,7 +40,7 @@ _jQuery document .ready !->
 	asyncTest "ObjectStore", !->
 		expect 3
 		runtime.ready.done !->
-			store = new JEFRi.ObjectStore {runtime: runtime}
+			store = new JEFRi.Stores.ObjectStore {runtime: runtime}
 			transaction = new JEFRi.Transaction!
 
 			for u in users

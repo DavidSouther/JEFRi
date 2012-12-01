@@ -5,7 +5,7 @@
 #     http://jefri.org
 
 
-	class LocalStore extends JEFRi.ObjectStore
+	class LocalStore extends JEFRi.Stores.ObjectStore
 		(options) ->
 			super options
 
@@ -18,4 +18,4 @@
 		_key: (entity, id)->
 			super entity, id .replace '/', '.'
 
-	JEFRi.LocalStore = LocalStore
+	JEFRi.store \LocalStore, -> LocalStore

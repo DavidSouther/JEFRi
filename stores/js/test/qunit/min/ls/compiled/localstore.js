@@ -17,7 +17,7 @@ _jQuery(document).ready(function(){
     expect(3);
     runtime.ready.done(function(){
       var store, transaction, user, authinfo;
-      store = new JEFRi.LocalStore({
+      store = new JEFRi.Stores.LocalStore({
         runtime: runtime
       });
       transaction = new JEFRi.Transaction();
@@ -66,7 +66,7 @@ _jQuery(document).ready(function(){
     expect(3);
     runtime.ready.done(function(){
       var store, transaction, i$, ref$, len$, u, user, authinfo;
-      store = new JEFRi.LocalStore({
+      store = new JEFRi.Stores.LocalStore({
         runtime: runtime
       });
       transaction = new JEFRi.Transaction();
