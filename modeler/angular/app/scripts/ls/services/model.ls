@@ -77,7 +77,7 @@ model = (JEFRi) ->
 			t.add _type: \Context
 			storeOptions <<<
 				runtime: JEFRi
-			s = new window.JEFRi[storeType](storeOptions)
+			s = new window.JEFRi.Stores[storeType](storeOptions)
 			s.execute 'get', t
 
 		Save: (store, name, storeOptions)->
@@ -92,7 +92,7 @@ model = (JEFRi) ->
 					t.add relationship
 			storeOptions <<<
 				runtime: JEFRi
-			s = new window.JEFRi[store](storeOptions)
+			s = new window.JEFRi.Stores[store](storeOptions)
 			s.execute 'persist', t
 
 		Load: (store, name, storeOptions)->
@@ -101,7 +101,7 @@ model = (JEFRi) ->
 			t.add id: name, _type: \Context, entities: { properties: {}, relationships: {} }
 			storeOptions <<<
 				runtime: JEFRi
-			s = new window.JEFRi[store](storeOptions)
+			s = new window.JEFRi.Stores[store](storeOptions)
 			s.execute 'get', t  .then !(results)~>
 				@context = results.entities[0]
 				@context.entities!
