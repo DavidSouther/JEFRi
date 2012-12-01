@@ -6,10 +6,10 @@
  * Licensed under the MIT license.
  */
 
-require! { express, 'jefri-filestore' }
+require! { express, 'jefri-stores' }
 
 runtime = new JEFRi.Runtime ""
-store = new jefriFilestore runtime: runtime
+store = new JEFRi.FileStore runtime: runtime
 
 app = express!
 

@@ -33,7 +33,7 @@
     "underscore": "~1.4.2",
     "express": "3.x",
     "jefri": ">= 1",
-    "jefri-filestore": "*"
+    "jefri-stores": "*"
   },
   "devDependencies": {
     "grunt-livescript": "*",
