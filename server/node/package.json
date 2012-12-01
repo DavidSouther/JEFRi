@@ -26,7 +26,8 @@
     "node": "*"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "start": "node lib/jefri-server.js"
   },
   "dependencies": {
     "jquery": ">= 1",
