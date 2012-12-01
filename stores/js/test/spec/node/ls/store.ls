@@ -1,4 +1,4 @@
-require! { jefri: "../../../../lib/jefri.js" }
+require! { jefri, stores: "../../../../lib/jefri-stores" }
 
 describe "JEFRi ObjectStore", !(a)->
 

@@ -17,8 +17,6 @@ module.exports = function(grunt) {
 		livescript: {
 			app: {
 				files: {
-					"dist/compiled/Runtime.js": 'src/Runtime.ls',
-					"dist/compiled/Transaction.js": 'src/Transaction.ls',
 					"dist/compiled/Stores.js": ['src/ObjectStore.ls', 'src/LocalStore.ls', 'src/PostStore.ls']
 				},
 				options: {
@@ -46,11 +44,11 @@ module.exports = function(grunt) {
 		},
 		concat: {
 			node: {
-				src: ['<banner:meta.banner>', 'src/node/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/node/post.js'],
+				src: ['<banner:meta.banner>', 'src/node/pre.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/node/post.js'],
 				dest: 'lib/<%= pkg.name %>.js'
 			},
 			min: {
-				src: ['<banner:meta.banner>', 'src/min/pre.js', 'dist/compiled/Runtime.js', 'dist/compiled/Transaction.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/min/post.js'],
+				src: ['<banner:meta.banner>', 'src/min/pre.js', 'src/PostStore.js', 'dist/compiled/Stores.js', 'src/min/post.js'],
 				dest: 'lib/<%= pkg.name %>.min.js'
 			},
 			qunitMin: {
