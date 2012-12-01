@@ -1,5 +1,4 @@
-FileStore = require "../../../../lib/jefri-filestore"
-require! { fs, jefri }
+require! { fs, jefri, stores: "../../../../lib/jefri-stores" }
 
 describe "FileStore", !(a)->
 	user = au = runtime = null
