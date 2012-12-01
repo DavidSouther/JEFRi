@@ -9,7 +9,7 @@
 require! { express, 'jefri-stores' }
 
 runtime = new JEFRi.Runtime ""
-store = new JEFRi.FileStore runtime: runtime
+store = new JEFRi.Stores.FileStore runtime: runtime
 
 app = express!
 
