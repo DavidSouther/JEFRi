@@ -1,6 +1,7 @@
 app/views/templates.html
 build/
 lib/
+!app/*/lib
 .jefri/
 test/e2e.js
 test/unit.js

@@ -1,0 +1,1 @@
+../../../../../node_modules/jefri-stores/lib/jefri-stores.min.js
