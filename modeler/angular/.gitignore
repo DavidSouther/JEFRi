@@ -1,5 +1,4 @@
 app/views/templates.html
-build/
 !app/*/lib
 .jefri/
 test/e2e.js
