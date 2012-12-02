@@ -53,4 +53,4 @@
 		execute: (type, transaction)->
 			@[type] transaction
 
-	JEFRi.PostStore = PostStore
+	JEFRi.store 'PostStore', -> PostStore
