@@ -98,7 +98,7 @@
 
 			# Start immediately with the key to pear down results quickly. Rule 1.
 			if def.key of spec
-				results = [results[spec[def.key]]]
+				results = _(results).filter(-> it[def.key] is spec[def.key])
 
 			# Filter based on property specifications
 			for name, property of def.properties
