@@ -98,7 +98,7 @@ model = (JEFRi) ->
 		Load: (store, name, storeOptions)->
 			@context.name name
 			t = new window.JEFRi.Transaction!
-			t.add id: name, _type: \Context, entities: { properties: {}, relationships: {} }
+			t.add context_id: name, _type: \Context, entities: { properties: {}, relationships: {} }
 			storeOptions <<<
 				runtime: JEFRi
 			s = new window.JEFRi.Stores[store](storeOptions)
