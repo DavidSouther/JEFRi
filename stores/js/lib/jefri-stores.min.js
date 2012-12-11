@@ -1,4 +1,4 @@
-// JEFRi Persistence Stores - v0.1.0 - 2012-12-02
+// JEFRi Persistence Stores - v1.0.0 - 2012-12-02
 // http://www.jefri.org
 // Copyright (c) 2012 David Souther; Licensed MIT
 
@@ -123,7 +123,9 @@ ObjectStore = (function(){
       return;
     }
     if (def.key in spec) {
-      results = [results[spec[def.key]]];
+      results = _(results).filter(function(it){
+        return it[def.key] === spec[def.key];
+      });
     }
     for (name in ref$ = def.properties) {
       property = ref$[name];

@@ -140,7 +140,7 @@
         this.context.name(name);
         t = new window.JEFRi.Transaction();
         t.add({
-          id: name,
+          context_id: name,
           _type: 'Context',
           entities: {
             properties: {},
