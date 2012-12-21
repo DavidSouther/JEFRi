@@ -36,10 +36,13 @@ app.post '/persist', !(req, res)->
 	store.persist transaction .then !(gotten)->
 		res.jsonp gotten
 
+app{}jefri.runtime = runtime
+
 jefri_server = 
 	serve: !->
 		console.log \Listening
 		app.listen 3000
+	runtime: runtime
 
 if require.main is module
 	jefri_server.serve!
